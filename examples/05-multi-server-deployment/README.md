@@ -114,7 +114,7 @@ The workflow executes in these stages:
   run: |
     echo "Building application package..."
     mkdir -p ./deploy_package
-    echo "Application Version: ${app.version}" > ./deploy_package/version.txt
+    echo "Application Version: ${config.app.version}" > ./deploy_package/version.txt
 ```
 
 Creates a local deployment package with version information.
@@ -125,25 +125,25 @@ Creates a local deployment package with version information.
     - name: "Deploy to Web Server 1"
       run: |
         python3 ../../remotely.py \
-          ${servers.web1.username}@${servers.web1.ip} \
-          ${servers.web1.password} \
-          "mkdir -p ${app.deploy_path} && ..." \
+          ${config.servers.web1.username}@${config.servers.web1.ip} \
+          ${config.servers.web1.password} \
+          "mkdir -p ${config.app.deploy_path} && ..." \
           ./logs/deploy_web1.log
     
     - name: "Deploy to Web Server 2"
       run: |
         python3 ../../remotely.py \
-          ${servers.web2.username}@${servers.web2.ip} \
-          ${servers.web2.password} \
-          "mkdir -p ${app.deploy_path} && ..." \
+          ${config.servers.web2.username}@${config.servers.web2.ip} \
+          ${config.servers.web2.password} \
+          "mkdir -p ${config.app.deploy_path} && ..." \
           ./logs/deploy_web2.log
     
     - name: "Deploy to Web Server 3"
       run: |
         python3 ../../remotely.py \
-          ${servers.web3.username}@${servers.web3.ip} \
-          ${servers.web3.password} \
-          "mkdir -p ${app.deploy_path} && ..." \
+          ${config.servers.web3.username}@${config.servers.web3.ip} \
+          ${config.servers.web3.password} \
+          "mkdir -p ${config.app.deploy_path} && ..." \
           ./logs/deploy_web3.log
 ```
 
@@ -173,9 +173,9 @@ Displays all deployment logs to verify success.
     - name: "Health Check - Web Server 1"
       run: |
         python3 ../../remotely.py \
-          ${servers.web1.username}@${servers.web1.ip} \
-          ${servers.web1.password} \
-          "ps aux | grep nginx && curl -f http://localhost:${app.health_port}/health" \
+          ${config.servers.web1.username}@${config.servers.web1.ip} \
+          ${config.servers.web1.password} \
+          "ps aux | grep nginx && curl -f http://localhost:${config.app.health_port}/health" \
           ./logs/health_web1.log
     
     # Similar blocks for web2 and web3...
@@ -215,13 +215,13 @@ Time Saved: 57 seconds (54% faster!)
 - parallel:
     - run: |
         # Copy files to server
-        scp -r ./build/* ${servers.web1.username}@${servers.web1.ip}:${app.deploy_path}/
+        scp -r ./build/* ${config.servers.web1.username}@${config.servers.web1.ip}:${config.app.deploy_path}/
         
         # Restart service via SSH
         python3 ../../remotely.py \
-          ${servers.web1.username}@${servers.web1.ip} \
-          ${servers.web1.password} \
-          "cd ${app.deploy_path} && sudo systemctl restart nginx" \
+          ${config.servers.web1.username}@${config.servers.web1.ip} \
+          ${config.servers.web1.password} \
+          "cd ${config.app.deploy_path} && sudo systemctl restart nginx" \
           ./logs/restart_web1.log
 ```
 
@@ -230,9 +230,9 @@ Time Saved: 57 seconds (54% faster!)
 - name: "Run Database Migration"
   run: |
     python3 ../../remotely.py \
-      ${servers.web1.username}@${servers.web1.ip} \
-      ${servers.web1.password} \
-      "cd ${app.deploy_path} && ./migrate.sh" \
+      ${config.servers.web1.username}@${config.servers.web1.ip} \
+      ${config.servers.web1.password} \
+      "cd ${config.app.deploy_path} && ./migrate.sh" \
       ./logs/migration.log
 ```
 
@@ -291,14 +291,14 @@ logs/
 - name: "Backup Current Version"
   run: |
     python3 ../../remotely.py ... \
-      "cp -r ${app.deploy_path} ${app.deploy_path}.backup" \
+      "cp -r ${config.app.deploy_path} ${config.app.deploy_path}.backup" \
       ./logs/backup.log
 
 # If deployment fails, rollback:
 - name: "Rollback"
   run: |
     python3 ../../remotely.py ... \
-      "rm -rf ${app.deploy_path} && mv ${app.deploy_path}.backup ${app.deploy_path}" \
+      "rm -rf ${config.app.deploy_path} && mv ${config.app.deploy_path}.backup ${config.app.deploy_path}" \
       ./logs/rollback.log
 ```
 

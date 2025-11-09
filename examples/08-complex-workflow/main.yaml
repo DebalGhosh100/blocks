@@ -246,7 +246,7 @@ blocks:
           sleep 1
           
           # Note: In real scenario, use remotely.py
-          # python remotely.py ${servers.prod1.user}@${servers.prod1.ip} ...
+          # python3 remotely.py ${servers.prod1.user}@${servers.prod1.ip} ...
           
           echo "✓ Deployment to Server 1 complete" | tee -a ./logs/deploy/server1.log
 
