@@ -31,12 +31,22 @@ This example demonstrates advanced shell scripting techniques within Blocks work
 ## How to Run
 
 ```bash
-# Navigate to this example
-cd blocks/examples/07-conditional-logic
+# Clone this specific example
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git
+cd blocks
+git sparse-checkout set examples/07-conditional-logic
+cd examples/07-conditional-logic
 
-# Run the workflow
-python3 ../../blocks_executor.py main.yaml
+# Run with one-command execution
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
+
+**What this does:**
+1. Clones only this example directory (sparse checkout)
+2. Downloads the Blocks framework automatically
+3. Installs dependencies (paramiko, pyyaml)
+4. Executes the conditional logic workflow
+5. Cleans up framework files after completion
 
 ## Expected Output
 

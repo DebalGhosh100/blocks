@@ -25,20 +25,23 @@ This example demonstrates how to use variable interpolation to reference configu
 
 ## How to Run
 
-### Option 1: From the Example Directory
 ```bash
-# Navigate to this example
-cd blocks/examples/03-variable-interpolation
+# Clone this specific example
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git
+cd blocks
+git sparse-checkout set examples/03-variable-interpolation
+cd examples/03-variable-interpolation
 
-# Run the workflow
-python3 ../../blocks_executor.py main.yaml
-```
-
-### Option 2: Run with One-Command Execution
-```bash
-# From this directory
+# Run with one-command execution
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
+
+**What this does:**
+1. Clones only this example directory (sparse checkout)
+2. Downloads the Blocks framework automatically
+3. Installs dependencies (paramiko, pyyaml)
+4. Executes the workflow
+5. Cleans up framework files after completion
 
 ## Expected Output
 The workflow will:

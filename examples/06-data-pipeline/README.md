@@ -32,12 +32,22 @@ This example demonstrates a multi-stage data processing pipeline with parallel p
 ## How to Run
 
 ```bash
-# Navigate to this example
-cd blocks/examples/06-data-pipeline
+# Clone this specific example
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git
+cd blocks
+git sparse-checkout set examples/06-data-pipeline
+cd examples/06-data-pipeline
 
-# Run the pipeline
-python3 ../../blocks_executor.py main.yaml
+# Run with one-command execution
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
+
+**What this does:**
+1. Clones only this example directory (sparse checkout)
+2. Downloads the Blocks framework automatically
+3. Installs dependencies (paramiko, pyyaml)
+4. Executes the data pipeline workflow
+5. Cleans up framework files after completion
 
 ## Pipeline Architecture
 

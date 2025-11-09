@@ -35,12 +35,22 @@ This example demonstrates a comprehensive, production-grade CI/CD workflow that 
 ## How to Run
 
 ```bash
-# Navigate to this example
-cd blocks/examples/08-complex-workflow
+# Clone this specific example
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git
+cd blocks
+git sparse-checkout set examples/08-complex-workflow
+cd examples/08-complex-workflow
 
-# Run the complete workflow
-python3 ../../blocks_executor.py main.yaml
+# Run with one-command execution
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
+
+**What this does:**
+1. Clones only this example directory (sparse checkout)
+2. Downloads the Blocks framework automatically
+3. Installs dependencies (paramiko, pyyaml)
+4. Executes the complete 6-phase CI/CD pipeline
+5. Cleans up framework files after completion
 
 ## Workflow Architecture
 

@@ -25,20 +25,23 @@ This example demonstrates how to execute multiple tasks simultaneously using the
 
 ## How to Run
 
-### Option 1: From the Example Directory
 ```bash
-# Navigate to this example
-cd blocks/examples/02-parallel-execution
+# Clone this specific example
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git
+cd blocks
+git sparse-checkout set examples/02-parallel-execution
+cd examples/02-parallel-execution
 
-# Run the workflow
-python3 ../../blocks_executor.py main.yaml
-```
-
-### Option 2: Run with One-Command Execution
-```bash
-# From this directory
+# Run with one-command execution
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
+
+**What this does:**
+1. Clones only this example directory (sparse checkout)
+2. Downloads the Blocks framework automatically
+3. Installs dependencies (paramiko, pyyaml)
+4. Executes the workflow
+5. Cleans up framework files after completion
 
 ## Expected Output
 The workflow will:

@@ -24,26 +24,23 @@ This example demonstrates the simplest use case of Blocks - executing commands s
 
 ## How to Run
 
-### Option 1: Clone Just This Example
 ```bash
-# Clone the entire repository
-git clone https://github.com/DebalGhosh100/blocks.git
+# Clone this specific example
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git
+cd blocks
+git sparse-checkout set examples/01-basic-sequential
+cd examples/01-basic-sequential
 
-# Navigate to this example
-cd blocks/examples/01-basic-sequential
-
-# Copy the framework files (if not already in parent directory)
-# You need: blocks_executor.py, remotely.py, utils/, requirements.txt
-
-# Run the workflow
-python3 ../../blocks_executor.py main.yaml
-```
-
-### Option 2: Run with One-Command Execution
-```bash
-# From the example directory with main.yaml and storage/ present
+# Run with one-command execution
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
+
+**What this does:**
+1. Clones only this example directory (sparse checkout)
+2. Downloads the Blocks framework automatically
+3. Installs dependencies (paramiko, pyyaml)
+4. Executes the workflow
+5. Cleans up framework files after completion
 
 ## Expected Output
 The workflow will:
