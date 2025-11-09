@@ -46,11 +46,8 @@ machines:
 ### Step 2: Run the Workflow
 
 ```bash
-# Clone this specific example
-git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git
-cd blocks
-git sparse-checkout set examples/04-ssh-remote-execution
-cd examples/04-ssh-remote-execution
+# Clone this specific example and navigate to it
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/04-ssh-remote-execution && cd examples/04-ssh-remote-execution
 
 # Edit storage/machines.yaml with your server details
 # Then run with one-command execution

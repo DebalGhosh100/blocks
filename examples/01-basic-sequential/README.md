@@ -25,11 +25,8 @@ This example demonstrates the simplest use case of Blocks - executing commands s
 ## How to Run
 
 ```bash
-# Clone this specific example
-git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git
-cd blocks
-git sparse-checkout set examples/01-basic-sequential
-cd examples/01-basic-sequential
+# Clone this specific example and navigate to it
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/01-basic-sequential && cd examples/01-basic-sequential
 
 # Run with one-command execution
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash

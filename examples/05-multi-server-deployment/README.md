@@ -61,11 +61,8 @@ app:
 ### Step 2: Run the Deployment
 
 ```bash
-# Clone this specific example
-git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git
-cd blocks
-git sparse-checkout set examples/05-multi-server-deployment
-cd examples/05-multi-server-deployment
+# Clone this specific example and navigate to it
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/05-multi-server-deployment && cd examples/05-multi-server-deployment
 
 # Edit storage/config.yaml with your server details
 # Then run with one-command execution

@@ -26,11 +26,8 @@ This example demonstrates how to execute multiple tasks simultaneously using the
 ## How to Run
 
 ```bash
-# Clone this specific example
-git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git
-cd blocks
-git sparse-checkout set examples/02-parallel-execution
-cd examples/02-parallel-execution
+# Clone this specific example and navigate to it
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/02-parallel-execution && cd examples/02-parallel-execution
 
 # Run with one-command execution
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash

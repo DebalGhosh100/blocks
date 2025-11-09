@@ -16,15 +16,15 @@ blocks:
   - parallel:
       - name: "Deploy to Web Server 1"
         description: "Deploy application to primary web server"
-        run: python3 ../../remotely.py ${servers.web1.username}@${servers.web1.ip} ${servers.web1.password} "mkdir -p ${app.deploy_path} && echo 'Deployment started on web1' && echo 'Version: ${app.version}' > ${app.deploy_path}/deployment.log && echo 'Deployed at: \$(date)' >> ${app.deploy_path}/deployment.log && echo 'Deployment complete on web1'" ./logs/deploy_web1.log
+        run: python remotely.py ${servers.web1.username}@${servers.web1.ip} ${servers.web1.password} "mkdir -p ${app.deploy_path} && echo 'Deployment started on web1' && echo 'Version: ${app.version}' > ${app.deploy_path}/deployment.log && echo 'Deployed at: \$(date)' >> ${app.deploy_path}/deployment.log && echo 'Deployment complete on web1'" ./logs/deploy_web1.log
 
       - name: "Deploy to Web Server 2"
         description: "Deploy application to secondary web server"
-        run: python3 ../../remotely.py ${servers.web2.username}@${servers.web2.ip} ${servers.web2.password} "mkdir -p ${app.deploy_path} && echo 'Deployment started on web2' && echo 'Version: ${app.version}' > ${app.deploy_path}/deployment.log && echo 'Deployed at: \$(date)' >> ${app.deploy_path}/deployment.log && echo 'Deployment complete on web2'" ./logs/deploy_web2.log
+        run: python remotely.py ${servers.web2.username}@${servers.web2.ip} ${servers.web2.password} "mkdir -p ${app.deploy_path} && echo 'Deployment started on web2' && echo 'Version: ${app.version}' > ${app.deploy_path}/deployment.log && echo 'Deployed at: \$(date)' >> ${app.deploy_path}/deployment.log && echo 'Deployment complete on web2'" ./logs/deploy_web2.log
 
       - name: "Deploy to Web Server 3"
         description: "Deploy application to tertiary web server"
-        run: python3 ../../remotely.py ${servers.web3.username}@${servers.web3.ip} ${servers.web3.password} "mkdir -p ${app.deploy_path} && echo 'Deployment started on web3' && echo 'Version: ${app.version}' > ${app.deploy_path}/deployment.log && echo 'Deployed at: \$(date)' >> ${app.deploy_path}/deployment.log && echo 'Deployment complete on web3'" ./logs/deploy_web3.log
+        run: python remotely.py ${servers.web3.username}@${servers.web3.ip} ${servers.web3.password} "mkdir -p ${app.deploy_path} && echo 'Deployment started on web3' && echo 'Version: ${app.version}' > ${app.deploy_path}/deployment.log && echo 'Deployed at: \$(date)' >> ${app.deploy_path}/deployment.log && echo 'Deployment complete on web3'" ./logs/deploy_web3.log
 
   - name: "Verify Deployments"
     description: "Check deployment logs from all servers"
@@ -47,15 +47,15 @@ blocks:
   - parallel:
       - name: "Health Check - Web Server 1"
         description: "Verify web server 1 is responding"
-        run: python3 ../../remotely.py ${servers.web1.username}@${servers.web1.ip} ${servers.web1.password} "echo 'Running health check on web1...' && ps aux | grep -i nginx || echo 'Nginx not found' && curl -f http://localhost:${app.health_port}/health || echo 'Health endpoint not responding'" ./logs/health_web1.log
+        run: python remotely.py ${servers.web1.username}@${servers.web1.ip} ${servers.web1.password} "echo 'Running health check on web1...' && ps aux | grep -i nginx || echo 'Nginx not found' && curl -f http://localhost:${app.health_port}/health || echo 'Health endpoint not responding'" ./logs/health_web1.log
 
       - name: "Health Check - Web Server 2"
         description: "Verify web server 2 is responding"
-        run: python3 ../../remotely.py ${servers.web2.username}@${servers.web2.ip} ${servers.web2.password} "echo 'Running health check on web2...' && ps aux | grep -i nginx || echo 'Nginx not found' && curl -f http://localhost:${app.health_port}/health || echo 'Health endpoint not responding'" ./logs/health_web2.log
+        run: python remotely.py ${servers.web2.username}@${servers.web2.ip} ${servers.web2.password} "echo 'Running health check on web2...' && ps aux | grep -i nginx || echo 'Nginx not found' && curl -f http://localhost:${app.health_port}/health || echo 'Health endpoint not responding'" ./logs/health_web2.log
 
       - name: "Health Check - Web Server 3"
         description: "Verify web server 3 is responding"
-        run: python3 ../../remotely.py ${servers.web3.username}@${servers.web3.ip} ${servers.web3.password} "echo 'Running health check on web3...' && ps aux | grep -i nginx || echo 'Nginx not found' && curl -f http://localhost:${app.health_port}/health || echo 'Health endpoint not responding'" ./logs/health_web3.log
+        run: python remotely.py ${servers.web3.username}@${servers.web3.ip} ${servers.web3.password} "echo 'Running health check on web3...' && ps aux | grep -i nginx || echo 'Nginx not found' && curl -f http://localhost:${app.health_port}/health || echo 'Health endpoint not responding'" ./logs/health_web3.log
 
   - name: "Health Check Summary"
     description: "Display health check results"

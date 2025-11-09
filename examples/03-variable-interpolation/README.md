@@ -26,11 +26,8 @@ This example demonstrates how to use variable interpolation to reference configu
 ## How to Run
 
 ```bash
-# Clone this specific example
-git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git
-cd blocks
-git sparse-checkout set examples/03-variable-interpolation
-cd examples/03-variable-interpolation
+# Clone this specific example and navigate to it
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/03-variable-interpolation && cd examples/03-variable-interpolation
 
 # Run with one-command execution
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash

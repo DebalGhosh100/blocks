@@ -1,13 +1,12 @@
-machines:
-  server1:
-    ip: "192.168.1.100"
-    username: "admin"
-    password: "admin123"
-    description: "Primary application server"
+server1:
+  ip: "192.168.1.100"
+  username: "admin"
+  password: "admin123"
+  description: "Primary application server"
 
-  # Additional servers can be configured here
-  # server2:
-  #   ip: "192.168.1.101"
-  #   username: "deploy"
-  #   password: "deploy456"
-  #   description: "Secondary application server"
+# Additional servers can be configured here
+# server2:
+#   ip: "192.168.1.101"
+#   username: "deploy"
+#   password: "deploy456"
+#   description: "Secondary application server"

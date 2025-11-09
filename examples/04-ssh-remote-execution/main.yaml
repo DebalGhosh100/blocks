@@ -5,15 +5,11 @@ blocks:
 
   - name: "Execute Remote Command - List Files"
     description: "List files in remote server home directory"
-    run: python3 ../../remotely.py ${machines.server1.username}@${machines.server1.ip} ${machines.server1.password} "ls -lah ~" ./logs/list_files.log
+    run: python remotely.py ${server1.username}@${server1.ip} ${server1.password} "ls -lah ~" ./logs/list_files.log
 
   - name: "Execute Remote Command - System Info"
     description: "Get system information from remote server"
-    run: python3 ../../remotely.py ${machines.server1.username}@${machines.server1.ip} ${machines.server1.password} "uname -a && df -h && free -h" ./logs/system_info.log
-
-  - name: "Execute Remote Command - Network Info"
-    description: "Get network configuration from remote server"
-    run: python3 ../../remotely.py ${machines.server1.username}@${machines.server1.ip} ${machines.server1.password} "ip addr show && netstat -tuln" ./logs/network_info.log
+    run: python remotely.py ${server1.username}@${server1.ip} ${server1.password} "uname -a && df -h && free -h" ./logs/system_info.log
 
   - name: "Display Log Results"
     description: "Show the logs collected from remote execution"
@@ -25,9 +21,6 @@ blocks:
       echo ""
       echo "--- System Info Log ---"
       cat ./logs/system_info.log
-      echo ""
-      echo "--- Network Info Log ---"
-      cat ./logs/network_info.log
 
   - name: "Summary"
     description: "Display summary of executed remote commands"

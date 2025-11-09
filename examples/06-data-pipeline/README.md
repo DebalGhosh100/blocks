@@ -32,11 +32,8 @@ This example demonstrates a multi-stage data processing pipeline with parallel p
 ## How to Run
 
 ```bash
-# Clone this specific example
-git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git
-cd blocks
-git sparse-checkout set examples/06-data-pipeline
-cd examples/06-data-pipeline
+# Clone this specific example and navigate to it
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/06-data-pipeline && cd examples/06-data-pipeline
 
 # Run with one-command execution
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
