@@ -98,25 +98,25 @@ ${filename.key1.key2.key3}
 
 #### Simple Value
 ```yaml
-run: "echo 'Application: ${app.name}'"
+run: "echo 'Application: ${config.app.name}'"
 ```
 References `config.yaml` → `app` → `name` → Result: `"MyAwesomeApp"`
 
 #### Nested Value (3 levels deep)
 ```yaml
-run: "echo 'Username: ${database.credentials.username}'"
+run: "echo 'Username: ${config.database.credentials.username}'"
 ```
 References `config.yaml` → `database` → `credentials` → `username` → Result: `"dbuser"`
 
 #### Multiple Variables in One Command
 ```yaml
-run: "echo 'Server: ${servers.web.host}:${servers.web.port}'"
+run: "echo 'Server: ${config.servers.web.host}:${config.servers.web.port}'"
 ```
 Result: `"Server: web.example.com:80"`
 
 #### Complex String Construction
 ```yaml
-run: "echo 'Connection: postgresql://${database.credentials.username}@${database.host}:${database.port}/${database.name}'"
+run: "echo 'Connection: postgresql://${config.database.credentials.username}@${config.database.host}:${config.database.port}/${config.database.name}'"
 ```
 Result: `"Connection: postgresql://dbuser@db.example.com:5432/app_database"`
 
@@ -126,10 +126,10 @@ Result: `"Connection: postgresql://dbuser@db.example.com:5432/app_database"`
 ```yaml
 - name: "Display Application Info"
   run: |
-    echo "Application: ${app.name}"
-    echo "Version: ${app.version}"
-    echo "Environment: ${app.environment}"
-    echo "Debug Mode: ${app.debug}"
+    echo "Application: ${config.app.name}"
+    echo "Version: ${config.app.version}"
+    echo "Environment: ${config.app.environment}"
+    echo "Debug Mode: ${config.app.debug}"
 ```
 Demonstrates accessing top-level configuration values.
 
@@ -137,17 +137,17 @@ Demonstrates accessing top-level configuration values.
 ```yaml
 - name: "Show Database Configuration"
   run: |
-    echo "Host: ${database.host}"
-    echo "Port: ${database.port}"
-    echo "Username: ${database.credentials.username}"
+    echo "Host: ${config.database.host}"
+    echo "Port: ${config.database.port}"
+    echo "Username: ${config.database.credentials.username}"
 ```
-Shows both simple values (`database.host`) and nested values (`database.credentials.username`).
+Shows both simple values (`config.database.host`) and nested values (`config.database.credentials.username`).
 
 ### Block 5: Create Directories from Config
 ```yaml
 - name: "Create Directories from Config"
   run: |
-    mkdir -p ${paths.logs} ${paths.data} ${paths.backups} ${paths.temp}
+    mkdir -p ${config.paths.logs} ${config.paths.data} ${config.paths.backups} ${config.paths.temp}
 ```
 Uses variables as command arguments - very powerful for dynamic workflows!
 
