@@ -53,8 +53,10 @@ Examples:
     workflow_dir = workflow_path.parent.resolve()
     os.environ['BLOCKS_WORKFLOW_DIR'] = str(workflow_dir)
     
-    # Resolve workflow path to absolute before changing directory
+    # Resolve paths to absolute before changing directory
     workflow_path_absolute = workflow_path.resolve()
+    storage_path_absolute = (Path(args.storage) if Path(args.storage).is_absolute() 
+                            else workflow_dir / args.storage)
     
     # Change to the workflow directory so all relative paths work correctly
     original_cwd = Path.cwd()
@@ -65,8 +67,8 @@ Examples:
         with open(workflow_path_absolute, 'r', encoding='utf-8') as f:
             workflow_data = yaml.safe_load(f)
         
-        # Initialize config loader
-        config_loader = ConfigLoader(args.storage)
+        # Initialize config loader with absolute storage path
+        config_loader = ConfigLoader(str(storage_path_absolute))
         
         # Initialize executor
         executor = BlockExecutor(config_loader)
