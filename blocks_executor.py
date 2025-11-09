@@ -53,6 +53,15 @@ Examples:
     workflow_dir = workflow_path.parent.resolve()
     os.environ['BLOCKS_WORKFLOW_DIR'] = str(workflow_dir)
     
+    # Store the framework directory (where blocks_executor.py is located)
+    # This allows workflows to reference remotely.py and other framework scripts
+    framework_dir = Path(__file__).parent.resolve()
+    os.environ['BLOCKS_FRAMEWORK_DIR'] = str(framework_dir)
+    
+    # Add framework directory to PATH so scripts like remotely.py can be found
+    current_path = os.environ.get('PATH', '')
+    os.environ['PATH'] = f"{framework_dir}{os.pathsep}{current_path}"
+    
     # Resolve paths to absolute before changing directory
     # Storage path should be resolved from current directory, not workflow directory
     workflow_path_absolute = workflow_path.resolve()
