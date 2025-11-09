@@ -4,6 +4,7 @@ Remotely - Execute remote commands via SSH and stream logs to local file
 """
 
 import sys
+import os
 import argparse
 
 # Import from utils package
@@ -35,12 +36,17 @@ Examples:
     
     args = parser.parse_args()
     
-    # Create streamer instance
+    # Get the working directory from environment variable (set by blocks_executor)
+    # or use current working directory as fallback
+    workflow_dir = os.environ.get('BLOCKS_WORKFLOW_DIR', os.getcwd())
+    
+    # Create streamer instance with workflow directory context
     streamer = SSHLogStreamer(
         ssh_url=args.ssh_url,
         password=args.password,
         command=args.command,
-        log_file=args.log_file
+        log_file=args.log_file,
+        workflow_dir=workflow_dir
     )
     
     try:

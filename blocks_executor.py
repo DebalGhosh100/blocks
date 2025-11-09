@@ -4,6 +4,7 @@ Blocks Executor - Execute YAML-defined workflows with sequential and parallel bl
 """
 
 import sys
+import os
 import yaml
 from pathlib import Path
 
@@ -46,6 +47,11 @@ Examples:
     if not workflow_path.exists():
         print(f"Error: Workflow file '{args.workflow_file}' not found")
         sys.exit(1)
+    
+    # Store the directory where the workflow file resides
+    # This is used by remotely.py to resolve relative log paths correctly
+    workflow_dir = workflow_path.parent.resolve()
+    os.environ['BLOCKS_WORKFLOW_DIR'] = str(workflow_dir)
     
     try:
         # Load workflow YAML

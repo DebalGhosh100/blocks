@@ -12,10 +12,11 @@ from datetime import datetime
 class SSHLogStreamer:
     """Handles SSH connection and log streaming"""
     
-    def __init__(self, ssh_url, password, command, log_file):
+    def __init__(self, ssh_url, password, command, log_file, workflow_dir=None):
         self.ssh_url = ssh_url
         self.password = password
         self.command = command
+        self.workflow_dir = workflow_dir or Path.cwd()
         self.log_file = self._resolve_log_path(log_file)
         self.client = None
         
@@ -25,7 +26,8 @@ class SSHLogStreamer:
         
         # Convert to absolute path if relative
         if not path.is_absolute():
-            path = Path.cwd() / path
+            # Resolve relative to workflow directory, not current working directory
+            path = Path(self.workflow_dir) / path
             
         # Create parent directories if they don't exist
         path.parent.mkdir(parents=True, exist_ok=True)
