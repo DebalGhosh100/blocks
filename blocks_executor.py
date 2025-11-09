@@ -54,9 +54,9 @@ Examples:
     os.environ['BLOCKS_WORKFLOW_DIR'] = str(workflow_dir)
     
     # Resolve paths to absolute before changing directory
+    # Storage path should be resolved from current directory, not workflow directory
     workflow_path_absolute = workflow_path.resolve()
-    storage_path_absolute = (Path(args.storage) if Path(args.storage).is_absolute() 
-                            else workflow_dir / args.storage)
+    storage_path_absolute = Path(args.storage).resolve()
     
     # Change to the workflow directory so all relative paths work correctly
     original_cwd = Path.cwd()
