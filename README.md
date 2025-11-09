@@ -516,14 +516,14 @@ nano run_blocks.sh
 
 ## SSH Remote Execution
 
-### SSH Log Streamer Script
+### Remotely Script
 
-The included `ssh_log_streamer.py` script executes commands on remote machines and streams logs to local files in real-time.
+The included `remotely.py` script executes commands on remote machines and streams logs to local files in real-time.
 
 ### Basic SSH Syntax
 
 ```bash
-python3 ssh_log_streamer.py <user@host> <password> "<command>" <log-file>
+python3 remotely.py <user@host> <password> "<command>" <log-file>
 ```
 
 ### SSH in Workflows
@@ -547,7 +547,7 @@ blocks:
   - name: "Check Server 1 Disk Space"
     description: "Monitor disk usage on server 1"
     run: |
-      python3 ssh_log_streamer.py \
+      python3 remotely.py \
         ${machines.server1.username}@${machines.server1.ip} \
         ${machines.server1.password} \
         "df -h" \
@@ -557,7 +557,7 @@ blocks:
       - name: "Download on Server 1"
         description: "Download file on remote server 1"
         run: |
-          python3 ssh_log_streamer.py \
+          python3 remotely.py \
             ${machines.server1.username}@${machines.server1.ip} \
             ${machines.server1.password} \
             "wget http://example.com/large-file.iso" \
@@ -566,7 +566,7 @@ blocks:
       - name: "Download on Server 2"
         description: "Download file on remote server 2"
         run: |
-          python3 ssh_log_streamer.py \
+          python3 remotely.py \
             ${machines.server2.username}@${machines.server2.ip} \
             ${machines.server2.password} \
             "wget http://example.com/large-file.iso" \
@@ -657,7 +657,7 @@ blocks:
       - name: "Deploy to Web1"
         description: "Deploy application to web server 1"
         run: |
-          python3 ssh_log_streamer.py \
+          python3 remotely.py \
             ${servers.production.web1.user}@${servers.production.web1.ip} \
             ${servers.production.web1.password} \
             "cd /var/www && tar -xzf app.tar.gz && systemctl restart nginx" \
@@ -666,7 +666,7 @@ blocks:
       - name: "Deploy to Web2"
         description: "Deploy application to web server 2"
         run: |
-          python3 ssh_log_streamer.py \
+          python3 remotely.py \
             ${servers.production.web2.user}@${servers.production.web2.ip} \
             ${servers.production.web2.password} \
             "cd /var/www && tar -xzf app.tar.gz && systemctl restart nginx" \
@@ -675,7 +675,7 @@ blocks:
       - name: "Deploy to Web3"
         description: "Deploy application to web server 3"
         run: |
-          python3 ssh_log_streamer.py \
+          python3 remotely.py \
             ${servers.production.web3.user}@${servers.production.web3.ip} \
             ${servers.production.web3.password} \
             "cd /var/www && tar -xzf app.tar.gz && systemctl restart nginx" \
@@ -774,7 +774,7 @@ blocks:
       - name: "Run Unit Tests"
         description: "Execute unit tests on test server"
         run: |
-          python3 ssh_log_streamer.py \
+          python3 remotely.py \
             ${test_config.test_servers.unit_test.user}@${test_config.test_servers.unit_test.ip} \
             ${test_config.test_servers.unit_test.password} \
             "cd /app && pytest tests/unit/" \
@@ -783,7 +783,7 @@ blocks:
       - name: "Run Integration Tests"
         description: "Execute integration tests"
         run: |
-          python3 ssh_log_streamer.py \
+          python3 remotely.py \
             ${test_config.test_servers.integration_test.user}@${test_config.test_servers.integration_test.ip} \
             ${test_config.test_servers.integration_test.password} \
             "cd /app && pytest tests/integration/" \
@@ -792,7 +792,7 @@ blocks:
       - name: "Run E2E Tests"
         description: "Execute end-to-end tests"
         run: |
-          python3 ssh_log_streamer.py \
+          python3 remotely.py \
             ${test_config.test_servers.e2e_test.user}@${test_config.test_servers.e2e_test.ip} \
             ${test_config.test_servers.e2e_test.password} \
             "cd /app && pytest tests/e2e/" \
@@ -890,7 +890,7 @@ blocks:
 Test commands individually before adding to workflow:
 ```bash
 # Test the command first
-python3 ssh_log_streamer.py user@host pass "ls -la" ./test.log
+python3 remotely.py user@host pass "ls -la" ./test.log
 
 # Then add to workflow once verified
 ```
@@ -899,12 +899,12 @@ python3 ssh_log_streamer.py user@host pass "ls -la" ./test.log
 
 ✅ **Good:**
 ```yaml
-run: "python3 ssh_log_streamer.py ... ./logs/output.log"
+run: "python3 remotely.py ... ./logs/output.log"
 ```
 
 ❌ **Avoid:**
 ```yaml
-run: "python3 ssh_log_streamer.py ... /home/myuser/logs/output.log"
+run: "python3 remotely.py ... /home/myuser/logs/output.log"
 ```
 
 ## Troubleshooting
@@ -937,7 +937,7 @@ run: "python3 ssh_log_streamer.py ... /home/myuser/logs/output.log"
 
 ### Issue: SSH connection fails
 
-**Problem:** `ssh_log_streamer.py` can't connect to remote host
+**Problem:** `remotely.py` can't connect to remote host
 
 **Solution:**
 - Verify IP address and credentials in configuration
@@ -1026,9 +1026,9 @@ Run the executor with `--help` flag:
 python3 blocks_executor.py --help
 ```
 
-View SSH streamer help:
+View remotely script help:
 ```bash
-python3 ssh_log_streamer.py --help
+python3 remotely.py --help
 ```
 
 ---
@@ -1056,7 +1056,7 @@ ${filename.key1.key2.key3}
 
 ### SSH Remote Execution
 ```bash
-python3 ssh_log_streamer.py user@host password "command" log-file
+python3 remotely.py user@host password "command" log-file
 ```
 
 ### Run Workflow

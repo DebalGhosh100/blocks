@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SSH Log Streamer - Execute remote commands and stream logs to local file
+Remotely - Execute remote commands via SSH and stream logs to local file
 """
 
 import sys
@@ -17,9 +17,9 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python ssh_log_streamer.py user@host.com password123 "ls -la" ./logs/output.log
-  python ssh_log_streamer.py ssh://admin@192.168.1.100 pass "wget http://example.com/large.iso" C:\\logs\\download.log
-  python ssh_log_streamer.py root@server.com secret "dd if=/dev/zero of=/tmp/test bs=1M count=1000" /var/logs/dd.log
+  python remotely.py user@host.com password123 "ls -la" ./logs/output.log
+  python remotely.py ssh://admin@192.168.1.100 pass "wget http://example.com/large.iso" ./logs/download.log
+  python remotely.py root@server.com secret "dd if=/dev/zero of=/tmp/test bs=1M count=1000" ./logs/dd.log
         """
     )
     
