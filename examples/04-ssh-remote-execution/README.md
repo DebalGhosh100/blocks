@@ -1,13 +1,14 @@
-# Example 4: SSH Remote Execution
+# Example 4: SSH Remote Execution with Parallel Deployment
 
 ## Overview
-This example demonstrates how to use the `remotely.py` script to execute commands on remote servers via SSH and stream the output to local log files in real-time.
+This example demonstrates how to use the `remotely.py` script to execute commands on **multiple remote servers in parallel** via SSH and stream the output to local log files in real-time.
 
 ## What This Example Demonstrates
 - ✅ SSH remote command execution using `remotely.py`
+- ✅ **Parallel execution across multiple servers simultaneously**
 - ✅ Real-time log streaming to local files
 - ✅ Variable interpolation for SSH credentials
-- ✅ Multiple remote command executions in sequence
+- ✅ Multi-server system updates and package installation
 - ✅ Log file management and display
 
 ## Prerequisites
@@ -28,17 +29,28 @@ This example demonstrates how to use the `remotely.py` script to execute command
 
 ## How to Run
 
-### Step 1: Configure Your SSH Server
+### Step 1: Configure Your SSH Servers
 
 Edit `storage/machines.yaml` and replace with your actual server details:
 
 ```yaml
-machines:
-  server1:
-    ip: "YOUR_SERVER_IP"          # e.g., "192.168.1.100"
-    username: "YOUR_USERNAME"      # e.g., "admin"
-    password: "YOUR_PASSWORD"      # e.g., "password123"
-    description: "Primary server"
+server1:
+  ip: "YOUR_SERVER1_IP"          # e.g., "192.168.1.100"
+  username: "YOUR_USERNAME"       # e.g., "admin"
+  password: "YOUR_PASSWORD"       # e.g., "admin123"
+  description: "Primary application server"
+
+server2:
+  ip: "YOUR_SERVER2_IP"          # e.g., "192.168.1.101"
+  username: "YOUR_USERNAME"       # e.g., "deploy"
+  password: "YOUR_PASSWORD"       # e.g., "deploy456"
+  description: "Secondary application server"
+
+server3:
+  ip: "YOUR_SERVER3_IP"          # e.g., "192.168.1.102"
+  username: "YOUR_USERNAME"       # e.g., "sysadmin"
+  password: "YOUR_PASSWORD"       # e.g., "sysadmin789"
+  description: "Tertiary application server"
 ```
 
 ⚠️ **Security Note**: For production use, consider using SSH keys instead of passwords.
@@ -64,14 +76,11 @@ curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks
 ## Expected Output
 The workflow will:
 1. Create `./logs/` directory for storing SSH execution logs
-2. Connect to the remote server and execute `ls -lah ~`
-3. Stream output to `./logs/list_files.log`
-4. Execute system information commands on remote server
-5. Stream output to `./logs/system_info.log`
-6. Execute network information commands
-7. Stream output to `./logs/network_info.log`
-8. Display all collected logs
-9. Show summary of execution
+2. **Parallel Execution**: Execute complete setup on all 3 servers simultaneously
+   - Each server runs: update → upgrade → install tools → list files → system info
+   - Streams to `./logs/server1_execution.log`, `./logs/server2_execution.log`, `./logs/server3_execution.log`
+3. Display all collected logs from all servers
+4. Show summary of execution (3 total log files created)
 
 ## Remotely Script Syntax
 
@@ -113,47 +122,59 @@ python3 remotely.py ssh://admin@192.168.1.100:2222 mypass "uptime" ./logs/uptime
 ```
 Creates the logs directory if it doesn't exist.
 
-### Block 2: Execute Remote Command - List Files
+### Block 2: Parallel Complete Setup (All 3 Servers)
 ```yaml
-- name: "Execute Remote Command - List Files"
-  description: "List files in remote server home directory"
-  run: |
-    python3 ../../remotely.py \
-      ${machines.server1.username}@${machines.server1.ip} \
-      ${machines.server1.password} \
-      "ls -lah ~" \
-      ./logs/list_files.log
+- parallel:
+    - name: "Server 1 - Complete Setup"
+      description: "Update, install tools, and gather info from server 1"
+      run: python3 remotely.py ${machines.server1.username}@${machines.server1.ip} ${machines.server1.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim nstools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server1_execution.log
+    
+    - name: "Server 2 - Complete Setup"
+      description: "Update, install tools, and gather info from server 2"
+      run: python3 remotely.py ${machines.server2.username}@${machines.server2.ip} ${machines.server2.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim nstools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server2_execution.log
+    
+    - name: "Server 3 - Complete Setup"
+      description: "Update, install tools, and gather info from server 3"
+      run: python3 remotely.py ${machines.server3.username}@${machines.server3.ip} ${machines.server3.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim nstools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server3_execution.log
 ```
 
 **What happens:**
-1. Connects to `${machines.server1.ip}` as `${machines.server1.username}`
-2. Authenticates with `${machines.server1.password}`
-3. Executes `ls -lah ~` on the remote server
-4. Streams output in real-time to `./logs/list_files.log`
-5. Includes execution metadata (timestamp, exit status)
+- All 3 servers execute their complete setup simultaneously (parallel execution)
+- Each server runs a chain of commands:
+  1. `sudo apt-get update` - Update package lists
+  2. `sudo apt-get upgrade -y` - Upgrade installed packages
+  3. `sudo apt-get install -y neovim nstools tree` - Install tools
+  4. `ls -lah ~` - List home directory contents
+  5. `uname -a && df -h && free -h` - Gather system information
+- Output streams in real-time to separate log files (one per server)
+- The workflow waits for ALL servers to complete before proceeding
+- Commands are chained with `&&` so execution stops if any command fails
 
-### Block 3: Execute Remote Command - System Info
-```yaml
-- name: "Execute Remote Command - System Info"
-  run: |
-    python3 ../../remotely.py \
-      ${machines.server1.username}@${machines.server1.ip} \
-      ${machines.server1.password} \
-      "uname -a && df -h && free -h" \
-      ./logs/system_info.log
-```
-Executes multiple commands chained with `&&` and captures all output.
-
-### Block 5: Display Log Results
+### Block 3: Display Log Results
 ```yaml
 - name: "Display Log Results"
+  description: "Show the logs collected from remote execution"
   run: |
-    echo "--- List Files Log ---"
-    cat ./logs/list_files.log
-    echo "--- System Info Log ---"
-    cat ./logs/system_info.log
+    echo "=== Remote Command Logs ==="
+    echo "--- Server 1 Execution Log ---"
+    cat ./logs/server1_execution.log
+    echo "--- Server 2 Execution Log ---"
+    cat ./logs/server2_execution.log
+    echo "--- Server 3 Execution Log ---"
+    cat ./logs/server3_execution.log
 ```
-Displays the contents of all collected logs.
+Displays all collected logs from all servers sequentially.
+
+### Block 4: Summary
+```yaml
+- name: "Summary"
+  run: |
+    echo "=== Execution Summary ==="
+    echo "Total servers configured: 3"
+    echo "Total log files created: $(ls -1 ./logs/*.log | wc -l)"
+    ls -lh ./logs/*.log
+```
+Shows execution summary with file counts and sizes.
 
 ## Log File Format
 
@@ -193,39 +214,47 @@ Example with progress bar:
 
 The log file will capture the wget progress bar updates!
 
+## Parallel Execution Benefits
+
+This example demonstrates the power of parallel SSH execution:
+
+**Sequential Execution Time:**
+- Server 1 complete setup: 5 minutes
+- Server 2 complete setup: 5 minutes  
+- Server 3 complete setup: 5 minutes
+- **Total: 15 minutes**
+
+**Parallel Execution Time:**
+- All 3 servers execute simultaneously: **5 minutes**
+- **Time saved: 10 minutes (67% faster!)**
+
+With more servers, the time savings multiply! The key advantage is that all servers execute their full command chain in parallel, with real-time log streaming for each.
+
 ## Variable Interpolation with SSH
 
 Combine variable interpolation with SSH for powerful workflows:
 
 **storage/machines.yaml:**
 ```yaml
-machines:
-  web_servers:
-    server1:
-      ip: "10.0.1.10"
-      username: "deploy"
-      password: "deploy123"
-    server2:
-      ip: "10.0.1.11"
-      username: "deploy"
-      password: "deploy123"
+server1:
+  ip: "10.0.1.10"
+  username: "deploy"
+  password: "deploy123"
+  description: "Web server 1"
 
-  databases:
-    primary:
-      ip: "10.0.2.10"
-      username: "dbadmin"
-      password: "dbpass"
+server2:
+  ip: "10.0.1.11"
+  username: "deploy"
+  password: "deploy123"
+  description: "Web server 2"
 ```
 
 **Workflow:**
 ```yaml
 blocks:
-  - run: |
-      python3 remotely.py \
-        ${machines.web_servers.server1.username}@${machines.web_servers.server1.ip} \
-        ${machines.web_servers.server1.password} \
-        "systemctl status nginx" \
-        ./logs/web1_nginx.log
+  - parallel:
+      - run: python3 remotely.py ${machines.server1.username}@${machines.server1.ip} ${machines.server1.password} "systemctl status nginx" ./logs/web1_nginx.log
+      - run: python3 remotely.py ${machines.server2.username}@${machines.server2.ip} ${machines.server2.password} "systemctl status nginx" ./logs/web2_nginx.log
 ```
 
 ## Use Cases
@@ -314,10 +343,12 @@ blocks:
 
 ## Key Takeaways
 - `remotely.py` enables SSH command execution from workflows
-- Output is streamed in real-time to local log files
+- **Parallel execution drastically reduces multi-server deployment time**
+- Output is streamed in real-time to local log files for each server
 - Progress bars and long-running commands are fully supported
 - Combine with variable interpolation for flexible configurations
 - Log files include metadata and execution status
+- Scale from 1 to N servers without changing workflow structure
 
 ## Next Steps
 - Configure your actual SSH servers in `machines.yaml`
