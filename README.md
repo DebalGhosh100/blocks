@@ -1,4 +1,4 @@
-# Blocks Executor - User Guide
+# Blocks - User Guide
 
 A powerful YAML-based workflow automation tool for executing sequential and parallel tasks with configuration management and SSH remote execution capabilities.
 
