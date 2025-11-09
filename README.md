@@ -1,9 +1,8 @@
-# Blocks - User Guide
+# Blocks Executor - User Guide
 
 A powerful YAML-based workflow automation tool for executing sequential and parallel tasks with configuration management and SSH remote execution capabilities.
 
-> **Note:** Throughout this documentation, replace `<GITHUB_REPO_URL>` with the actual GitHub repository URL once published.  
-> Example: `https://github.com/yourusername/blocks-executor.git`
+> **Repository:** https://github.com/DebalGhosh100/blocks.git
 
 ## Table of Contents
 - [Overview](#overview)
@@ -37,12 +36,31 @@ If you already have `main.yaml` and a `storage/` directory with configuration fi
 
 **Linux/Mac:**
 ```bash
-git clone <GITHUB_REPO_URL> .blocks_temp && cd .blocks_temp && pip3 install -r requirements.txt && python3 blocks_executor.py ../main.yaml --storage ../storage && cd .. && rm -rf .blocks_temp
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
 
 **Windows (PowerShell):**
 ```powershell
-git clone <GITHUB_REPO_URL> .blocks_temp; cd .blocks_temp; pip install -r requirements.txt; python blocks_executor.py ..\main.yaml --storage ..\storage; cd ..; Remove-Item -Recurse -Force .blocks_temp
+iwr -useb https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.ps1 | iex
+```
+
+**Alternative (if you prefer to see the script first):**
+
+Linux/Mac:
+```bash
+# Download and inspect the script
+curl -O https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh
+chmod +x run_blocks.sh
+# Review the script, then run it
+./run_blocks.sh
+```
+
+Windows PowerShell:
+```powershell
+# Download and inspect the script
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.ps1 -OutFile run_blocks.ps1
+# Review the script, then run it
+.\run_blocks.ps1
 ```
 
 **What this does:**
@@ -77,7 +95,7 @@ If you want to keep the framework installed for repeated use:
 
 1. **Clone the repository:**
    ```bash
-   git clone <GITHUB_REPO_URL>
+   git clone https://github.com/DebalGhosh100/blocks.git
    cd blocks
    ```
 
@@ -125,8 +143,8 @@ EOF
 2. **Execute with one command:**
 
 ```bash
-# Clone, install, execute, and cleanup
-git clone <GITHUB_REPO_URL> .blocks_temp && cd .blocks_temp && pip3 install -r requirements.txt && python3 blocks_executor.py ../main.yaml --storage ../storage && cd .. && rm -rf .blocks_temp
+# Download and execute the one-liner script
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
 
 The framework will execute your workflow and automatically clean up afterward!
@@ -410,20 +428,18 @@ The framework supports a "clone, execute, and evaporate" pattern where you can r
 ### How It Works
 
 ```bash
-git clone <REPO> .blocks_temp && \
-cd .blocks_temp && \
-pip3 install -r requirements.txt && \
-python3 blocks_executor.py ../main.yaml --storage ../storage && \
-cd .. && \
-rm -rf .blocks_temp
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
+
+This one-liner downloads and executes a shell script that performs the following steps:
 
 **Step-by-step breakdown:**
 
-1. **Clone**: Downloads framework into `.blocks_temp` directory
-2. **Install**: Installs Python dependencies (paramiko, pyyaml)
-3. **Execute**: Runs your workflow using your `main.yaml` and `storage/` configs
-4. **Cleanup**: Deletes all framework files, leaving only your files and generated outputs
+1. **Download**: Fetches the execution script from GitHub
+2. **Clone**: Downloads framework into `.blocks_temp` directory
+3. **Install**: Installs Python dependencies (paramiko, pyyaml)
+4. **Execute**: Runs your workflow using your `main.yaml` and `storage/` configs
+5. **Cleanup**: Deletes all framework files, leaving only your files and generated outputs
 
 ### What Gets Preserved
 
@@ -441,30 +457,23 @@ After execution and cleanup:
 
 **1. Automated Testing:**
 ```bash
-# Run tests on multiple servers and cleanup
-git clone <GITHUB_REPO_URL> .blocks_temp && cd .blocks_temp && \
-pip3 install -r requirements.txt && \
-python3 blocks_executor.py ../test_workflow.yaml --storage ../storage && \
-cd .. && rm -rf .blocks_temp
+# Create test_workflow.yaml, then run:
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash -s test_workflow.yaml
 ```
 
 **2. Deployment Pipeline:**
 ```bash
-# Deploy to production servers and cleanup
-git clone <GITHUB_REPO_URL> .blocks_temp && cd .blocks_temp && \
-pip3 install -r requirements.txt && \
-python3 blocks_executor.py ../deploy.yaml --storage ../storage && \
-cd .. && rm -rf .blocks_temp
+# Create deploy.yaml, then run:
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash -s deploy.yaml
 ```
 
 **3. Data Collection:**
 ```bash
-# Collect logs from remote machines and cleanup
-git clone <GITHUB_REPO_URL> .blocks_temp && cd .blocks_temp && \
-pip3 install -r requirements.txt && \
-python3 blocks_executor.py ../collect_logs.yaml --storage ../storage && \
-cd .. && rm -rf .blocks_temp
+# Create collect_logs.yaml, then run:
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash -s collect_logs.yaml
 ```
+
+**Note:** The script accepts custom workflow files as arguments. By default, it looks for `main.yaml`.
 
 ### Requirements for One-Command Execution
 
@@ -478,24 +487,29 @@ Before running the one-command pattern, ensure:
 
 ### Customization
 
-You can customize the command for different scenarios:
+You can customize the script execution for different scenarios:
 
 **Use different workflow file:**
 ```bash
-python3 blocks_executor.py ../my_workflow.yaml --storage ../storage
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash -s ../my_workflow.yaml
 ```
 
-**Use different storage directory:**
+**Use different workflow and storage directory:**
 ```bash
-python3 blocks_executor.py ../main.yaml --storage ../config
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash -s ../my_workflow.yaml ../config
 ```
 
-**Keep framework files (skip cleanup):**
+**Keep framework files (skip cleanup) - Download the script first:**
 ```bash
-git clone <GITHUB_REPO_URL> .blocks_temp && cd .blocks_temp && \
-pip3 install -r requirements.txt && \
-python3 blocks_executor.py ../main.yaml --storage ../storage
-# Don't run the cleanup commands
+# Download the script
+curl -O https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh
+chmod +x run_blocks.sh
+
+# Edit the script and comment out the cleanup step (line with 'rm -rf')
+nano run_blocks.sh
+
+# Run the modified script
+./run_blocks.sh
 ```
 
 ---
