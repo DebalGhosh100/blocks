@@ -23,6 +23,15 @@ class BlockExecutor:
         # Interpolate variables in command
         interpolated_command = self.config_loader.interpolate(command)
         
+        # Replace remotely.py with full path if framework directory is available
+        framework_dir = os.environ.get('BLOCKS_FRAMEWORK_DIR')
+        if framework_dir:
+            # Replace standalone remotely.py references with full path
+            interpolated_command = interpolated_command.replace(
+                'remotely.py',
+                os.path.join(framework_dir, 'remotely.py')
+            )
+        
         print(f"  Executing: {block_name}")
         print(f"  Command: {interpolated_command}")
         
