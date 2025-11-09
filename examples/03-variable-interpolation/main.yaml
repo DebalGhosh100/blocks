@@ -1,0 +1,55 @@
+blocks:
+  - name: "Display Application Info"
+    description: "Show application details from configuration"
+    run: |
+      echo "Application: ${app.name}"
+      echo "Version: ${app.version}"
+      echo "Environment: ${app.environment}"
+      echo "Debug Mode: ${app.debug}"
+
+  - name: "Show Database Configuration"
+    description: "Display database connection details"
+    run: |
+      echo "=== Database Configuration ==="
+      echo "Host: ${database.host}"
+      echo "Port: ${database.port}"
+      echo "Database Name: ${database.name}"
+      echo "Username: ${database.credentials.username}"
+      echo "Connection String: postgresql://${database.credentials.username}@${database.host}:${database.port}/${database.name}"
+
+  - name: "Display File Paths"
+    description: "Show configured file system paths"
+    run: |
+      echo "=== File System Paths ==="
+      echo "Logs Directory: ${paths.logs}"
+      echo "Data Directory: ${paths.data}"
+      echo "Backup Directory: ${paths.backups}"
+      echo "Temp Directory: ${paths.temp}"
+
+  - name: "Show Server Information"
+    description: "Display all configured servers"
+    run: |
+      echo "=== Server Configuration ==="
+      echo "Web Server: ${servers.web.host}:${servers.web.port}"
+      echo "API Server: ${servers.api.host}:${servers.api.port}"
+      echo "Cache Server: ${servers.cache.host}:${servers.cache.port}"
+
+  - name: "Create Directories from Config"
+    description: "Create directories based on path configuration"
+    run: |
+      mkdir -p ${paths.logs} ${paths.data} ${paths.backups} ${paths.temp}
+      echo "Created directories:"
+      ls -ld ${paths.logs} ${paths.data} ${paths.backups} ${paths.temp}
+
+  - name: "Test API Endpoint"
+    description: "Construct and display API URL from variables"
+    run: |
+      echo "Testing API endpoint..."
+      echo "Full URL: http://${servers.api.host}:${servers.api.port}${servers.api.endpoint}"
+      echo "API Key: ${servers.api.key}"
+
+  - name: "Cleanup"
+    description: "Remove created test directories"
+    run: |
+      rm -rf ${paths.logs} ${paths.data} ${paths.backups} ${paths.temp}
+      echo "Cleanup complete!"

@@ -1,0 +1,272 @@
+blocks:
+  - name: "Setup"
+    description: "Create test environment"
+    run: "mkdir -p ./test_results && echo 'Test environment ready'"
+
+  - name: "Check File Existence"
+    description: "Conditional execution based on file existence"
+    run: |
+      test_file="./test_results/data.txt"
+      
+      if [ -f "$test_file" ]; then
+        echo "✓ File exists: $test_file"
+        cat "$test_file"
+      else
+        echo "✗ File does not exist. Creating it..."
+        echo "Sample data content" > "$test_file"
+        echo "✓ File created: $test_file"
+      fi
+
+  - name: "Check Directory Status"
+    description: "Test if directory exists and is writable"
+    run: |
+      test_dir="./test_results"
+      
+      if [ -d "$test_dir" ]; then
+        echo "✓ Directory exists: $test_dir"
+        
+        if [ -w "$test_dir" ]; then
+          echo "✓ Directory is writable"
+          echo "test" > "$test_dir/write_test.txt" && rm "$test_dir/write_test.txt"
+        else
+          echo "✗ Directory is not writable"
+          exit 1
+        fi
+      else
+        echo "✗ Directory does not exist"
+        mkdir -p "$test_dir"
+        echo "✓ Directory created"
+      fi
+
+  - name: "Validate Environment Variable"
+    description: "Check if required environment variable is set"
+    run: |
+      # Check if USER variable is set
+      if [ -z "$USER" ]; then
+        echo "✗ USER environment variable is not set"
+        echo "Setting default user..."
+        export USER="default_user"
+      else
+        echo "✓ USER is set to: $USER"
+      fi
+      
+      # Check HOME directory
+      if [ -d "$HOME" ]; then
+        echo "✓ HOME directory exists: $HOME"
+      else
+        echo "✗ HOME directory not found"
+      fi
+
+  - name: "Command Success/Failure Handling"
+    description: "Handle command failures gracefully"
+    run: |
+      echo "Attempting risky operation..."
+      
+      # Try to create a file
+      if echo "test content" > ./test_results/test.txt; then
+        echo "✓ File write successful"
+      else
+        echo "✗ File write failed"
+        exit 1
+      fi
+      
+      # Try a command that might fail (but continue anyway)
+      echo "Attempting optional operation..."
+      ls /nonexistent/directory 2>/dev/null || echo "⚠ Optional operation failed (continuing anyway)"
+      
+      echo "✓ Block completed despite optional failure"
+
+  - name: "Numeric Comparison"
+    description: "Conditional logic with numeric comparisons"
+    run: |
+      threshold=${config.thresholds.max_size}
+      current_value=75
+      
+      echo "Threshold: $threshold"
+      echo "Current Value: $current_value"
+      
+      if [ $current_value -gt $threshold ]; then
+        echo "✗ Value exceeds threshold!"
+        echo "Action: Triggering cleanup..."
+      elif [ $current_value -eq $threshold ]; then
+        echo "⚠ Value at threshold limit"
+        echo "Action: Monitoring..."
+      else
+        echo "✓ Value within acceptable range"
+      fi
+
+  - name: "String Comparison"
+    description: "Conditional logic with string comparisons"
+    run: |
+      environment=${config.environment}
+      
+      echo "Current Environment: $environment"
+      
+      if [ "$environment" = "production" ]; then
+        echo "✓ Running in PRODUCTION mode"
+        echo "   - Extra validation enabled"
+        echo "   - Logging level: INFO"
+        echo "   - Backup enabled: YES"
+      elif [ "$environment" = "staging" ]; then
+        echo "✓ Running in STAGING mode"
+        echo "   - Testing features enabled"
+        echo "   - Logging level: DEBUG"
+      else
+        echo "✓ Running in DEVELOPMENT mode"
+        echo "   - Debug mode enabled"
+        echo "   - Logging level: VERBOSE"
+      fi
+
+  - name: "Multiple Condition Check"
+    description: "Complex conditional with AND/OR logic"
+    run: |
+      file_exists=true
+      has_permission=true
+      disk_space_ok=true
+      
+      if [ "$file_exists" = true ] && [ "$has_permission" = true ]; then
+        echo "✓ Prerequisites met: file exists and permissions OK"
+        
+        if [ "$disk_space_ok" = true ]; then
+          echo "✓ Sufficient disk space available"
+          echo "✓ Proceeding with operation"
+        else
+          echo "✗ Insufficient disk space"
+          exit 1
+        fi
+      else
+        echo "✗ Prerequisites not met"
+        [ "$file_exists" = false ] && echo "   - File does not exist"
+        [ "$has_permission" = false ] && echo "   - Permission denied"
+        exit 1
+      fi
+
+  - name: "Case Statement Example"
+    description: "Switch-case style conditional logic"
+    run: |
+      action=${config.action}
+      
+      echo "Requested Action: $action"
+      
+      case $action in
+        "start")
+          echo "✓ Starting service..."
+          echo "   Service started successfully"
+          ;;
+        "stop")
+          echo "✓ Stopping service..."
+          echo "   Service stopped successfully"
+          ;;
+        "restart")
+          echo "✓ Restarting service..."
+          echo "   Service stopped"
+          echo "   Service started"
+          ;;
+        "status")
+          echo "✓ Checking service status..."
+          echo "   Service is running"
+          ;;
+        *)
+          echo "✗ Unknown action: $action"
+          echo "   Valid actions: start, stop, restart, status"
+          exit 1
+          ;;
+      esac
+
+  - name: "Loop with Conditional"
+    description: "Iterate and apply conditional logic"
+    run: |
+      echo "Processing items with conditional logic..."
+      
+      for i in 1 2 3 4 5 6 7 8 9 10; do
+        if [ $((i % 2)) -eq 0 ]; then
+          echo "  Item $i: EVEN - Processing..."
+        else
+          echo "  Item $i: ODD - Skipping..."
+        fi
+      done
+      
+      echo "✓ Loop processing complete"
+
+  - name: "Retry Logic with Backoff"
+    description: "Retry failed commands with exponential backoff"
+    run: |
+      max_retries=3
+      retry_count=0
+      success=false
+      
+      echo "Attempting operation with retry logic..."
+      
+      while [ $retry_count -lt $max_retries ] && [ "$success" = false ]; do
+        retry_count=$((retry_count + 1))
+        echo "  Attempt $retry_count of $max_retries..."
+        
+        # Simulate operation that might fail
+        random_val=$((RANDOM % 2))
+        
+        if [ $random_val -eq 0 ] || [ $retry_count -eq $max_retries ]; then
+          echo "  ✓ Operation successful!"
+          success=true
+        else
+          echo "  ✗ Operation failed, retrying..."
+          sleep $((retry_count * 2))  # Exponential backoff
+        fi
+      done
+      
+      if [ "$success" = true ]; then
+        echo "✓ Final status: SUCCESS"
+      else
+        echo "✗ Final status: FAILED after $max_retries attempts"
+        exit 1
+      fi
+
+  - name: "Error Handling with Trap"
+    description: "Handle errors and cleanup on exit"
+    run: |
+      # Create cleanup function
+      cleanup() {
+        echo "  Performing cleanup..."
+        rm -f ./test_results/temp_*.txt 2>/dev/null
+        echo "  ✓ Cleanup complete"
+      }
+      
+      # Set trap to run cleanup on exit
+      trap cleanup EXIT
+      
+      echo "Creating temporary files..."
+      echo "data" > ./test_results/temp_1.txt
+      echo "data" > ./test_results/temp_2.txt
+      
+      echo "Processing..."
+      # Simulate some work
+      sleep 1
+      
+      echo "✓ Processing complete"
+      # cleanup() will run automatically on exit
+
+  - name: "Display Summary"
+    description: "Show summary of conditional logic tests"
+    run: |
+      echo ""
+      echo "=========================================="
+      echo "     CONDITIONAL LOGIC TEST SUMMARY"
+      echo "=========================================="
+      echo ""
+      echo "✓ File existence checks"
+      echo "✓ Directory validation"
+      echo "✓ Environment variable checks"
+      echo "✓ Error handling"
+      echo "✓ Numeric comparisons"
+      echo "✓ String comparisons"
+      echo "✓ Complex conditions (AND/OR)"
+      echo "✓ Case statements"
+      echo "✓ Loops with conditionals"
+      echo "✓ Retry logic"
+      echo "✓ Error trapping and cleanup"
+      echo ""
+      echo "All conditional logic tests completed!"
+      echo "=========================================="
+
+  - name: "Cleanup"
+    description: "Remove test environment"
+    run: "rm -rf ./test_results && echo 'Test environment cleaned up'"

@@ -1,0 +1,14 @@
+pipeline:
+  name: "Multi-Stage Data Processing Pipeline"
+  version: "1.0.0"
+  description: "Parallel data processing with sequential stages"
+  
+  paths:
+    raw_data: "./data/raw"
+    processed_data: "./data/processed"
+    output: "./data/output"
+  
+  settings:
+    batch_size: 1000
+    parallel_jobs: 3
+    retry_count: 3
