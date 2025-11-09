@@ -53,6 +53,10 @@ Examples:
     workflow_dir = workflow_path.parent.resolve()
     os.environ['BLOCKS_WORKFLOW_DIR'] = str(workflow_dir)
     
+    # Change to the workflow directory so all relative paths work correctly
+    original_cwd = Path.cwd()
+    os.chdir(workflow_dir)
+    
     try:
         # Load workflow YAML
         with open(workflow_path, 'r', encoding='utf-8') as f:
@@ -72,14 +76,17 @@ Examples:
         
     except yaml.YAMLError as e:
         print(f"Error parsing YAML file: {e}")
+        os.chdir(original_cwd)  # Restore original directory
         sys.exit(1)
     except KeyboardInterrupt:
         print("\n\nWorkflow interrupted by user")
+        os.chdir(original_cwd)  # Restore original directory
         sys.exit(130)
     except Exception as e:
         print(f"Unexpected error: {e}")
         import traceback
         traceback.print_exc()
+        os.chdir(original_cwd)  # Restore original directory
         sys.exit(1)
 
 
