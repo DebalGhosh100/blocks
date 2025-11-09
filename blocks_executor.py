@@ -53,13 +53,16 @@ Examples:
     workflow_dir = workflow_path.parent.resolve()
     os.environ['BLOCKS_WORKFLOW_DIR'] = str(workflow_dir)
     
+    # Resolve workflow path to absolute before changing directory
+    workflow_path_absolute = workflow_path.resolve()
+    
     # Change to the workflow directory so all relative paths work correctly
     original_cwd = Path.cwd()
     os.chdir(workflow_dir)
     
     try:
-        # Load workflow YAML
-        with open(workflow_path, 'r', encoding='utf-8') as f:
+        # Load workflow YAML (use absolute path since we changed directory)
+        with open(workflow_path_absolute, 'r', encoding='utf-8') as f:
             workflow_data = yaml.safe_load(f)
         
         # Initialize config loader
