@@ -6,15 +6,15 @@ blocks:
   - parallel:
       - name: "Server 1 - Complete Setup"
         description: "Update, install tools, and gather info from server 1"
-        run: python3 remotely.py ${machines.server1.username}@${machines.server1.ip} ${machines.server1.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim nstools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server1_execution.log
+        run: python3 remotely.py ${machines.server1.username}@${machines.server1.ip} ${machines.server1.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server1_execution.log
 
       - name: "Server 2 - Complete Setup"
         description: "Update, install tools, and gather info from server 2"
-        run: python3 remotely.py ${machines.server2.username}@${machines.server2.ip} ${machines.server2.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim nstools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server2_execution.log
+        run: python3 remotely.py ${machines.server2.username}@${machines.server2.ip} ${machines.server2.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server2_execution.log
 
       - name: "Server 3 - Complete Setup"
         description: "Update, install tools, and gather info from server 3"
-        run: python3 remotely.py ${machines.server3.username}@${machines.server3.ip} ${machines.server3.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim nstools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server3_execution.log
+        run: python3 remotely.py ${machines.server3.username}@${machines.server3.ip} ${machines.server3.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server3_execution.log
 
   - name: "Display Log Results"
     description: "Show the logs collected from remote execution"

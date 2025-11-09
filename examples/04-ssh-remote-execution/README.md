@@ -127,15 +127,15 @@ Creates the logs directory if it doesn't exist.
 - parallel:
     - name: "Server 1 - Complete Setup"
       description: "Update, install tools, and gather info from server 1"
-      run: python3 remotely.py ${machines.server1.username}@${machines.server1.ip} ${machines.server1.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim nstools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server1_execution.log
+      run: python3 remotely.py ${machines.server1.username}@${machines.server1.ip} ${machines.server1.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server1_execution.log
     
     - name: "Server 2 - Complete Setup"
       description: "Update, install tools, and gather info from server 2"
-      run: python3 remotely.py ${machines.server2.username}@${machines.server2.ip} ${machines.server2.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim nstools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server2_execution.log
+      run: python3 remotely.py ${machines.server2.username}@${machines.server2.ip} ${machines.server2.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server2_execution.log
     
     - name: "Server 3 - Complete Setup"
       description: "Update, install tools, and gather info from server 3"
-      run: python3 remotely.py ${machines.server3.username}@${machines.server3.ip} ${machines.server3.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim nstools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server3_execution.log
+      run: python3 remotely.py ${machines.server3.username}@${machines.server3.ip} ${machines.server3.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server3_execution.log
 ```
 
 **What happens:**
@@ -143,9 +143,10 @@ Creates the logs directory if it doesn't exist.
 - Each server runs a chain of commands:
   1. `sudo apt-get update` - Update package lists
   2. `sudo apt-get upgrade -y` - Upgrade installed packages
-  3. `sudo apt-get install -y neovim nstools tree` - Install tools
+  3. `sudo apt-get install -y neovim net-tools tree` - Install tools
   4. `ls -lah ~` - List home directory contents
   5. `uname -a && df -h && free -h` - Gather system information
+- **Sudo authentication is handled automatically** using the password from `machines.yaml`
 - Output streams in real-time to separate log files (one per server)
 - The workflow waits for ALL servers to complete before proceeding
 - Commands are chained with `&&` so execution stops if any command fails
@@ -228,7 +229,19 @@ This example demonstrates the power of parallel SSH execution:
 - All 3 servers execute simultaneously: **5 minutes**
 - **Time saved: 10 minutes (67% faster!)**
 
-With more servers, the time savings multiply! The key advantage is that all servers execute their full command chain in parallel, with real-time log streaming for each.
+With more servers or longer-running commands, the time savings multiply! The key advantage is that all servers execute their full command chain in parallel, with real-time log streaming for each.
+
+## Automatic Sudo Password Handling
+
+The framework **automatically handles sudo password authentication** for you:
+
+- ✅ No need to configure passwordless sudo on remote servers
+- ✅ Password from `machines.yaml` is automatically injected for sudo commands
+- ✅ Uses secure `echo 'password' | sudo -S command` pattern
+- ✅ Works with any command containing `sudo`
+- ✅ No manual intervention required
+
+Simply include `sudo` in your commands and the framework handles the rest!
 
 ## Variable Interpolation with SSH
 
@@ -297,12 +310,22 @@ blocks:
 
 ## Troubleshooting
 
+### Issue: Sudo Commands Fail
+**Problem:** Commands with `sudo` fail with "permission denied" or authentication errors
+
+**Solution:** The framework automatically handles sudo password authentication using the password from `machines.yaml`. Ensure:
+1. The password in `machines.yaml` is correct
+2. The user has sudo privileges on the remote server
+3. The remote server allows password-based sudo (default configuration)
+
+**How it works:** When the framework detects `sudo` in a command, it automatically wraps it with password injection: `echo 'password' | sudo -S command`
+
 ### Issue: Connection Refused
 **Problem:** Cannot connect to SSH server
 
 **Solutions:**
 - Verify IP address is correct
-- Check that SSH service is running: `sudo systemctl status sshd`
+- Check that SSH service is running: `systemctl status sshd`
 - Verify network connectivity: `ping <server-ip>`
 - Check firewall rules allow port 22
 
@@ -326,9 +349,9 @@ blocks:
 **Problem:** Command fails due to insufficient permissions
 
 **Solutions:**
-- Use `sudo` for privileged commands: `"sudo systemctl restart nginx"`
 - Ensure remote user has necessary permissions
 - Check file/directory permissions on remote server
+- Configure passwordless sudo (see "Command Hangs" section above)
 
 ## Security Considerations
 
@@ -344,11 +367,13 @@ blocks:
 ## Key Takeaways
 - `remotely.py` enables SSH command execution from workflows
 - **Parallel execution drastically reduces multi-server deployment time**
+- **Sudo commands work automatically** - no configuration needed on remote servers
 - Output is streamed in real-time to local log files for each server
 - Progress bars and long-running commands are fully supported
 - Combine with variable interpolation for flexible configurations
 - Log files include metadata and execution status
 - Scale from 1 to N servers without changing workflow structure
+- Password from `machines.yaml` is securely used for sudo authentication
 
 ## Next Steps
 - Configure your actual SSH servers in `machines.yaml`

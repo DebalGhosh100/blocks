@@ -84,6 +84,19 @@ class SSHLogStreamer:
             print(f"Connection failed: {e}")
             return False
     
+    def _prepare_command_with_sudo(self):
+        """Prepare command by injecting password for sudo commands"""
+        command = self.command
+        
+        # Check if command contains sudo
+        if 'sudo' in command:
+            # Wrap sudo commands to use -S flag (read password from stdin)
+            # This allows non-interactive sudo execution
+            # Replace 'sudo' with 'echo password | sudo -S'
+            command = command.replace('sudo ', f"echo '{self.password}' | sudo -S ")
+        
+        return command
+    
     def stream_logs(self):
         """Execute command and stream output to log file in real-time"""
         if not self.client:
@@ -91,6 +104,9 @@ class SSHLogStreamer:
             return False
         
         try:
+            # Prepare command with sudo password injection if needed
+            prepared_command = self._prepare_command_with_sudo()
+            
             # Write header to log file
             with open(self.log_file, 'w', encoding='utf-8') as f:
                 f.write(f"=== SSH Log Stream Started ===\n")
@@ -104,7 +120,7 @@ class SSHLogStreamer:
             
             # Execute command and get stdout/stderr streams
             stdin, stdout, stderr = self.client.exec_command(
-                self.command,
+                prepared_command,
                 get_pty=True  # Get pseudo-terminal for better output handling
             )
             
