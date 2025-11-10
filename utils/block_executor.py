@@ -82,6 +82,9 @@ class BlockExecutor:
             
             success = result.returncode == 0
             
+            # Store the cleaned stdout
+            cleaned_stdout = result.stdout
+            
             # Extract the final working directory from output if command succeeded
             if success and '__BLOCKS_PWD__' in result.stdout:
                 # Split output to get the PWD
@@ -95,7 +98,7 @@ class BlockExecutor:
                         if old_dir != self.current_directory:
                             print(f"  Changed directory to: {self.current_directory}")
                 # Remove the marker and pwd from stdout for display
-                result = result._replace(stdout=output_parts[0])
+                cleaned_stdout = output_parts[0]
             
             # For explicit cd commands, also update directory
             if success and command.strip().startswith('cd '):
@@ -110,12 +113,12 @@ class BlockExecutor:
                         self.current_directory = target_dir
                         print(f"  Changed directory to: {self.current_directory}")
             
-            if result.stdout:
-                print(f"  Output: {result.stdout.strip()}")
+            if cleaned_stdout:
+                print(f"  Output: {cleaned_stdout.strip()}")
             if result.stderr and not success:
                 print(f"  Error: {result.stderr.strip()}")
             
-            return success, result.stdout, result.stderr
+            return success, cleaned_stdout, result.stderr
             
         except subprocess.TimeoutExpired:
             error_msg = "Command timed out"
