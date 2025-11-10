@@ -84,23 +84,63 @@ class BlockExecutor:
                     executable='/bin/bash'
                 )
             
-            # Stream output in real-time
+            # Stream output in real-time from both stdout and stderr
+            import select
             stdout_lines = []
             stderr_lines = []
             
-            # Read stdout line by line
-            while True:
-                line = process.stdout.readline()
-                if line:
-                    print(f"  {line.rstrip()}")
-                    stdout_lines.append(line)
-                elif process.poll() is not None:
-                    break
-            
-            # Read any remaining stderr
-            stderr_output = process.stderr.read()
-            if stderr_output:
-                stderr_lines.append(stderr_output)
+            # For Unix-like systems, use select to read from both streams
+            if os.name != 'nt':
+                while True:
+                    # Check if process is still running
+                    if process.poll() is not None:
+                        # Process ended, read remaining output
+                        remaining_out = process.stdout.read()
+                        remaining_err = process.stderr.read()
+                        if remaining_out:
+                            for line in remaining_out.splitlines(keepends=True):
+                                if line.strip() and line.strip() != '__BLOCKS_PWD__':
+                                    print(f"  {line.rstrip()}")
+                                stdout_lines.append(line)
+                        if remaining_err:
+                            for line in remaining_err.splitlines(keepends=True):
+                                if line.strip():
+                                    print(f"  {line.rstrip()}")
+                                stderr_lines.append(line)
+                        break
+                    
+                    # Use select to check which streams have data
+                    readable, _, _ = select.select([process.stdout, process.stderr], [], [], 0.1)
+                    
+                    for stream in readable:
+                        line = stream.readline()
+                        if line:
+                            # Don't print the __BLOCKS_PWD__ marker
+                            if line.strip() != '__BLOCKS_PWD__':
+                                print(f"  {line.rstrip()}")
+                            
+                            if stream == process.stdout:
+                                stdout_lines.append(line)
+                            else:
+                                stderr_lines.append(line)
+            else:
+                # For Windows, read stdout line by line (stderr handling is limited)
+                while True:
+                    line = process.stdout.readline()
+                    if line:
+                        if line.strip() != '__BLOCKS_PWD__':
+                            print(f"  {line.rstrip()}")
+                        stdout_lines.append(line)
+                    elif process.poll() is not None:
+                        break
+                
+                # Read any remaining stderr
+                stderr_output = process.stderr.read()
+                if stderr_output:
+                    for line in stderr_output.splitlines(keepends=True):
+                        if line.strip():
+                            print(f"  {line.rstrip()}")
+                        stderr_lines.append(line)
             
             # Get return code
             returncode = process.wait()
