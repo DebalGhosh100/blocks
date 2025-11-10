@@ -55,40 +55,68 @@ class BlockExecutor:
         print(f"  Working Directory: {self.current_directory}")
         
         try:
-            # Execute command using PowerShell on Windows
+            # Execute command with real-time output streaming
             if os.name == 'nt':
                 # Use PowerShell for better command support
                 # Add command to print working directory at the end
                 pwd_command = f"{interpolated_command}; if ($?) {{ Get-Location | Select-Object -ExpandProperty Path }}"
-                result = subprocess.run(
+                process = subprocess.Popen(
                     ['powershell.exe', '-Command', pwd_command],
-                    capture_output=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
                     text=True,
-                    timeout=None
+                    bufsize=1,
+                    universal_newlines=True
                 )
             else:
                 # Use bash on Unix-like systems
                 # Add command to print working directory at the end
                 # Use a special marker to separate output from pwd
                 pwd_command = f"{interpolated_command}; if [ $? -eq 0 ]; then echo '__BLOCKS_PWD__'; pwd; fi"
-                result = subprocess.run(
+                process = subprocess.Popen(
                     pwd_command,
                     shell=True,
-                    capture_output=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
                     text=True,
-                    timeout=None,
+                    bufsize=1,
+                    universal_newlines=True,
                     executable='/bin/bash'
                 )
             
-            success = result.returncode == 0
+            # Stream output in real-time
+            stdout_lines = []
+            stderr_lines = []
+            
+            # Read stdout line by line
+            while True:
+                line = process.stdout.readline()
+                if line:
+                    print(f"  {line.rstrip()}")
+                    stdout_lines.append(line)
+                elif process.poll() is not None:
+                    break
+            
+            # Read any remaining stderr
+            stderr_output = process.stderr.read()
+            if stderr_output:
+                stderr_lines.append(stderr_output)
+            
+            # Get return code
+            returncode = process.wait()
+            success = returncode == 0
+            
+            # Combine output
+            stdout_full = ''.join(stdout_lines)
+            stderr_full = ''.join(stderr_lines)
             
             # Store the cleaned stdout
-            cleaned_stdout = result.stdout
+            cleaned_stdout = stdout_full
             
             # Extract the final working directory from output if command succeeded
-            if success and '__BLOCKS_PWD__' in result.stdout:
+            if success and '__BLOCKS_PWD__' in stdout_full:
                 # Split output to get the PWD
-                output_parts = result.stdout.split('__BLOCKS_PWD__')
+                output_parts = stdout_full.split('__BLOCKS_PWD__')
                 if len(output_parts) > 1:
                     # Get the last line after the marker (the pwd output)
                     pwd_output = output_parts[1].strip().split('\n')[-1]
@@ -109,16 +137,15 @@ class BlockExecutor:
                         target_dir = os.path.join(self.current_directory, target_dir)
                     target_dir = os.path.normpath(target_dir)
                     # Only update if not already set by PWD detection
-                    if '__BLOCKS_PWD__' not in result.stdout:
+                    if '__BLOCKS_PWD__' not in stdout_full:
                         self.current_directory = target_dir
                         print(f"  Changed directory to: {self.current_directory}")
             
-            if cleaned_stdout:
-                print(f"  Output: {cleaned_stdout.strip()}")
-            if result.stderr and not success:
-                print(f"  Error: {result.stderr.strip()}")
+            # Show stderr if command failed
+            if stderr_full and not success:
+                print(f"  Error: {stderr_full.strip()}")
             
-            return success, cleaned_stdout, result.stderr
+            return success, cleaned_stdout, stderr_full
             
         except subprocess.TimeoutExpired:
             error_msg = "Command timed out"
