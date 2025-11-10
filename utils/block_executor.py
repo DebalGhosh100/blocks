@@ -15,6 +15,7 @@ class BlockExecutor:
     def __init__(self, config_loader):
         self.config_loader = config_loader
         self.results = []
+        self.current_directory = os.getcwd()  # Track current working directory
     
     def execute_command(self, command: str, block_name: str) -> Tuple[bool, str, str]:
         """
@@ -22,6 +23,19 @@ class BlockExecutor:
         """
         # Interpolate variables in command
         interpolated_command = self.config_loader.interpolate(command)
+        
+        # Check if command contains 'cd' to update current directory tracking
+        # Extract target directory from cd command
+        if interpolated_command.strip().startswith('cd '):
+            # Extract the directory path
+            cd_parts = interpolated_command.strip().split(None, 1)
+            if len(cd_parts) > 1:
+                target_dir = cd_parts[1].strip()
+                # Resolve the target directory relative to current directory
+                if not os.path.isabs(target_dir):
+                    target_dir = os.path.join(self.current_directory, target_dir)
+                # Normalize the path
+                target_dir = os.path.normpath(target_dir)
         
         # Replace remotely.py with full path if framework directory is available
         framework_dir = os.environ.get('BLOCKS_FRAMEWORK_DIR')
@@ -32,8 +46,13 @@ class BlockExecutor:
                 os.path.join(framework_dir, 'remotely.py')
             )
         
+        # Prepend cd to current directory for all non-cd commands
+        if not interpolated_command.strip().startswith('cd '):
+            interpolated_command = f"cd {self.current_directory} && {interpolated_command}"
+        
         print(f"  Executing: {block_name}")
         print(f"  Command: {interpolated_command}")
+        print(f"  Working Directory: {self.current_directory}")
         
         try:
             # Execute command using PowerShell on Windows
@@ -57,6 +76,17 @@ class BlockExecutor:
                 )
             
             success = result.returncode == 0
+            
+            # Update current directory if this was a cd command and it succeeded
+            if success and command.strip().startswith('cd '):
+                cd_parts = self.config_loader.interpolate(command).strip().split(None, 1)
+                if len(cd_parts) > 1:
+                    target_dir = cd_parts[1].strip()
+                    if not os.path.isabs(target_dir):
+                        target_dir = os.path.join(self.current_directory, target_dir)
+                    target_dir = os.path.normpath(target_dir)
+                    self.current_directory = target_dir
+                    print(f"  Changed directory to: {self.current_directory}")
             
             if result.stdout:
                 print(f"  Output: {result.stdout.strip()}")
