@@ -58,16 +58,21 @@ class BlockExecutor:
             # Execute command using PowerShell on Windows
             if os.name == 'nt':
                 # Use PowerShell for better command support
+                # Add command to print working directory at the end
+                pwd_command = f"{interpolated_command}; if ($?) {{ Get-Location | Select-Object -ExpandProperty Path }}"
                 result = subprocess.run(
-                    ['powershell.exe', '-Command', interpolated_command],
+                    ['powershell.exe', '-Command', pwd_command],
                     capture_output=True,
                     text=True,
                     timeout=None
                 )
             else:
                 # Use bash on Unix-like systems
+                # Add command to print working directory at the end
+                # Use a special marker to separate output from pwd
+                pwd_command = f"{interpolated_command}; if [ $? -eq 0 ]; then echo '__BLOCKS_PWD__'; pwd; fi"
                 result = subprocess.run(
-                    interpolated_command,
+                    pwd_command,
                     shell=True,
                     capture_output=True,
                     text=True,
@@ -77,7 +82,22 @@ class BlockExecutor:
             
             success = result.returncode == 0
             
-            # Update current directory if this was a cd command and it succeeded
+            # Extract the final working directory from output if command succeeded
+            if success and '__BLOCKS_PWD__' in result.stdout:
+                # Split output to get the PWD
+                output_parts = result.stdout.split('__BLOCKS_PWD__')
+                if len(output_parts) > 1:
+                    # Get the last line after the marker (the pwd output)
+                    pwd_output = output_parts[1].strip().split('\n')[-1]
+                    if pwd_output and os.path.isdir(pwd_output):
+                        old_dir = self.current_directory
+                        self.current_directory = pwd_output
+                        if old_dir != self.current_directory:
+                            print(f"  Changed directory to: {self.current_directory}")
+                # Remove the marker and pwd from stdout for display
+                result = result._replace(stdout=output_parts[0])
+            
+            # For explicit cd commands, also update directory
             if success and command.strip().startswith('cd '):
                 cd_parts = self.config_loader.interpolate(command).strip().split(None, 1)
                 if len(cd_parts) > 1:
@@ -85,8 +105,10 @@ class BlockExecutor:
                     if not os.path.isabs(target_dir):
                         target_dir = os.path.join(self.current_directory, target_dir)
                     target_dir = os.path.normpath(target_dir)
-                    self.current_directory = target_dir
-                    print(f"  Changed directory to: {self.current_directory}")
+                    # Only update if not already set by PWD detection
+                    if '__BLOCKS_PWD__' not in result.stdout:
+                        self.current_directory = target_dir
+                        print(f"  Changed directory to: {self.current_directory}")
             
             if result.stdout:
                 print(f"  Output: {result.stdout.strip()}")
