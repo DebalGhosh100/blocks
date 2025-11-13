@@ -46,9 +46,8 @@ class BlockExecutor:
                 os.path.join(framework_dir, 'remotely.py')
             )
         
-        # Prepend cd to current directory for all non-cd commands
-        if not interpolated_command.strip().startswith('cd '):
-            interpolated_command = f"cd {self.current_directory} && {interpolated_command}"
+        # Prepend cd to current directory for all commands to ensure proper working directory context
+        interpolated_command = f"cd {self.current_directory} && {interpolated_command}"
         
         print(f"  Executing: {block_name}")
         print(f"  Command: {interpolated_command}")
