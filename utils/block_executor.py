@@ -24,8 +24,8 @@ class BlockExecutor:
         # Interpolate variables in command
         interpolated_command = self.config_loader.interpolate(command)
         
-        # Check if command contains 'cd' to update current directory tracking
-        # Extract target directory from cd command
+        # Pre-calculate target directory for cd commands
+        precalculated_target_dir = None
         if interpolated_command.strip().startswith('cd '):
             # Extract the directory path
             cd_parts = interpolated_command.strip().split(None, 1)
@@ -34,8 +34,8 @@ class BlockExecutor:
                 # Resolve the target directory relative to current directory
                 if not os.path.isabs(target_dir):
                     target_dir = os.path.join(self.current_directory, target_dir)
-                # Normalize the path
-                target_dir = os.path.normpath(target_dir)
+                # Normalize the path to resolve .. and .
+                precalculated_target_dir = os.path.normpath(target_dir)
         
         # Replace remotely.py with full path if framework directory is available
         framework_dir = os.environ.get('BLOCKS_FRAMEWORK_DIR')
@@ -153,8 +153,19 @@ class BlockExecutor:
             # Store the cleaned stdout
             cleaned_stdout = stdout_full
             
-            # Extract the final working directory from output if command succeeded
-            if success and '__BLOCKS_PWD__' in stdout_full:
+            # Remove the __BLOCKS_PWD__ marker and pwd output from display
+            if '__BLOCKS_PWD__' in stdout_full:
+                output_parts = stdout_full.split('__BLOCKS_PWD__')
+                cleaned_stdout = output_parts[0]
+            
+            # For explicit cd commands, use the pre-calculated target directory
+            if success and command.strip().startswith('cd ') and precalculated_target_dir:
+                old_dir = self.current_directory
+                self.current_directory = precalculated_target_dir
+                if old_dir != self.current_directory:
+                    print(f"  Changed directory to: {self.current_directory}")
+            # For non-cd commands, detect directory changes from PWD output
+            elif success and '__BLOCKS_PWD__' in stdout_full:
                 # Split output to get the PWD
                 output_parts = stdout_full.split('__BLOCKS_PWD__')
                 if len(output_parts) > 1:
@@ -165,21 +176,6 @@ class BlockExecutor:
                         self.current_directory = pwd_output
                         if old_dir != self.current_directory:
                             print(f"  Changed directory to: {self.current_directory}")
-                # Remove the marker and pwd from stdout for display
-                cleaned_stdout = output_parts[0]
-            
-            # For explicit cd commands, also update directory
-            if success and command.strip().startswith('cd '):
-                cd_parts = self.config_loader.interpolate(command).strip().split(None, 1)
-                if len(cd_parts) > 1:
-                    target_dir = cd_parts[1].strip()
-                    if not os.path.isabs(target_dir):
-                        target_dir = os.path.join(self.current_directory, target_dir)
-                    target_dir = os.path.normpath(target_dir)
-                    # Only update if not already set by PWD detection
-                    if '__BLOCKS_PWD__' not in stdout_full:
-                        self.current_directory = target_dir
-                        print(f"  Changed directory to: {self.current_directory}")
             
             # Show stderr if command failed
             if stderr_full and not success:
