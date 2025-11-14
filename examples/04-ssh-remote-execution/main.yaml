@@ -16,25 +16,3 @@ blocks:
         description: "Update, install tools, and gather info from server 3"
         run: python3 remotely.py ${machines.server3.username}@${machines.server3.ip} ${machines.server3.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server3_execution.log
 
-  - name: "Display Log Results"
-    description: "Show the logs collected from remote execution"
-    run: |
-      echo "=== Remote Command Logs ==="
-      echo ""
-      echo "--- Server 1 Execution Log ---"
-      cat ./logs/server1_execution.log
-      echo ""
-      echo "--- Server 2 Execution Log ---"
-      cat ./logs/server2_execution.log
-      echo ""
-      echo "--- Server 3 Execution Log ---"
-      cat ./logs/server3_execution.log
-
-  - name: "Summary"
-    description: "Display summary of executed remote commands"
-    run: |
-      echo "=== Execution Summary ==="
-      echo "Total servers configured: 3"
-      echo "Total log files created: $(ls -1 ./logs/*.log | wc -l)"
-      echo "Log files:"
-      ls -lh ./logs/*.log
