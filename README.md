@@ -35,6 +35,18 @@ Blocks Executor allows you to define complex workflows in simple YAML files. Key
 If you already have `main.yaml` and a `storage/` directory with configuration files in your current directory, use this one-liner to clone, install, execute, and cleanup:
 
 **Linux/Mac:**
+
+First, install Cocoon as an alias (one-time setup):
+```bash
+echo "alias cocoon='curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash'" >> ~/.bashrc && source ~/.bashrc
+```
+
+Then simply run:
+```bash
+cocoon
+```
+
+Or use the full command directly without installing the alias:
 ```bash
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
@@ -140,10 +152,19 @@ blocks:
 EOF
 ```
 
-2. **Execute with one command:**
+2. **(Optional) Install the Cocoon alias for convenience:**
 
 ```bash
-# Download and execute the one-liner script
+echo "alias cocoon='curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash'" >> ~/.bashrc && source ~/.bashrc
+```
+
+3. **Execute with one command:**
+
+```bash
+# If you installed the alias:
+cocoon
+
+# Or use the full command directly:
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
 
