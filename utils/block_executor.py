@@ -17,6 +17,7 @@ class BlockExecutor:
         self.config_loader = config_loader
         self.results = []
         self.current_directory = os.getcwd()  # Track current working directory
+        self.environment = os.environ.copy()  # Track environment variables across commands
     
     def execute_command(self, command: str, block_name: str) -> Tuple[bool, str, str]:
         """
@@ -70,18 +71,19 @@ class BlockExecutor:
                 )
             else:
                 # Use bash on Unix-like systems
-                # Add command to print working directory at the end
-                # Use a special marker to separate output from pwd
-                pwd_command = f"{interpolated_command}; if [ $? -eq 0 ]; then echo '__BLOCKS_PWD__'; pwd; fi"
+                # Add command to print working directory and capture environment at the end
+                # Use special markers to separate output from pwd and env
+                env_capture_command = f"{interpolated_command}; if [ $? -eq 0 ]; then echo '__BLOCKS_PWD__'; pwd; echo '__BLOCKS_ENV__'; export -p; fi"
                 process = subprocess.Popen(
-                    pwd_command,
+                    env_capture_command,
                     shell=True,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True,
                     bufsize=1,
                     universal_newlines=True,
-                    executable='/bin/bash'
+                    executable='/bin/bash',
+                    env=self.environment  # Use persistent environment
                 )
             
             # Stream output in real-time from both stdout and stderr
@@ -153,29 +155,57 @@ class BlockExecutor:
             # Store the cleaned stdout
             cleaned_stdout = stdout_full
             
-            # Remove the __BLOCKS_PWD__ marker and pwd output from display
+            # Process environment and PWD markers
             if '__BLOCKS_PWD__' in stdout_full:
-                output_parts = stdout_full.split('__BLOCKS_PWD__')
-                cleaned_stdout = output_parts[0]
-            
-            # For explicit cd commands, use the pre-calculated target directory
-            if success and command.strip().startswith('cd ') and precalculated_target_dir:
-                old_dir = self.current_directory
-                self.current_directory = precalculated_target_dir
-                if old_dir != self.current_directory:
-                    print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
-            # For non-cd commands, detect directory changes from PWD output
-            elif success and '__BLOCKS_PWD__' in stdout_full:
-                # Split output to get the PWD
-                output_parts = stdout_full.split('__BLOCKS_PWD__')
-                if len(output_parts) > 1:
-                    # Get the last line after the marker (the pwd output)
-                    pwd_output = output_parts[1].strip().split('\n')[-1]
-                    if pwd_output and os.path.isdir(pwd_output):
-                        old_dir = self.current_directory
-                        self.current_directory = pwd_output
-                        if old_dir != self.current_directory:
-                            print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
+                parts = stdout_full.split('__BLOCKS_PWD__')
+                cleaned_stdout = parts[0]
+                
+                if len(parts) > 1:
+                    remainder = parts[1]
+                    
+                    # Extract PWD and environment variables
+                    if '__BLOCKS_ENV__' in remainder:
+                        env_parts = remainder.split('__BLOCKS_ENV__')
+                        pwd_section = env_parts[0].strip()
+                        
+                        # Update directory from PWD
+                        if success:
+                            # For explicit cd commands, use pre-calculated directory
+                            if command.strip().startswith('cd ') and precalculated_target_dir:
+                                old_dir = self.current_directory
+                                self.current_directory = precalculated_target_dir
+                                if old_dir != self.current_directory:
+                                    print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
+                            # For other commands, use PWD output
+                            else:
+                                pwd_lines = pwd_section.split('\n')
+                                for line in pwd_lines:
+                                    line = line.strip()
+                                    if line and os.path.isdir(line):
+                                        old_dir = self.current_directory
+                                        self.current_directory = line
+                                        if old_dir != self.current_directory:
+                                            print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
+                                        break
+                        
+                        # Update environment variables from export -p output
+                        if success and len(env_parts) > 1:
+                            env_output = env_parts[1]
+                            self._update_environment_from_export(env_output)
+                    else:
+                        # No environment capture, just PWD
+                        pwd_output = remainder.strip().split('\n')[-1]
+                        if success and pwd_output and os.path.isdir(pwd_output):
+                            if command.strip().startswith('cd ') and precalculated_target_dir:
+                                old_dir = self.current_directory
+                                self.current_directory = precalculated_target_dir
+                                if old_dir != self.current_directory:
+                                    print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
+                            else:
+                                old_dir = self.current_directory
+                                self.current_directory = pwd_output
+                                if old_dir != self.current_directory:
+                                    print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
             
             # Show stderr if command failed
             if stderr_full and not success:
@@ -191,6 +221,23 @@ class BlockExecutor:
             error_msg = f"Command execution failed: {e}"
             print(Colors.colorize(f"  Error: {error_msg}", Colors.RED))
             return False, "", error_msg
+    
+    def _update_environment_from_export(self, export_output: str):
+        """Parse 'export -p' output and update persistent environment"""
+        import re
+        
+        # Pattern to match: declare -x VAR="value" or export VAR="value"
+        pattern = r'(?:declare -x |export )([A-Za-z_][A-Za-z0-9_]*)=(?:"([^"]*)"|\'([^\']*)\'|([^\s]+))'
+        
+        for line in export_output.split('\n'):
+            match = re.match(pattern, line)
+            if match:
+                var_name = match.group(1)
+                # Get the value from whichever group matched (quoted or unquoted)
+                var_value = match.group(2) or match.group(3) or match.group(4) or ''
+                
+                # Update our persistent environment
+                self.environment[var_name] = var_value
     
     def execute_block(self, block: Dict[str, Any]) -> Dict[str, Any]:
         """Execute a single block"""
