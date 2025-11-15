@@ -101,7 +101,8 @@ class BlockExecutor:
                         remaining_err = process.stderr.read()
                         if remaining_out:
                             for line in remaining_out.splitlines(keepends=True):
-                                if line.strip() and line.strip() != '__BLOCKS_PWD__':
+                                stripped = line.strip()
+                                if stripped and stripped not in ['__BLOCKS_PWD__', '__BLOCKS_ENV__'] and not stripped.startswith('declare -x '):
                                     print(f"  {line.rstrip()}")
                                 stdout_lines.append(line)
                         if remaining_err:
@@ -117,8 +118,9 @@ class BlockExecutor:
                     for stream in readable:
                         line = stream.readline()
                         if line:
-                            # Don't print the __BLOCKS_PWD__ marker
-                            if line.strip() != '__BLOCKS_PWD__':
+                            # Don't print the markers or environment output
+                            stripped = line.strip()
+                            if stripped not in ['__BLOCKS_PWD__', '__BLOCKS_ENV__'] and not stripped.startswith('declare -x '):
                                 print(f"  {line.rstrip()}")
                             
                             if stream == process.stdout:
@@ -130,7 +132,8 @@ class BlockExecutor:
                 while True:
                     line = process.stdout.readline()
                     if line:
-                        if line.strip() != '__BLOCKS_PWD__':
+                        stripped = line.strip()
+                        if stripped not in ['__BLOCKS_PWD__', '__BLOCKS_ENV__'] and not stripped.startswith('declare -x '):
                             print(f"  {line.rstrip()}")
                         stdout_lines.append(line)
                     elif process.poll() is not None:
