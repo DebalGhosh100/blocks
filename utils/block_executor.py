@@ -7,6 +7,7 @@ import subprocess
 import threading
 from typing import Dict, Any, List, Tuple
 from datetime import datetime
+from .colors import Colors
 
 
 class BlockExecutor:
@@ -49,9 +50,9 @@ class BlockExecutor:
         # Prepend cd to current directory for all commands to ensure proper working directory context
         interpolated_command = f"cd {self.current_directory} && {interpolated_command}"
         
-        print(f"  Executing: {block_name}")
-        print(f"  Command: {interpolated_command}")
-        print(f"  Working Directory: {self.current_directory}")
+        print(Colors.colorize(f"  Executing: {block_name}", Colors.CYAN))
+        print(Colors.colorize(f"  Command: {interpolated_command}", Colors.BLUE))
+        print(Colors.colorize(f"  Working Directory: {self.current_directory}", Colors.MAGENTA))
         
         try:
             # Execute command with real-time output streaming
@@ -162,7 +163,7 @@ class BlockExecutor:
                 old_dir = self.current_directory
                 self.current_directory = precalculated_target_dir
                 if old_dir != self.current_directory:
-                    print(f"  Changed directory to: {self.current_directory}")
+                    print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
             # For non-cd commands, detect directory changes from PWD output
             elif success and '__BLOCKS_PWD__' in stdout_full:
                 # Split output to get the PWD
@@ -174,21 +175,21 @@ class BlockExecutor:
                         old_dir = self.current_directory
                         self.current_directory = pwd_output
                         if old_dir != self.current_directory:
-                            print(f"  Changed directory to: {self.current_directory}")
+                            print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
             
             # Show stderr if command failed
             if stderr_full and not success:
-                print(f"  Error: {stderr_full.strip()}")
+                print(Colors.colorize(f"  Error: {stderr_full.strip()}", Colors.RED))
             
             return success, cleaned_stdout, stderr_full
             
         except subprocess.TimeoutExpired:
             error_msg = "Command timed out"
-            print(f"  Error: {error_msg}")
+            print(Colors.colorize(f"  Error: {error_msg}", Colors.RED))
             return False, "", error_msg
         except Exception as e:
             error_msg = f"Command execution failed: {e}"
-            print(f"  Error: {error_msg}")
+            print(Colors.colorize(f"  Error: {error_msg}", Colors.RED))
             return False, "", error_msg
     
     def execute_block(self, block: Dict[str, Any]) -> Dict[str, Any]:
@@ -197,12 +198,12 @@ class BlockExecutor:
         name = block.get('name', command[:50] + '...' if len(command) > 50 else command)
         description = block.get('description', '')
         
-        print(f"\n{'='*60}")
+        print(Colors.colorize(f"\n{'='*60}", Colors.BOLD_CYAN))
         if name:
-            print(f"Block: {name}")
+            print(Colors.colorize(f"Block: {name}", Colors.BOLD_CYAN))
         if description:
-            print(f"Description: {description}")
-        print(f"{'='*60}")
+            print(Colors.colorize(f"Description: {description}", Colors.CYAN))
+        print(Colors.colorize(f"{'='*60}", Colors.BOLD_CYAN))
         
         start_time = datetime.now()
         success, stdout, stderr = self.execute_command(command, name)
@@ -220,16 +221,17 @@ class BlockExecutor:
             'end_time': end_time.isoformat()
         }
         
+        status_color = Colors.BOLD_GREEN if success else Colors.BOLD_RED
         status = "✓ SUCCESS" if success else "✗ FAILED"
-        print(f"  Status: {status} (Duration: {duration:.2f}s)")
+        print(Colors.colorize(f"  Status: {status} (Duration: {duration:.2f}s)", status_color))
         
         return result
     
     def execute_parallel_blocks(self, blocks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Execute multiple blocks in parallel using threads"""
-        print(f"\n{'='*60}")
-        print(f"PARALLEL EXECUTION - {len(blocks)} blocks")
-        print(f"{'='*60}")
+        print(Colors.colorize(f"\n{'='*60}", Colors.BOLD_YELLOW))
+        print(Colors.colorize(f"PARALLEL EXECUTION - {len(blocks)} blocks", Colors.BOLD_YELLOW))
+        print(Colors.colorize(f"{'='*60}", Colors.BOLD_YELLOW))
         
         results = [None] * len(blocks)
         threads = []
@@ -252,9 +254,9 @@ class BlockExecutor:
         for thread in threads:
             thread.join()
         
-        print(f"\n{'='*60}")
-        print(f"PARALLEL EXECUTION COMPLETED")
-        print(f"{'='*60}")
+        print(Colors.colorize(f"\n{'='*60}", Colors.BOLD_YELLOW))
+        print(Colors.colorize(f"PARALLEL EXECUTION COMPLETED", Colors.BOLD_YELLOW))
+        print(Colors.colorize(f"{'='*60}", Colors.BOLD_YELLOW))
         
         return results
     
@@ -263,13 +265,13 @@ class BlockExecutor:
         blocks = workflow_data.get('blocks', [])
         
         if not blocks:
-            print("No blocks found in workflow")
+            print(Colors.colorize("No blocks found in workflow", Colors.YELLOW))
             return True
         
-        print(f"\n{'#'*60}")
-        print(f"# WORKFLOW EXECUTION STARTED")
-        print(f"# Total items: {len(blocks)}")
-        print(f"{'#'*60}")
+        print(Colors.colorize(f"\n{'#'*60}", Colors.BOLD_MAGENTA))
+        print(Colors.colorize(f"# WORKFLOW EXECUTION STARTED", Colors.BOLD_MAGENTA))
+        print(Colors.colorize(f"# Total items: {len(blocks)}", Colors.BOLD_MAGENTA))
+        print(Colors.colorize(f"{'#'*60}", Colors.BOLD_MAGENTA))
         
         all_success = True
         
@@ -300,11 +302,11 @@ class BlockExecutor:
                     all_success = False
             
             else:
-                print(f"Warning: Unrecognized block structure (missing 'run' field): {item}")
+                print(Colors.colorize(f"Warning: Unrecognized block structure (missing 'run' field): {item}", Colors.YELLOW))
         
-        print(f"\n{'#'*60}")
-        print(f"# WORKFLOW EXECUTION COMPLETED")
-        print(f"{'#'*60}")
+        print(Colors.colorize(f"\n{'#'*60}", Colors.BOLD_MAGENTA))
+        print(Colors.colorize(f"# WORKFLOW EXECUTION COMPLETED", Colors.BOLD_MAGENTA))
+        print(Colors.colorize(f"{'#'*60}", Colors.BOLD_MAGENTA))
         
         # Print summary
         self._print_summary()
@@ -316,24 +318,24 @@ class BlockExecutor:
         if not self.results:
             return
         
-        print(f"\n{'='*60}")
-        print(f"EXECUTION SUMMARY")
-        print(f"{'='*60}")
+        print(Colors.colorize(f"\n{'='*60}", Colors.BOLD_CYAN))
+        print(Colors.colorize(f"EXECUTION SUMMARY", Colors.BOLD_CYAN))
+        print(Colors.colorize(f"{'='*60}", Colors.BOLD_CYAN))
         
         total = len(self.results)
         successful = sum(1 for r in self.results if r['success'])
         failed = total - successful
         total_duration = sum(r['duration'] for r in self.results)
         
-        print(f"Total blocks executed: {total}")
-        print(f"Successful: {successful}")
-        print(f"Failed: {failed}")
-        print(f"Total duration: {total_duration:.2f}s")
+        print(Colors.colorize(f"Total blocks executed: {total}", Colors.CYAN))
+        print(Colors.colorize(f"Successful: {successful}", Colors.GREEN))
+        print(Colors.colorize(f"Failed: {failed}", Colors.RED if failed > 0 else Colors.GREEN))
+        print(Colors.colorize(f"Total duration: {total_duration:.2f}s", Colors.CYAN))
         
         if failed > 0:
-            print(f"\nFailed blocks:")
+            print(Colors.colorize(f"\nFailed blocks:", Colors.BOLD_RED))
             for result in self.results:
                 if not result['success']:
-                    print(f"  - {result['name']}")
+                    print(Colors.colorize(f"  - {result['name']}", Colors.RED))
                     if result['stderr']:
-                        print(f"    Error: {result['stderr'][:100]}")
+                        print(Colors.colorize(f"    Error: {result['stderr'][:100]}", Colors.RED))

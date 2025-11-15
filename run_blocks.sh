@@ -15,33 +15,39 @@ TEMP_DIR=".blocks_temp"
 WORKFLOW_FILE="${1:-main.yaml}"
 STORAGE_DIR="${2:-storage}"
 
-echo "============================================"
-echo "Blocks Executor - One-Command Execution"
-echo "============================================"
+# Colors for terminal output
+CYAN='\033[1;36m'
+YELLOW='\033[1;33m'
+GREEN='\033[1;32m'
+NC='\033[0m' # No Color
+
+echo -e "${CYAN}============================================${NC}"
+echo -e "${CYAN}Cocoon - One-Command Execution${NC}"
+echo -e "${CYAN}============================================${NC}"
 
 # Step 1: Clone repository
-echo "[1/5] Cloning repository..."
+echo -e "${YELLOW}[1/5] Cloning repository...${NC}"
 git clone "$REPO_URL" "$TEMP_DIR"
 cd "$TEMP_DIR"
 
 # Step 2: Install dependencies
-echo "[2/5] Installing dependencies..."
+echo -e "${YELLOW}[2/5] Installing dependencies...${NC}"
 pip3 install -q -r requirements.txt
 
 # Step 3: Execute workflow
-echo "[3/5] Executing workflow..."
-echo "Workflow file: $WORKFLOW_FILE"
-echo "Storage directory: $STORAGE_DIR"
+echo -e "${YELLOW}[3/5] Executing workflow...${NC}"
+echo -e "Workflow file: $WORKFLOW_FILE"
+echo -e "Storage directory: $STORAGE_DIR"
 python3 blocks_executor.py "../$WORKFLOW_FILE" --storage "../$STORAGE_DIR"
 
 # Step 4: Return to original directory
-echo "[4/5] Returning to project directory..."
+echo -e "${YELLOW}[4/5] Returning to project directory...${NC}"
 cd ..
 
 # Step 5: Cleanup
-echo "[5/5] Cleaning up framework files..."
+echo -e "${YELLOW}[5/5] Cleaning up framework files...${NC}"
 rm -rf "$TEMP_DIR"
 
-echo "============================================"
-echo "Execution complete! Framework cleaned up."
-echo "============================================"
+echo -e "${GREEN}============================================${NC}"
+echo -e "${GREEN}Execution complete! Framework cleaned up.${NC}"
+echo -e "${GREEN}============================================${NC}"

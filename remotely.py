@@ -8,7 +8,7 @@ import os
 import argparse
 
 # Import from utils package
-from utils import SSHLogStreamer
+from utils import SSHLogStreamer, Colors
 
 
 def main():
@@ -61,10 +61,10 @@ Examples:
         sys.exit(0 if success else 1)
         
     except KeyboardInterrupt:
-        print("\n\nInterrupted by user")
+        print(Colors.colorize("\n\nInterrupted by user", Colors.YELLOW))
         sys.exit(130)
     except Exception as e:
-        print(f"\nUnexpected error: {e}")
+        print(Colors.colorize(f"\nUnexpected error: {e}", Colors.RED))
         sys.exit(1)
     finally:
         streamer.close()

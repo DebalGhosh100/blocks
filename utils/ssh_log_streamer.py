@@ -7,6 +7,7 @@ import threading
 import paramiko
 from pathlib import Path
 from datetime import datetime
+from .colors import Colors
 
 
 class SSHLogStreamer:
@@ -65,7 +66,7 @@ class SSHLogStreamer:
         """Establish SSH connection"""
         user, host, port = self._parse_ssh_url()
         
-        print(f"Connecting to {user}@{host}:{port}...")
+        print(Colors.colorize(f"Connecting to {user}@{host}:{port}...", Colors.CYAN))
         
         self.client = paramiko.SSHClient()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -78,10 +79,10 @@ class SSHLogStreamer:
                 password=self.password,
                 timeout=10
             )
-            print(f"Successfully connected to {host}")
+            print(Colors.colorize(f"Successfully connected to {host}", Colors.GREEN))
             return True
         except Exception as e:
-            print(f"Connection failed: {e}")
+            print(Colors.colorize(f"Connection failed: {e}", Colors.RED))
             return False
     
     def _prepare_command_with_sudo(self):
@@ -100,7 +101,7 @@ class SSHLogStreamer:
     def stream_logs(self):
         """Execute command and stream output to log file in real-time"""
         if not self.client:
-            print("Not connected to SSH server")
+            print(Colors.colorize("Not connected to SSH server", Colors.RED))
             return False
         
         try:
@@ -115,8 +116,8 @@ class SSHLogStreamer:
                 f.write(f"Command: {self.command}\n")
                 f.write(f"{'=' * 50}\n\n")
             
-            print(f"Executing command: {self.command}")
-            print(f"Streaming logs to: {self.log_file}")
+            print(Colors.colorize(f"Executing command: {self.command}", Colors.CYAN))
+            print(Colors.colorize(f"Streaming logs to: {self.log_file}", Colors.BLUE))
             
             # Execute command and get stdout/stderr streams
             stdin, stdout, stderr = self.client.exec_command(
@@ -197,14 +198,15 @@ class SSHLogStreamer:
                 f.write(f"Timestamp: {datetime.now().isoformat()}\n")
                 f.write(f"=== SSH Log Stream Ended ===\n")
             
-            print(f"\nCommand completed with exit status: {exit_status}")
-            print(f"Logs saved to: {self.log_file}")
+            status_color = Colors.GREEN if exit_status == 0 else Colors.RED
+            print(Colors.colorize(f"\nCommand completed with exit status: {exit_status}", status_color))
+            print(Colors.colorize(f"Logs saved to: {self.log_file}", Colors.BLUE))
             
             return exit_status == 0
             
         except Exception as e:
             error_msg = f"\nError during command execution: {e}\n"
-            print(error_msg)
+            print(Colors.colorize(error_msg, Colors.RED))
             
             # Log the error
             with open(self.log_file, 'a', encoding='utf-8') as f:
@@ -216,4 +218,4 @@ class SSHLogStreamer:
         """Close SSH connection"""
         if self.client:
             self.client.close()
-            print("SSH connection closed")
+            print(Colors.colorize("SSH connection closed", Colors.CYAN))

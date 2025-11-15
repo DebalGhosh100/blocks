@@ -9,7 +9,7 @@ import yaml
 from pathlib import Path
 
 # Import from utils package
-from utils import ConfigLoader, BlockExecutor
+from utils import ConfigLoader, BlockExecutor, Colors
 
 
 def main():
@@ -45,7 +45,7 @@ Examples:
     # Check if workflow file exists
     workflow_path = Path(args.workflow_file)
     if not workflow_path.exists():
-        print(f"Error: Workflow file '{args.workflow_file}' not found")
+        print(Colors.colorize(f"Error: Workflow file '{args.workflow_file}' not found", Colors.BOLD_RED))
         sys.exit(1)
     
     # Store the directory where the workflow file resides
@@ -89,15 +89,15 @@ Examples:
         sys.exit(0 if success else 1)
         
     except yaml.YAMLError as e:
-        print(f"Error parsing YAML file: {e}")
+        print(Colors.colorize(f"Error parsing YAML file: {e}", Colors.BOLD_RED))
         os.chdir(original_cwd)  # Restore original directory
         sys.exit(1)
     except KeyboardInterrupt:
-        print("\n\nWorkflow interrupted by user")
+        print(Colors.colorize("\n\nWorkflow interrupted by user", Colors.YELLOW))
         os.chdir(original_cwd)  # Restore original directory
         sys.exit(130)
     except Exception as e:
-        print(f"Unexpected error: {e}")
+        print(Colors.colorize(f"Unexpected error: {e}", Colors.BOLD_RED))
         import traceback
         traceback.print_exc()
         os.chdir(original_cwd)  # Restore original directory

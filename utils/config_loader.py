@@ -6,6 +6,7 @@ import yaml
 import re
 from pathlib import Path
 from typing import Any
+from .colors import Colors
 
 
 class ConfigLoader:
@@ -19,7 +20,7 @@ class ConfigLoader:
     def _load_all_configs(self):
         """Load all YAML files from storage directory"""
         if not self.storage_dir.exists():
-            print(f"Warning: Storage directory '{self.storage_dir}' not found")
+            print(Colors.colorize(f"Warning: Storage directory '{self.storage_dir}' not found", Colors.YELLOW))
             return
         
         for yaml_file in self.storage_dir.glob("*.yaml"):
@@ -61,7 +62,7 @@ class ConfigLoader:
                 value = self.get_value(var_path)
                 return str(value)
             except KeyError as e:
-                print(f"Warning: {e}")
+                print(Colors.colorize(f"Warning: {e}", Colors.YELLOW))
                 return match.group(0)  # Return original if not found
         
         return re.sub(pattern, replace_var, text)
