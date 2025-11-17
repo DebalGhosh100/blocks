@@ -29,10 +29,16 @@ class BlockExecutor:
         # Pre-calculate target directory for cd commands
         precalculated_target_dir = None
         if interpolated_command.strip().startswith('cd '):
-            # Extract the directory path
+            # Extract the directory path (handle compound commands like cd dir && command)
             cd_parts = interpolated_command.strip().split(None, 1)
             if len(cd_parts) > 1:
                 target_dir = cd_parts[1].strip()
+                # Split by shell operators to get just the directory path
+                import re
+                # Match directory path before &&, ||, ;, |, or other operators
+                dir_match = re.match(r'^([^;&|]+)', target_dir)
+                if dir_match:
+                    target_dir = dir_match.group(1).strip()
                 # Resolve the target directory relative to current directory
                 if not os.path.isabs(target_dir):
                     target_dir = os.path.join(self.current_directory, target_dir)
