@@ -35,10 +35,11 @@ class BlockExecutor:
                 target_dir = cd_parts[1].strip()
                 # Split by shell operators to get just the directory path
                 import re
-                # Match directory path before &&, ||, ;, |, or other operators
-                dir_match = re.match(r'^([^;&|]+)', target_dir)
+                # Match directory path before &&, ||, ;, or | operators
+                # Use word boundaries and lookahead to avoid splitting on single characters
+                dir_match = re.split(r'\s*(?:&&|\|\||[;|])\s*', target_dir, maxsplit=1)
                 if dir_match:
-                    target_dir = dir_match.group(1).strip()
+                    target_dir = dir_match[0].strip()
                 # Resolve the target directory relative to current directory
                 if not os.path.isabs(target_dir):
                     target_dir = os.path.join(self.current_directory, target_dir)
@@ -179,23 +180,26 @@ class BlockExecutor:
                         
                         # Update directory from PWD
                         if success:
-                            # For explicit cd commands, use pre-calculated directory
-                            if command.strip().startswith('cd ') and precalculated_target_dir:
+                            # Always use actual PWD output as ground truth
+                            # PWD reflects the final directory after all commands execute
+                            pwd_lines = pwd_section.split('\n')
+                            pwd_detected = False
+                            for line in pwd_lines:
+                                line = line.strip()
+                                if line and os.path.isdir(line):
+                                    old_dir = self.current_directory
+                                    self.current_directory = line
+                                    pwd_detected = True
+                                    if old_dir != self.current_directory:
+                                        print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
+                                    break
+                            
+                            # Fallback to pre-calculated directory only if PWD detection failed
+                            if not pwd_detected and command.strip().startswith('cd ') and precalculated_target_dir:
                                 old_dir = self.current_directory
                                 self.current_directory = precalculated_target_dir
                                 if old_dir != self.current_directory:
                                     print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
-                            # For other commands, use PWD output
-                            else:
-                                pwd_lines = pwd_section.split('\n')
-                                for line in pwd_lines:
-                                    line = line.strip()
-                                    if line and os.path.isdir(line):
-                                        old_dir = self.current_directory
-                                        self.current_directory = line
-                                        if old_dir != self.current_directory:
-                                            print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
-                                        break
                         
                         # Update environment variables from export -p output
                         if success and len(env_parts) > 1:
@@ -205,16 +209,17 @@ class BlockExecutor:
                         # No environment capture, just PWD
                         pwd_output = remainder.strip().split('\n')[-1]
                         if success and pwd_output and os.path.isdir(pwd_output):
-                            if command.strip().startswith('cd ') and precalculated_target_dir:
-                                old_dir = self.current_directory
-                                self.current_directory = precalculated_target_dir
-                                if old_dir != self.current_directory:
-                                    print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
-                            else:
-                                old_dir = self.current_directory
-                                self.current_directory = pwd_output
-                                if old_dir != self.current_directory:
-                                    print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
+                            # Always use actual PWD output as ground truth
+                            old_dir = self.current_directory
+                            self.current_directory = pwd_output
+                            if old_dir != self.current_directory:
+                                print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
+                        elif success and command.strip().startswith('cd ') and precalculated_target_dir:
+                            # Fallback to pre-calculated directory only if PWD detection failed
+                            old_dir = self.current_directory
+                            self.current_directory = precalculated_target_dir
+                            if old_dir != self.current_directory:
+                                print(Colors.colorize(f"  Changed directory to: {self.current_directory}", Colors.GREEN))
             
             # Show stderr if command failed
             if stderr_full and not success:
