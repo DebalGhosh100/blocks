@@ -3,16 +3,73 @@ blocks:
     description: "Create directory for SSH execution logs"
     run: "mkdir -p ./logs && echo 'Logs directory ready'"
 
+  # Example 1: Sequential remote execution with log file
+  - name: "Server 1 - System Info (with log)"
+    description: "Gather system information from server 1 and save to log"
+    run-remotely:
+      ip: ${machines.server1.ip}
+      user: ${machines.server1.username}
+      pass: ${machines.server1.password}
+      run: "uname -a && df -h && free -h"
+      log-into: ./logs/server1_sysinfo.log
+
+  # Example 2: Sequential remote execution without log file (streaming)
+  - name: "Server 1 - Quick Check (streaming)"
+    description: "Quick check on server 1 with real-time output"
+    run-remotely:
+      ip: ${machines.server1.ip}
+      user: ${machines.server1.username}
+      pass: ${machines.server1.password}
+      run: "echo 'System uptime:' && uptime && echo 'Current user:' && whoami"
+
+  # Example 3: Parallel remote execution (log-into is MANDATORY for parallel)
   - parallel:
       - name: "Server 1 - Complete Setup"
         description: "Update, install tools, and gather info from server 1"
-        run: python3 remotely.py ${machines.server1.username}@${machines.server1.ip} ${machines.server1.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server1_execution.log
+        run-remotely:
+          ip: ${machines.server1.ip}
+          user: ${machines.server1.username}
+          pass: ${machines.server1.password}
+          run: "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h"
+          log-into: ./logs/server1_execution.log
 
       - name: "Server 2 - Complete Setup"
         description: "Update, install tools, and gather info from server 2"
-        run: python3 remotely.py ${machines.server2.username}@${machines.server2.ip} ${machines.server2.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server2_execution.log
+        run-remotely:
+          ip: ${machines.server2.ip}
+          user: ${machines.server2.username}
+          pass: ${machines.server2.password}
+          run: "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h"
+          log-into: ./logs/server2_execution.log
 
       - name: "Server 3 - Complete Setup"
         description: "Update, install tools, and gather info from server 3"
-        run: python3 remotely.py ${machines.server3.username}@${machines.server3.ip} ${machines.server3.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server3_execution.log
+        run-remotely:
+          ip: ${machines.server3.ip}
+          user: ${machines.server3.username}
+          pass: ${machines.server3.password}
+          run: "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h"
+          log-into: ./logs/server3_execution.log
 
+  - name: "Display Log Results"
+    description: "Show the logs collected from remote execution"
+    run: |
+      echo "=== Remote Command Logs ==="
+      echo ""
+      echo "--- Server 1 Execution Log ---"
+      cat ./logs/server1_execution.log
+      echo ""
+      echo "--- Server 2 Execution Log ---"
+      cat ./logs/server2_execution.log
+      echo ""
+      echo "--- Server 3 Execution Log ---"
+      cat ./logs/server3_execution.log
+
+  - name: "Summary"
+    description: "Display summary of executed remote commands"
+    run: |
+      echo "=== Execution Summary ==="
+      echo "Total servers configured: 3"
+      echo "Total log files created: $(ls -1 ./logs/*.log | wc -l)"
+      echo "Log files:"
+      ls -lh ./logs/*.log

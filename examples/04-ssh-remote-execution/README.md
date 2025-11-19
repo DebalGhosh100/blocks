@@ -1,12 +1,14 @@
 # Example 4: SSH Remote Execution with Parallel Deployment
 
 ## Overview
-This example demonstrates how to use the `remotely.py` script to execute commands on **multiple remote servers in parallel** via SSH and stream the output to local log files in real-time.
+This example demonstrates how to use the **`run-remotely` YAML syntax** to execute commands on **multiple remote servers in parallel** via SSH and stream the output to local log files in real-time.
 
 ## What This Example Demonstrates
-- ✅ SSH remote command execution using `remotely.py`
+- ✅ **New `run-remotely` YAML syntax** for structured remote execution
+- ✅ SSH remote command execution with structured configuration
 - ✅ **Parallel execution across multiple servers simultaneously**
 - ✅ Real-time log streaming to local files
+- ✅ Streaming mode without log files (optional)
 - ✅ Variable interpolation for SSH credentials
 - ✅ Multi-server system updates and package installation
 - ✅ Log file management and display
@@ -82,35 +84,96 @@ The workflow will:
 3. Display all collected logs from all servers
 4. Show summary of execution (3 total log files created)
 
-## Remotely Script Syntax
+## Remote Execution Syntax
 
-### Basic Usage
-```bash
-python3 remotely.py <ssh_url> <password> "<command>" <log_file>
+### New `run-remotely` YAML Syntax
+
+The framework now supports a dedicated YAML syntax for remote execution that's cleaner and more maintainable than calling `remotely.py` directly:
+
+```yaml
+- run-remotely:
+    ip: "192.168.1.100"                    # Server IP address
+    user: "admin"                           # SSH username
+    pass: "mypassword"                      # SSH password
+    run: "ls -la && df -h"                  # Command(s) to execute
+    log-into: "./logs/output.log"           # Log file (optional for sequential, mandatory for parallel)
 ```
 
-### Parameters
-- `ssh_url`: SSH connection string (formats: `user@host`, `ssh://user@host:port`, or `host`)
-- `password`: SSH password for authentication
-- `command`: Linux command to execute on remote server (wrap in quotes)
-- `log_file`: Local file path where logs will be streamed (relative or absolute)
+### Field Descriptions
 
-### Examples
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `ip` | string | ✅ Yes | IP address or hostname of the remote server |
+| `user` | string | ✅ Yes | SSH username for authentication |
+| `pass` | string | ✅ Yes | SSH password for authentication |
+| `run` | string | ✅ Yes | Linux command(s) to execute (can chain with `&&` or `;`) |
+| `log-into` | string | ⚠️ Conditional | Log file path. **Optional** for sequential execution, **mandatory** for parallel execution |
 
-**Simple command:**
-```bash
-python3 remotely.py admin@192.168.1.100 mypass "ls -la" ./logs/output.log
+### Execution Modes
+
+#### 1. Sequential with Log File
+```yaml
+- name: "Check System Info"
+  description: "Get system information and save to log"
+  run-remotely:
+    ip: ${machines.server1.ip}
+    user: ${machines.server1.username}
+    pass: ${machines.server1.password}
+    run: "uname -a && df -h"
+    log-into: ./logs/server1_sysinfo.log
+```
+- Executes command and saves output to specified log file
+- Streams output in real-time to the file
+- Use when you need to preserve command output
+
+#### 2. Sequential with Streaming (No Log File)
+```yaml
+- name: "Quick Health Check"
+  description: "Stream output directly to console"
+  run-remotely:
+    ip: ${machines.server1.ip}
+    user: ${machines.server1.username}
+    pass: ${machines.server1.password}
+    run: "systemctl status nginx"
+    # log-into is optional - output streams to console
+```
+- Executes command and displays output in real-time
+- No log file is created
+- Use for quick checks or when logs aren't needed
+
+#### 3. Parallel Execution (Log Files Mandatory)
+```yaml
+- parallel:
+    - name: "Server 1 Setup"
+      run-remotely:
+        ip: ${machines.server1.ip}
+        user: ${machines.server1.username}
+        pass: ${machines.server1.password}
+        run: "apt-get update && apt-get upgrade -y"
+        log-into: ./logs/server1_setup.log  # REQUIRED for parallel
+    
+    - name: "Server 2 Setup"
+      run-remotely:
+        ip: ${machines.server2.ip}
+        user: ${machines.server2.username}
+        pass: ${machines.server2.password}
+        run: "apt-get update && apt-get upgrade -y"
+        log-into: ./logs/server2_setup.log  # REQUIRED for parallel
+```
+- **`log-into` field is mandatory** when executing multiple remote commands in parallel
+- Prevents output from different servers from mixing together
+- Each server's output is isolated in its own log file
+- Framework validates this requirement and returns an error if missing
+
+### Old Syntax (Still Supported)
+
+For backward compatibility, you can still use the `remotely.py` script directly:
+
+```yaml
+- run: python3 remotely.py user@host password "command" ./log.txt
 ```
 
-**Complex command with pipes:**
-```bash
-python3 remotely.py admin@192.168.1.100 mypass "df -h && free -m" ./logs/system.log
-```
-
-**Custom SSH port:**
-```bash
-python3 remotely.py ssh://admin@192.168.1.100:2222 mypass "uptime" ./logs/uptime.log
-```
+However, the new `run-remotely` syntax is **recommended** for better readability and validation.
 
 ## Workflow Breakdown
 
@@ -122,24 +185,71 @@ python3 remotely.py ssh://admin@192.168.1.100:2222 mypass "uptime" ./logs/uptime
 ```
 Creates the logs directory if it doesn't exist.
 
-### Block 2: Parallel Complete Setup (All 3 Servers)
+### Block 2: Sequential Remote Execution with Log File
+```yaml
+- name: "Server 1 - System Information"
+  description: "Gather system info and save to log file"
+  run-remotely:
+    ip: ${machines.server1.ip}
+    user: ${machines.server1.username}
+    pass: ${machines.server1.password}
+    run: "uname -a && df -h"
+    log-into: ./logs/server1_sysinfo.log
+```
+- Uses new `run-remotely` syntax for cleaner configuration
+- Saves output to `./logs/server1_sysinfo.log`
+- Variables are interpolated from `storage/machines.yaml`
+
+### Block 3: Sequential Remote Execution with Streaming
+```yaml
+- name: "Server 1 - Quick Check (Streaming)"
+  description: "Stream output directly without saving to log"
+  run-remotely:
+    ip: ${machines.server1.ip}
+    user: ${machines.server1.username}
+    pass: ${machines.server1.password}
+    run: "ps aux | head -10"
+    # No log-into field - output streams to console
+```
+- Output is streamed directly to console in real-time
+- No log file is created
+- Useful for quick checks where logs aren't needed
+
+### Block 4: Parallel Complete Setup (All 3 Servers)
 ```yaml
 - parallel:
     - name: "Server 1 - Complete Setup"
-      description: "Update, install tools, and gather info from server 1"
-      run: python3 remotely.py ${machines.server1.username}@${machines.server1.ip} ${machines.server1.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server1_execution.log
+      description: "Update, install tools, and gather info"
+      run-remotely:
+        ip: ${machines.server1.ip}
+        user: ${machines.server1.username}
+        pass: ${machines.server1.password}
+        run: "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h"
+        log-into: ./logs/server1_execution.log
     
     - name: "Server 2 - Complete Setup"
-      description: "Update, install tools, and gather info from server 2"
-      run: python3 remotely.py ${machines.server2.username}@${machines.server2.ip} ${machines.server2.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server2_execution.log
+      description: "Update, install tools, and gather info"
+      run-remotely:
+        ip: ${machines.server2.ip}
+        user: ${machines.server2.username}
+        pass: ${machines.server2.password}
+        run: "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h"
+        log-into: ./logs/server2_execution.log
     
     - name: "Server 3 - Complete Setup"
-      description: "Update, install tools, and gather info from server 3"
-      run: python3 remotely.py ${machines.server3.username}@${machines.server3.ip} ${machines.server3.password} "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h" ./logs/server3_execution.log
+      description: "Update, install tools, and gather info"
+      run-remotely:
+        ip: ${machines.server3.ip}
+        user: ${machines.server3.username}
+        pass: ${machines.server3.password}
+        run: "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h"
+        log-into: ./logs/server3_execution.log
 ```
 
 **What happens:**
 - All 3 servers execute their complete setup simultaneously (parallel execution)
+- Uses new `run-remotely` syntax for better readability
+- **`log-into` field is mandatory** for parallel execution to prevent output mixing
 - Each server runs a chain of commands:
   1. `sudo apt-get update` - Update package lists
   2. `sudo apt-get upgrade -y` - Upgrade installed packages
@@ -151,7 +261,7 @@ Creates the logs directory if it doesn't exist.
 - The workflow waits for ALL servers to complete before proceeding
 - Commands are chained with `&&` so execution stops if any command fails
 
-### Block 3: Display Log Results
+### Block 5: Display Log Results
 ```yaml
 - name: "Display Log Results"
   description: "Show the logs collected from remote execution"
@@ -166,7 +276,7 @@ Creates the logs directory if it doesn't exist.
 ```
 Displays all collected logs from all servers sequentially.
 
-### Block 4: Summary
+### Block 6: Summary
 ```yaml
 - name: "Summary"
   run: |
@@ -245,7 +355,7 @@ Simply include `sudo` in your commands and the framework handles the rest!
 
 ## Variable Interpolation with SSH
 
-Combine variable interpolation with SSH for powerful workflows:
+Combine variable interpolation with SSH for powerful workflows using the `run-remotely` syntax:
 
 **storage/machines.yaml:**
 ```yaml
@@ -266,46 +376,76 @@ server2:
 ```yaml
 blocks:
   - parallel:
-      - run: python3 remotely.py ${machines.server1.username}@${machines.server1.ip} ${machines.server1.password} "systemctl status nginx" ./logs/web1_nginx.log
-      - run: python3 remotely.py ${machines.server2.username}@${machines.server2.ip} ${machines.server2.password} "systemctl status nginx" ./logs/web2_nginx.log
+      - run-remotely:
+          ip: ${machines.server1.ip}
+          user: ${machines.server1.username}
+          pass: ${machines.server1.password}
+          run: "systemctl status nginx"
+          log-into: ./logs/web1_nginx.log
+      
+      - run-remotely:
+          ip: ${machines.server2.ip}
+          user: ${machines.server2.username}
+          pass: ${machines.server2.password}
+          run: "systemctl status nginx"
+          log-into: ./logs/web2_nginx.log
 ```
 
 ## Use Cases
 
 ### 1. Health Checks
 ```yaml
-- run: |
-    python3 remotely.py ${machines.server.username}@${machines.server.ip} \
-      ${machines.server.password} \
-      "systemctl status app && curl -f http://localhost:8080/health" \
-      ./logs/health_check.log
+- name: "Application Health Check"
+  run-remotely:
+    ip: ${machines.server.ip}
+    user: ${machines.server.username}
+    pass: ${machines.server.password}
+    run: "systemctl status app && curl -f http://localhost:8080/health"
+    log-into: ./logs/health_check.log
 ```
 
 ### 2. Log Collection
 ```yaml
-- run: |
-    python3 remotely.py ${machines.server.username}@${machines.server.ip} \
-      ${machines.server.password} \
-      "tail -n 100 /var/log/app/error.log" \
-      ./logs/app_errors.log
+- name: "Collect Application Errors"
+  run-remotely:
+    ip: ${machines.server.ip}
+    user: ${machines.server.username}
+    pass: ${machines.server.password}
+    run: "tail -n 100 /var/log/app/error.log"
+    log-into: ./logs/app_errors.log
 ```
 
 ### 3. File Downloads (with progress)
 ```yaml
-- run: |
-    python3 remotely.py ${machines.server.username}@${machines.server.ip} \
-      ${machines.server.password} \
-      "wget http://updates.example.com/package.tar.gz" \
-      ./logs/download.log
+- name: "Download Updates"
+  run-remotely:
+    ip: ${machines.server.ip}
+    user: ${machines.server.username}
+    pass: ${machines.server.password}
+    run: "wget http://updates.example.com/package.tar.gz"
+    log-into: ./logs/download.log
 ```
 
 ### 4. Database Backups
 ```yaml
-- run: |
-    python3 remotely.py ${machines.db.username}@${machines.db.ip} \
-      ${machines.db.password} \
-      "pg_dump mydb > /backups/mydb_$(date +%Y%m%d).sql" \
-      ./logs/backup.log
+- name: "Backup Database"
+  run-remotely:
+    ip: ${machines.db.ip}
+    user: ${machines.db.username}
+    pass: ${machines.db.password}
+    run: "pg_dump mydb > /backups/mydb_$(date +%Y%m%d).sql"
+    log-into: ./logs/backup.log
+```
+
+### 5. Quick Status Check (No Log File)
+```yaml
+- name: "Quick Server Status"
+  run-remotely:
+    ip: ${machines.server.ip}
+    user: ${machines.server.username}
+    pass: ${machines.server.password}
+    run: "uptime && free -h && df -h"
+    # No log-into - streams to console
 ```
 
 ## Troubleshooting
@@ -365,15 +505,20 @@ blocks:
 5. **Principle of Least Privilege** - use accounts with minimal permissions
 
 ## Key Takeaways
-- `remotely.py` enables SSH command execution from workflows
+- **New `run-remotely` YAML syntax** provides cleaner, more structured remote execution
+- Structured fields: `ip`, `user`, `pass`, `run`, `log-into` (optional/conditional)
+- **Two execution modes**: with log file or streaming to console
+- **`log-into` is mandatory** for parallel execution to prevent output mixing
+- **`log-into` is optional** for sequential execution (use streaming when logs aren't needed)
 - **Parallel execution drastically reduces multi-server deployment time**
 - **Sudo commands work automatically** - no configuration needed on remote servers
-- Output is streamed in real-time to local log files for each server
+- Output is streamed in real-time to local log files or console
 - Progress bars and long-running commands are fully supported
 - Combine with variable interpolation for flexible configurations
 - Log files include metadata and execution status
 - Scale from 1 to N servers without changing workflow structure
 - Password from `machines.yaml` is securely used for sudo authentication
+- Old `remotely.py` direct syntax still supported for backward compatibility
 
 ## Next Steps
 - Configure your actual SSH servers in `machines.yaml`
