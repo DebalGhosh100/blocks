@@ -84,6 +84,80 @@ done
 **Windows PowerShell:**
 ```powershell
 Get-ChildItem tests\*.yaml | ForEach-Object {
+    Write-Host "Running $_..."
+    python ..\blocks_executor.py $_
+    Write-Host "---"
+}
+```
+
+---
+
+### test_loops.yaml
+**Purpose:** Test loop iteration over lists from storage configuration  
+**What it tests:**
+- Simple for-loop over list of strings
+- Loop over list of dictionaries
+- Variable substitution within loops
+- Loops in parallel execution
+
+**Run with:**
+```bash
+python ../blocks_executor.py test_loops.yaml
+```
+
+---
+
+## Loop Testing
+
+The `test_loops.yaml` file demonstrates the new loop iteration feature that allows you to iterate over lists defined in storage YAML files.
+
+### Example Patterns
+
+**Pattern 1: Simple loop over strings**
+```yaml
+- for:
+    individual: item
+    in: ${config.list}
+    run: echo "Processing ${item}"
+```
+
+**Pattern 2: Loop over dictionary items**
+```yaml
+- for:
+    individual: server
+    in: ${machines.servers}
+    run: echo "Server: ${server.ip}"
+```
+
+**Pattern 3: Nested loops**
+```yaml
+- for:
+    individual: parent
+    in: ${config.parents}
+    run: mkdir -p ${parent.name}
+    for:
+      individual: child
+      in: ${parent.children}
+      run: mkdir -p ${parent.name}/${child.name}
+```
+
+**Pattern 4: Parallel execution with loops**
+```yaml
+- parallel:
+    for:
+      individual: server
+      in: ${machines.servers}
+      run-remotely:
+        ip: ${server.ip}
+        user: ${server.username}
+        pass: ${server.password}
+        run: "command"
+        log-into: ./logs/${server.ip}.log
+```
+
+**Windows PowerShell:**
+```powershell
+Get-ChildItem tests\*.yaml | ForEach-Object {
     Write-Host "Running $($_.Name)..." -ForegroundColor Cyan
     python blocks_executor.py $_.FullName
     Write-Host "---"

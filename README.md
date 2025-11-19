@@ -11,6 +11,7 @@ A powerful YAML-based workflow automation tool for executing sequential and para
 - [Writing Workflow YAML Files](#writing-workflow-yaml-files)
 - [Configuration Management](#configuration-management)
 - [Variable Interpolation](#variable-interpolation)
+- [Loop Iteration](#loop-iteration)
 - [Parallel Execution](#parallel-execution)
 - [SSH Remote Execution](#ssh-remote-execution)
 - [Complete Examples](#complete-examples)
@@ -23,6 +24,7 @@ Blocks Executor allows you to define complex workflows in simple YAML files. Key
 
 - ✅ **Sequential Execution**: Run tasks in order
 - ✅ **Parallel Execution**: Run multiple tasks simultaneously
+- ✅ **Loop Iteration**: Iterate over lists with for-loops
 - ✅ **Configuration Management**: Store reusable configs in YAML files
 - ✅ **Variable Interpolation**: Reference config values anywhere in your workflow
 - ✅ **SSH Remote Execution**: Execute commands on remote machines with real-time log streaming
@@ -372,6 +374,108 @@ blocks:
               -U ${database.credentials.user} \
               ${database.name} > backup.sql
 ```
+
+## Loop Iteration
+
+### Syntax
+
+Use the `for:` keyword to iterate over lists defined in your storage configuration files:
+
+```yaml
+blocks:
+  - for:
+      individual: item-name
+      in: ${config.list-path}
+      run: "command using ${item-name}"
+```
+
+- `individual`: Variable name for each item in the loop
+- `in`: Path to a list in your storage YAML files
+- `run`: Command to execute for each iteration (can reference `${item-name}`)
+
+### Simple Loop Example
+
+**storage/directories.yaml:**
+```yaml
+folders:
+  - logs
+  - data
+  - temp
+```
+
+**main.yaml:**
+```yaml
+blocks:
+  - for:
+      individual: folder
+      in: ${directories.folders}
+      run: mkdir -p ${folder}
+```
+
+**Result**: Creates three directories: `logs`, `data`, and `temp`
+
+### Loop with Dictionary Items
+
+**storage/machines.yaml:**
+```yaml
+servers:
+  - ip: "10.0.0.1"
+    username: "admin"
+    password: "pass123"
+  
+  - ip: "10.0.0.2"
+    username: "deploy"
+    password: "pass456"
+```
+
+**main.yaml:**
+```yaml
+blocks:
+  - for:
+      individual: server
+      in: ${machines.servers}
+      run: echo "Server: ${server.ip}, User: ${server.username}"
+```
+
+**Result**: Echoes info for each server in the list
+
+### Loops in Parallel Execution
+
+Combine loops with parallel execution for powerful multi-server operations:
+
+```yaml
+blocks:
+  - parallel:
+      for:
+        individual: server
+        in: ${machines.servers}
+        run-remotely:
+          ip: ${server.ip}
+          user: ${server.username}
+          pass: ${server.password}
+          run: "apt-get update && apt-get upgrade -y"
+          log-into: ./logs/${server.ip}_update.log
+```
+
+**Result**: Updates all servers simultaneously, with separate log files
+
+### Nested Loops
+
+You can nest loops for complex operations:
+
+```yaml
+blocks:
+  - for:
+      individual: parent
+      in: ${directories.parent-dirs}
+      run: mkdir -p ${parent.name}
+      for:
+        individual: child
+        in: ${parent.children}
+        run: mkdir -p ${parent.name}/${child.name}
+```
+
+This creates nested directory structures based on your configuration.
 
 ## Parallel Execution
 
