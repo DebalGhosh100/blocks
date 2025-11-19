@@ -818,23 +818,62 @@ class BlockExecutor:
                 # This is a nested loop - process outer item first, then expand inner loop
                 nested_loop_config = loop_config['for']
                 
-                # Substitute outer variable in nested loop's 'in' path
+                # Get the nested list - could be a path or direct value from outer item
                 nested_in_path = nested_loop_config.get('in', '')
+                nested_list = None
+                
+                # Check if nested_in_path references a field in the current item (dict)
                 if isinstance(item, dict):
-                    for field_name, field_value in item.items():
-                        nested_in_path = nested_in_path.replace(
-                            f"${{{individual_var}.{field_name}}}",
-                            str(field_value)
-                        )
+                    # Try to extract field name from ${individual_var.field} pattern
+                    import re
+                    pattern = f"\\${{{individual_var}\\.([^}}]+)\\}}"
+                    match = re.search(pattern, nested_in_path)
+                    if match:
+                        field_name = match.group(1)
+                        if field_name in item:
+                            # Direct access to the nested list from current item
+                            nested_list = item[field_name]
+                
+                # If we found a direct list, create a temporary config
+                if nested_list is not None and isinstance(nested_list, list):
+                    # Create expanded blocks directly from the nested list
+                    nested_individual = nested_loop_config.get('individual')
+                    nested_blocks = []
+                    
+                    for nested_item in nested_list:
+                        nested_block = {}
+                        for key, value in nested_loop_config.items():
+                            if key in ['individual', 'in', 'for']:
+                                continue
+                            
+                            if isinstance(value, str):
+                                if isinstance(nested_item, dict):
+                                    substituted = value
+                                    for nf, nv in nested_item.items():
+                                        substituted = substituted.replace(f"${{{nested_individual}.{nf}}}", str(nv))
+                                    nested_block[key] = substituted
+                                else:
+                                    nested_block[key] = value.replace(f"${{{nested_individual}}}", str(nested_item))
+                            elif isinstance(value, dict):
+                                nested_block[key] = self._substitute_in_dict(value, nested_individual, nested_item)
+                        nested_blocks.append(nested_block)
                 else:
-                    nested_in_path = nested_in_path.replace(f"${{{individual_var}}}", str(item))
-                
-                # Update nested loop config with substituted path
-                nested_loop_config_copy = dict(nested_loop_config)
-                nested_loop_config_copy['in'] = nested_in_path
-                
-                # Recursively expand nested loop
-                nested_blocks = self._expand_for_loop(nested_loop_config_copy)
+                    # Path-based nested loop - substitute and resolve
+                    if isinstance(item, dict):
+                        for field_name, field_value in item.items():
+                            nested_in_path = nested_in_path.replace(
+                                f"${{{individual_var}.{field_name}}}",
+                                str(field_value)
+                            )
+                    else:
+                        nested_in_path = nested_in_path.replace(f"${{{individual_var}}}", str(item))
+                    
+                    # Update nested loop config with substituted path
+                    nested_loop_config_copy = dict(nested_loop_config)
+                    nested_loop_config_copy['in'] = nested_in_path
+                    
+                    # Recursively expand nested loop
+                    nested_blocks = self._expand_for_loop(nested_loop_config_copy)
                 
                 # For each nested block, also substitute the outer variable
                 for nested_block in nested_blocks:
