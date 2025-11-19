@@ -594,10 +594,11 @@ class BlockExecutor:
             Tuple of (success, stdout, stderr)
         """
         import sys
+        from pathlib import Path
         
         # Get remotely.py path from framework directory
-        framework_dir = os.environ.get('BLOCKS_FRAMEWORK_DIR', os.path.dirname(__file__))
-        remotely_script = os.path.join(framework_dir, '..', 'remotely.py')
+        framework_dir = os.environ.get('BLOCKS_FRAMEWORK_DIR', os.path.dirname(os.path.dirname(__file__)))
+        remotely_script = str(Path(framework_dir) / 'remotely.py')
         
         # Build remotely.py command
         ssh_url = f"{user}@{ip}"
