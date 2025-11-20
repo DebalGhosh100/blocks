@@ -21,7 +21,7 @@ This example demonstrates advanced shell scripting techniques within Blocks work
 
 ## Directory Structure
 ```
-07-conditional-logic/
+08-conditional-logic/
 ├── main.yaml           # Workflow with conditional logic
 ├── storage/            # Configuration files
 │   └── config.yaml     # Configuration values for conditionals
@@ -32,7 +32,7 @@ This example demonstrates advanced shell scripting techniques within Blocks work
 
 ```bash
 # Clone this specific example and navigate to it
-git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/07-conditional-logic && cd examples/07-conditional-logic
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/08-conditional-logic && cd examples/08-conditional-logic
 
 # Run with one-command execution
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
@@ -543,4 +543,4 @@ fi
 - Modify the conditionals to match your use cases
 - Add custom validation logic
 - Implement environment-specific behaviors
-- Explore the next example: **08-complex-workflow**
+- Explore the next example: **09-complex-workflow**

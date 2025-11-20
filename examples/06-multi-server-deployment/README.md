@@ -13,13 +13,13 @@ This example demonstrates a real-world scenario: deploying an application to mul
 
 ## Prerequisites
 - Python 3.x installed
-- Blocks framework installed (including `remotely.py`)
+- Blocks framework installed
 - SSH access to 3 target servers
-- `paramiko` Python library installed
+- `paramiko` Python library installed (included in requirements.txt)
 
 ## Directory Structure
 ```
-05-multi-server-deployment/
+06-multi-server-deployment/
 ├── main.yaml           # Multi-stage deployment workflow
 ├── storage/            # Configuration files
 │   └── config.yaml     # Server and application configuration
@@ -62,7 +62,7 @@ app:
 
 ```bash
 # Clone this specific example and navigate to it
-git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/05-multi-server-deployment && cd examples/05-multi-server-deployment
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/06-multi-server-deployment && cd examples/06-multi-server-deployment
 
 # Edit storage/config.yaml with your server details
 # Then run with one-command execution
@@ -121,30 +121,31 @@ Creates a local deployment package with version information.
 
 ### Phase 2: Deploy to All Servers (Parallel)
 ```yaml
+# Monitor deployment: tail -f ./logs/deploy_*.log
 - parallel:
     - name: "Deploy to Web Server 1"
-      run: |
-        python3 ../../remotely.py \
-          ${config.servers.web1.username}@${config.servers.web1.ip} \
-          ${config.servers.web1.password} \
-          "mkdir -p ${config.app.deploy_path} && ..." \
-          ./logs/deploy_web1.log
+      run-remotely:
+        ip: ${config.servers.web1.ip}
+        user: ${config.servers.web1.username}
+        pass: ${config.servers.web1.password}
+        run: mkdir -p ${config.app.deploy_path} && ...
+        log-into: ./logs/deploy_web1.log
     
     - name: "Deploy to Web Server 2"
-      run: |
-        python3 ../../remotely.py \
-          ${config.servers.web2.username}@${config.servers.web2.ip} \
-          ${config.servers.web2.password} \
-          "mkdir -p ${config.app.deploy_path} && ..." \
-          ./logs/deploy_web2.log
+      run-remotely:
+        ip: ${config.servers.web2.ip}
+        user: ${config.servers.web2.username}
+        pass: ${config.servers.web2.password}
+        run: mkdir -p ${config.app.deploy_path} && ...
+        log-into: ./logs/deploy_web2.log
     
     - name: "Deploy to Web Server 3"
-      run: |
-        python3 ../../remotely.py \
-          ${config.servers.web3.username}@${config.servers.web3.ip} \
-          ${config.servers.web3.password} \
-          "mkdir -p ${config.app.deploy_path} && ..." \
-          ./logs/deploy_web3.log
+      run-remotely:
+        ip: ${config.servers.web3.ip}
+        user: ${config.servers.web3.username}
+        pass: ${config.servers.web3.password}
+        run: mkdir -p ${config.app.deploy_path} && ...
+        log-into: ./logs/deploy_web3.log
 ```
 
 **Key Points:**
@@ -169,14 +170,15 @@ Displays all deployment logs to verify success.
 
 ### Phase 4: Health Checks (Parallel)
 ```yaml
+# Monitor health checks: tail -f ./logs/health_*.log
 - parallel:
     - name: "Health Check - Web Server 1"
-      run: |
-        python3 ../../remotely.py \
-          ${config.servers.web1.username}@${config.servers.web1.ip} \
-          ${config.servers.web1.password} \
-          "ps aux | grep nginx && curl -f http://localhost:${config.app.health_port}/health" \
-          ./logs/health_web1.log
+      run-remotely:
+        ip: ${config.servers.web1.ip}
+        user: ${config.servers.web1.username}
+        pass: ${config.servers.web1.password}
+        run: ps aux | grep nginx && curl -f http://localhost:${config.app.health_port}/health
+        log-into: ./logs/health_web1.log
     
     # Similar blocks for web2 and web3...
 ```
@@ -213,27 +215,27 @@ Time Saved: 57 seconds (54% faster!)
 ### Scenario 1: Code Deployment with File Transfer
 ```yaml
 - parallel:
-    - run: |
-        # Copy files to server
-        scp -r ./build/* ${config.servers.web1.username}@${config.servers.web1.ip}:${config.app.deploy_path}/
-        
-        # Restart service via SSH
-        python3 ../../remotely.py \
-          ${config.servers.web1.username}@${config.servers.web1.ip} \
-          ${config.servers.web1.password} \
-          "cd ${config.app.deploy_path} && sudo systemctl restart nginx" \
-          ./logs/restart_web1.log
+    # Copy files to server (local command)
+    - run: scp -r ./build/* ${config.servers.web1.username}@${config.servers.web1.ip}:${config.app.deploy_path}/
+    
+    # Restart service via SSH
+    - run-remotely:
+        ip: ${config.servers.web1.ip}
+        user: ${config.servers.web1.username}
+        pass: ${config.servers.web1.password}
+        run: cd ${config.app.deploy_path} && sudo systemctl restart nginx
+        log-into: ./logs/restart_web1.log
 ```
 
 ### Scenario 2: Database Migration
 ```yaml
 - name: "Run Database Migration"
-  run: |
-    python3 ../../remotely.py \
-      ${config.servers.web1.username}@${config.servers.web1.ip} \
-      ${config.servers.web1.password} \
-      "cd ${config.app.deploy_path} && ./migrate.sh" \
-      ./logs/migration.log
+  run-remotely:
+    ip: ${config.servers.web1.ip}
+    user: ${config.servers.web1.username}
+    pass: ${config.servers.web1.password}
+    run: cd ${config.app.deploy_path} && ./migrate.sh
+    log-into: ./logs/migration.log  # Stream: tail -f ./logs/migration.log
 ```
 
 ### Scenario 3: Rolling Deployment (one at a time)
@@ -289,31 +291,39 @@ logs/
 ### 4. Include Rollback Capability
 ```yaml
 - name: "Backup Current Version"
-  run: |
-    python3 ../../remotely.py ... \
-      "cp -r ${config.app.deploy_path} ${config.app.deploy_path}.backup" \
-      ./logs/backup.log
+  run-remotely:
+    ip: ${config.servers.web1.ip}
+    user: ${config.servers.web1.username}
+    pass: ${config.servers.web1.password}
+    run: cp -r ${config.app.deploy_path} ${config.app.deploy_path}.backup
+    log-into: ./logs/backup.log
 
 # If deployment fails, rollback:
 - name: "Rollback"
-  run: |
-    python3 ../../remotely.py ... \
-      "rm -rf ${config.app.deploy_path} && mv ${config.app.deploy_path}.backup ${config.app.deploy_path}" \
-      ./logs/rollback.log
+  run-remotely:
+    ip: ${config.servers.web1.ip}
+    user: ${config.servers.web1.username}
+    pass: ${config.servers.web1.password}
+    run: rm -rf ${config.app.deploy_path} && mv ${config.app.deploy_path}.backup ${config.app.deploy_path}
+    log-into: ./logs/rollback.log
 ```
 
 ### 5. Monitor Deployment Progress
 ```yaml
+# Watch progress: tail -f ./logs/deploy_web1.log
 - parallel:
     - name: "Deploy Web1"
-      run: |
-        python3 ../../remotely.py ... \
-          "echo 'Starting deployment...' && \
-           date && \
-           [deployment commands] && \
-           echo 'Deployment complete!' && \
-           date" \
-          ./logs/deploy_web1.log
+      run-remotely:
+        ip: ${config.servers.web1.ip}
+        user: ${config.servers.web1.username}
+        pass: ${config.servers.web1.password}
+        run: |
+          echo 'Starting deployment...'
+          date
+          [deployment commands]
+          echo 'Deployment complete!'
+          date
+        log-into: ./logs/deploy_web1.log
 ```
 
 ## Scaling to More Servers
@@ -368,4 +378,4 @@ The framework automatically handles any number of parallel tasks!
 - Configure your actual web servers in `config.yaml`
 - Try deploying a real application
 - Add rollback capabilities for production use
-- Explore the next example: **06-data-pipeline**
+- Explore the next example: **07-data-pipeline**

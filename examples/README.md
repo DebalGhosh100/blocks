@@ -136,8 +136,34 @@ Execute commands on remote servers via SSH with real-time log streaming.
 
 ---
 
-### 5. Multi-Server Parallel Deployment
-**Directory:** `05-multi-server-deployment/`  
+### 5. Loop Iteration
+**Directory:** `05-loop-iteration/`  
+**Difficulty:** 🟡 Intermediate  
+**Duration:** ~10 seconds
+
+Master powerful loop iteration with `for` keyword to process lists, datasets, and multi-server operations.
+
+**What You'll Learn:**
+- `for` loop syntax with `individual`, `in`, and `run`
+- Iterating over simple lists
+- Iterating over complex nested structures
+- Parallel loops with `for` inside `parallel`
+- Variable interpolation within loops
+- Real-world multi-server deployment patterns
+
+**Use Cases:**
+- Multi-server operations
+- Batch file processing
+- Dataset iteration
+- Dynamic directory creation
+- Repeated task execution
+
+[📖 Read Full Guide](./05-loop-iteration/README.md)
+
+---
+
+### 6. Multi-Server Parallel Deployment
+**Directory:** `06-multi-server-deployment/`  
 **Difficulty:** 🟡 Intermediate  
 **Duration:** ~30 seconds (vs 90+ seconds sequential)
 
@@ -160,12 +186,12 @@ Deploy applications to multiple servers simultaneously with parallel SSH executi
 - SSH access to multiple servers
 - Configured server credentials
 
-[📖 Read Full Guide](./05-multi-server-deployment/README.md)
+[📖 Read Full Guide](./06-multi-server-deployment/README.md)
 
 ---
 
-### 6. Data Processing Pipeline
-**Directory:** `06-data-pipeline/`  
+### 7. Data Processing Pipeline
+**Directory:** `07-data-pipeline/`  
 **Difficulty:** 🟡 Intermediate  
 **Duration:** ~15 seconds
 
@@ -185,12 +211,12 @@ Build ETL pipelines with parallel data processing and sequential coordination.
 - Batch processing
 - Machine learning pipelines
 
-[📖 Read Full Guide](./06-data-pipeline/README.md)
+[📖 Read Full Guide](./07-data-pipeline/README.md)
 
 ---
 
-### 7. Conditional Logic & Error Handling
-**Directory:** `07-conditional-logic/`  
+### 8. Conditional Logic & Error Handling
+**Directory:** `08-conditional-logic/`  
 **Difficulty:** 🟠 Advanced  
 **Duration:** 3-4 minutes
 
@@ -212,41 +238,7 @@ Implement intelligent workflows with conditionals, error handling, and retry log
 - Error recovery
 - Robust production workflows
 
-[📖 Read Full Guide](./07-conditional-logic/README.md)
-
----
-
-### 8. Complex Multi-Phase Workflow
-**Directory:** `08-complex-workflow/`  
-**Difficulty:** 🔴 Expert  
-**Duration:** ~30 seconds (production-grade pipeline)
-
-Master enterprise-level CI/CD pipelines combining all Blocks features.
-
-**What You'll Learn:**
-- Complete CI/CD pipeline design
-- Multi-phase orchestration (6 phases)
-- Mixed sequential and parallel execution
-- Production-grade patterns
-- Comprehensive logging and reporting
-- Performance optimization strategies
-
-**Workflow Phases:**
-1. Setup & Validation
-2. Build (parallel compilation)
-3. Testing (parallel test suites)
-4. Deployment (parallel multi-server)
-5. Health Monitoring
-6. Reporting & Artifacts
-
-**Use Cases:**
-- Enterprise CI/CD pipelines
-- Production deployments
-- Automated testing
-- Release management
-- Infrastructure automation
-
-[📖 Read Full Guide](./08-complex-workflow/README.md)
+[📖 Read Full Guide](./08-conditional-logic/README.md)
 
 ---
 
@@ -264,8 +256,9 @@ Master enterprise-level CI/CD pipelines combining all Blocks features.
 
 ### 🚀 Intermediate Track
 4. **04-ssh-remote-execution** - Execute commands remotely
-5. **05-multi-server-deployment** - Deploy to multiple servers
-6. **06-data-pipeline** - Build data processing workflows
+5. **05-loop-iteration** - Master loop patterns
+6. **06-multi-server-deployment** - Deploy to multiple servers
+7. **07-data-pipeline** - Build data processing workflows
 
 **Time Investment:** ~1 hour  
 **Goal:** Build practical automation workflows
@@ -273,8 +266,8 @@ Master enterprise-level CI/CD pipelines combining all Blocks features.
 ---
 
 ### 💼 Advanced Track
-7. **07-conditional-logic** - Add intelligence to workflows
-8. **08-complex-workflow** - Master enterprise patterns
+8. **08-conditional-logic** - Add intelligence to workflows
+9. **09-complex-workflow** - Master enterprise patterns
 
 **Time Investment:** ~1-2 hours  
 **Goal:** Create production-grade automation
@@ -342,16 +335,17 @@ blocks:
 
 ## Feature Matrix
 
-| Example | Sequential | Parallel | Variables | SSH | Conditionals | Complexity |
-|---------|-----------|----------|-----------|-----|--------------|------------|
-| 01-basic-sequential | ✅ | ❌ | ❌ | ❌ | ❌ | 🟢 Low |
-| 02-parallel-execution | ✅ | ✅ | ❌ | ❌ | ❌ | 🟢 Low |
-| 03-variable-interpolation | ✅ | ❌ | ✅ | ❌ | ❌ | 🟡 Medium |
-| 04-ssh-remote-execution | ✅ | ❌ | ✅ | ✅ | ❌ | 🟡 Medium |
-| 05-multi-server-deployment | ✅ | ✅ | ✅ | ✅ | ❌ | 🟡 Medium |
-| 06-data-pipeline | ✅ | ✅ | ✅ | ❌ | ❌ | 🟡 Medium |
-| 07-conditional-logic | ✅ | ✅ | ✅ | ❌ | ✅ | 🟠 High |
-| 08-complex-workflow | ✅ | ✅ | ✅ | 🟡 | ✅ | 🔴 Very High |
+| Example | Sequential | Parallel | Variables | SSH | Loops | Conditionals | Complexity |
+|---------|-----------|----------|-----------|-----|-------|--------------|------------|
+| 01-basic-sequential | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | 🟢 Low |
+| 02-parallel-execution | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | 🟢 Low |
+| 03-variable-interpolation | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | 🟡 Medium |
+| 04-ssh-remote-execution | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | 🟡 Medium |
+| 05-loop-iteration | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | 🟡 Medium |
+| 06-multi-server-deployment | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | 🟡 Medium |
+| 07-data-pipeline | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | 🟡 Medium |
+| 08-conditional-logic | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | 🟠 High |
+| 09-complex-workflow | ✅ | ✅ | ✅ | 🟡 | ❌ | ✅ | 🔴 Very High |
 
 🟡 = Simulated (real SSH commands in comments)
 
@@ -362,41 +356,46 @@ blocks:
 ### By Industry
 
 **DevOps & IT Operations:**
-- 05-multi-server-deployment
-- 08-complex-workflow
+- 06-multi-server-deployment
+- 09-complex-workflow
 - 04-ssh-remote-execution
+- 05-loop-iteration
 
 **Data Engineering:**
-- 06-data-pipeline
+- 07-data-pipeline
+- 05-loop-iteration
 
 **Software Development:**
 - 01-basic-sequential
 - 02-parallel-execution
-- 08-complex-workflow
+- 09-complex-workflow
 
 **System Administration:**
 - 04-ssh-remote-execution
-- 07-conditional-logic
+- 08-conditional-logic
+- 05-loop-iteration
 
 ### By Task Type
 
 **Deployment:**
-- 05-multi-server-deployment
-- 08-complex-workflow
+- 06-multi-server-deployment
+- 09-complex-workflow
 
 **Testing:**
-- 08-complex-workflow (phases 3)
+- 09-complex-workflow (phases 3)
 
 **Data Processing:**
-- 06-data-pipeline
+- 07-data-pipeline
+- 05-loop-iteration
 
 **Configuration Management:**
 - 03-variable-interpolation
-- 07-conditional-logic
+- 08-conditional-logic
 
 **Remote Execution:**
 - 04-ssh-remote-execution
-- 05-multi-server-deployment
+- 05-loop-iteration
+- 06-multi-server-deployment
 
 ---
 
@@ -533,22 +532,27 @@ examples/
 │   ├── storage/
 │   │   └── machines.yaml
 │   └── README.md
-├── 05-multi-server-deployment/
+├── 05-loop-iteration/
 │   ├── main.yaml
 │   ├── storage/
 │   │   └── config.yaml
 │   └── README.md
-├── 06-data-pipeline/
+├── 06-multi-server-deployment/
 │   ├── main.yaml
 │   ├── storage/
 │   │   └── config.yaml
 │   └── README.md
-├── 07-conditional-logic/
+├── 07-data-pipeline/
 │   ├── main.yaml
 │   ├── storage/
 │   │   └── config.yaml
 │   └── README.md
-└── 08-complex-workflow/
+├── 08-conditional-logic/
+│   ├── main.yaml
+│   ├── storage/
+│   │   └── config.yaml
+│   └── README.md
+└── 09-complex-workflow/
     ├── main.yaml
     ├── storage/
     │   └── config.yaml
@@ -559,12 +563,13 @@ examples/
 
 ## Summary
 
-You now have **8 comprehensive examples** covering:
+You now have **9 comprehensive examples** covering:
 
 ✅ Sequential execution  
 ✅ Parallel processing  
 ✅ Variable interpolation  
 ✅ SSH remote execution  
+✅ Loop iteration  
 ✅ Multi-server deployment  
 ✅ Data pipelines  
 ✅ Conditional logic  
@@ -585,11 +590,12 @@ cd examples/01-basic-sequential
 python3 ../../blocks_executor.py main.yaml
 ```
 
-Then progress through examples 02 → 03 → 04 → 05 → 06 → 07 → 08
+Then progress through examples 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09
 
 **Need production workflows?** Jump to:
-- Example 05 for multi-server deployment
-- Example 08 for complete CI/CD pipeline
+- Example 05 for loop iteration patterns
+- Example 06 for multi-server deployment
+- Example 09 for complete CI/CD pipeline
 
 ---
 

@@ -21,7 +21,7 @@ This example demonstrates a comprehensive, production-grade CI/CD workflow that 
 
 ## Directory Structure
 ```
-08-complex-workflow/
+09-complex-workflow/
 ├── main.yaml           # Complex multi-phase workflow
 ├── storage/            # Configuration files
 │   └── config.yaml     # Workflow and server configuration
@@ -36,7 +36,7 @@ This example demonstrates a comprehensive, production-grade CI/CD workflow that 
 
 ```bash
 # Clone this specific example and navigate to it
-git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/08-complex-workflow && cd examples/08-complex-workflow
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/09-complex-workflow && cd examples/09-complex-workflow
 
 # Run with one-command execution
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash

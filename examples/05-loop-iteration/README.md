@@ -18,7 +18,7 @@ This example demonstrates Cocoon's powerful **loop iteration** feature that allo
 
 ## Directory Structure
 ```
-09-loop-iteration/
+05-loop-iteration/
 ├── main.yaml              # Workflow with loop examples
 ├── storage/               # Configuration files with lists
 │   ├── config.yaml        # Simple string lists
@@ -31,7 +31,7 @@ This example demonstrates Cocoon's powerful **loop iteration** feature that allo
 ## How to Run
 
 ```bash
-cd examples/09-loop-iteration
+cd examples/05-loop-iteration
 python3 ../../blocks_executor.py main.yaml
 ```
 

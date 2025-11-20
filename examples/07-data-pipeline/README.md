@@ -18,7 +18,7 @@ This example demonstrates a multi-stage data processing pipeline with parallel p
 
 ## Directory Structure
 ```
-06-data-pipeline/
+07-data-pipeline/
 ├── main.yaml           # Pipeline workflow definition
 ├── storage/            # Configuration files
 │   └── config.yaml     # Pipeline configuration
@@ -33,7 +33,7 @@ This example demonstrates a multi-stage data processing pipeline with parallel p
 
 ```bash
 # Clone this specific example and navigate to it
-git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/06-data-pipeline && cd examples/06-data-pipeline
+git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/07-data-pipeline && cd examples/07-data-pipeline
 
 # Run with one-command execution
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
@@ -395,4 +395,4 @@ du -sh ./data/*
 - Adapt this pipeline for your own data sources
 - Add error handling and retry logic
 - Implement data quality checks
-- Explore the next example: **07-conditional-logic**
+- Explore the next example: **08-conditional-logic**

@@ -540,4 +540,4 @@ blocks:
 ## Next Steps
 - Configure your actual SSH servers in `machines.yaml`
 - Try executing different commands on your servers
-- Explore the next example: **05-multi-server-deployment**
+- Explore the next example: **05-loop-iteration**
