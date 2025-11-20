@@ -1,6 +1,5 @@
 blocks:
-  - name: "Setup Pipeline Environment"
-    description: "Create directories for data pipeline stages"
+  - # Setup pipeline environment: Create directories for data pipeline stages
     run: |
       mkdir -p ${pipeline.paths.raw_data}
       mkdir -p ${pipeline.paths.processed_data}
@@ -8,8 +7,7 @@ blocks:
       mkdir -p ./logs
       echo "Pipeline environment ready!"
 
-  - name: "Fetch Raw Data"
-    description: "Download or generate raw data for processing"
+  - # Fetch raw data: Download or generate raw data for processing
     run: |
       echo "Fetching raw data from sources..."
       echo "Dataset 1: Weather data" > ${pipeline.paths.raw_data}/weather.csv
@@ -31,8 +29,7 @@ blocks:
       ls -lh ${pipeline.paths.raw_data}
 
   - parallel:
-      - name: "Process Weather Data"
-        description: "Clean and transform weather data"
+      - # Process weather data: Clean and transform weather data
         run: |
           echo "Processing weather data..."
           input="${pipeline.paths.raw_data}/weather.csv"
@@ -51,8 +48,7 @@ blocks:
           echo "Weather data processed: $record_count records"
           echo "Weather processing complete!" > ./logs/weather_process.log
 
-      - name: "Process Sales Data"
-        description: "Clean and transform sales data"
+      - # Process sales data: Clean and transform sales data
         run: |
           echo "Processing sales data..."
           input="${pipeline.paths.raw_data}/sales.csv"
@@ -70,8 +66,7 @@ blocks:
           echo "Sales data processed: $record_count records"
           echo "Sales processing complete!" > ./logs/sales_process.log
 
-      - name: "Process Activity Data"
-        description: "Clean and transform user activity data"
+      - # Process activity data: Clean and transform user activity data
         run: |
           echo "Processing activity data..."
           input="${pipeline.paths.raw_data}/activity.csv"
@@ -89,8 +84,7 @@ blocks:
           echo "Activity data processed: $record_count records"
           echo "Activity processing complete!" > ./logs/activity_process.log
 
-  - name: "Verify Processing Stage"
-    description: "Verify all data processing completed successfully"
+  - # Verify processing stage: Verify all data processing completed successfully
     run: |
       echo "=========================================="
       echo "   PROCESSING STAGE VERIFICATION"
@@ -107,8 +101,7 @@ blocks:
       echo "All data processing complete!"
 
   - parallel:
-      - name: "Generate Weather Report"
-        description: "Create analysis report for weather data"
+      - # Generate weather report: Create analysis report for weather data
         run: |
           echo "Generating weather report..."
           input="${pipeline.paths.processed_data}/weather_processed.csv"
@@ -130,8 +123,7 @@ blocks:
           
           echo "Weather report generated!"
 
-      - name: "Generate Sales Report"
-        description: "Create analysis report for sales data"
+      - # Generate sales report: Create analysis report for sales data
         run: |
           echo "Generating sales report..."
           input="${pipeline.paths.processed_data}/sales_processed.csv"
@@ -156,8 +148,7 @@ blocks:
           
           echo "Sales report generated!"
 
-      - name: "Generate Activity Report"
-        description: "Create analysis report for activity data"
+      - # Generate activity report: Create analysis report for activity data
         run: |
           echo "Generating activity report..."
           input="${pipeline.paths.processed_data}/activity_processed.csv"
@@ -179,8 +170,7 @@ blocks:
           
           echo "Activity report generated!"
 
-  - name: "Generate Master Report"
-    description: "Combine all reports into master summary"
+  - # Generate master report: Combine all reports into master summary
     run: |
       echo "Generating master report..."
       master="${pipeline.paths.output}/master_report.txt"
@@ -213,15 +203,13 @@ blocks:
       
       echo "Master report generated!"
 
-  - name: "Display Results"
-    description: "Show the master report"
+  - # Display results: Show the master report
     run: |
       echo ""
       cat ${pipeline.paths.output}/master_report.txt
       echo ""
 
-  - name: "Pipeline Statistics"
-    description: "Show pipeline execution statistics"
+  - # Pipeline statistics: Show pipeline execution statistics
     run: |
       echo "=========================================="
       echo "     PIPELINE EXECUTION STATISTICS"
@@ -238,8 +226,7 @@ blocks:
       echo ""
       echo "Pipeline complete!"
 
-  - name: "Cleanup"
-    description: "Clean up temporary files (optional)"
+  - # Cleanup: Clean up temporary files (optional)
     run: |
       echo "Keeping all pipeline outputs for review."
       echo "To clean up, run: rm -rf ${pipeline.paths.raw_data} ${pipeline.paths.processed_data} ${pipeline.paths.output}"

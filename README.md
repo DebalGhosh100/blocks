@@ -641,14 +641,19 @@ nano run_blocks.sh
 
 ## SSH Remote Execution
 
-### Remotely Script
+### Run-Remotely Syntax
 
-The included `remotely.py` script executes commands on remote machines and streams logs to local files in real-time.
+Execute commands on remote machines with the `run-remotely` configuration block.
 
 ### Basic SSH Syntax
 
-```bash
-python3 remotely.py <user@host> <password> "<command>" <log-file>
+```yaml
+run-remotely:
+  ip: <host>
+  user: <username>
+  pass: <password>
+  run: <command>
+  log-into: <log-file>  # Stream in real-time: tail -f <log-file>
 ```
 
 ### SSH in Workflows
@@ -669,33 +674,34 @@ server2:
 **`workflow.yaml`:**
 ```yaml
 blocks:
+  # Stream logs in real-time with: tail -f ./logs/*.log
   - name: "Check Server 1 Disk Space"
     description: "Monitor disk usage on server 1"
-    run: |
-      python3 remotely.py \
-        ${machines.server1.username}@${machines.server1.ip} \
-        ${machines.server1.password} \
-        "df -h" \
-        ./logs/server1_disk.log
+    run-remotely:
+      ip: ${machines.server1.ip}
+      user: ${machines.server1.username}
+      pass: ${machines.server1.password}
+      run: df -h
+      log-into: ./logs/server1_disk.log
 
   - parallel:
       - name: "Download on Server 1"
         description: "Download file on remote server 1"
-        run: |
-          python3 remotely.py \
-            ${machines.server1.username}@${machines.server1.ip} \
-            ${machines.server1.password} \
-            "wget http://example.com/large-file.iso" \
-            ./logs/server1_download.log
+        run-remotely:
+          ip: ${machines.server1.ip}
+          user: ${machines.server1.username}
+          pass: ${machines.server1.password}
+          run: wget http://example.com/large-file.iso
+          log-into: ./logs/server1_download.log
 
       - name: "Download on Server 2"
         description: "Download file on remote server 2"
-        run: |
-          python3 remotely.py \
-            ${machines.server2.username}@${machines.server2.ip} \
-            ${machines.server2.password} \
-            "wget http://example.com/large-file.iso" \
-            ./logs/server2_download.log
+        run-remotely:
+          ip: ${machines.server2.ip}
+          user: ${machines.server2.username}
+          pass: ${machines.server2.password}
+          run: wget http://example.com/large-file.iso
+          log-into: ./logs/server2_download.log
 ```
 
 ### SSH Log Files
@@ -778,33 +784,34 @@ blocks:
       npm run build &&
       tar -czf app.tar.gz dist/
 
+  # Stream deployment logs: tail -f ./logs/deploy_*.log
   - parallel:
       - name: "Deploy to Web1"
         description: "Deploy application to web server 1"
-        run: |
-          python3 remotely.py \
-            ${servers.production.web1.user}@${servers.production.web1.ip} \
-            ${servers.production.web1.password} \
-            "cd /var/www && tar -xzf app.tar.gz && systemctl restart nginx" \
-            ./logs/deploy_web1.log
+        run-remotely:
+          ip: ${servers.production.web1.ip}
+          user: ${servers.production.web1.user}
+          pass: ${servers.production.web1.password}
+          run: cd /var/www && tar -xzf app.tar.gz && systemctl restart nginx
+          log-into: ./logs/deploy_web1.log
 
       - name: "Deploy to Web2"
         description: "Deploy application to web server 2"
-        run: |
-          python3 remotely.py \
-            ${servers.production.web2.user}@${servers.production.web2.ip} \
-            ${servers.production.web2.password} \
-            "cd /var/www && tar -xzf app.tar.gz && systemctl restart nginx" \
-            ./logs/deploy_web2.log
+        run-remotely:
+          ip: ${servers.production.web2.ip}
+          user: ${servers.production.web2.user}
+          pass: ${servers.production.web2.password}
+          run: cd /var/www && tar -xzf app.tar.gz && systemctl restart nginx
+          log-into: ./logs/deploy_web2.log
 
       - name: "Deploy to Web3"
         description: "Deploy application to web server 3"
-        run: |
-          python3 remotely.py \
-            ${servers.production.web3.user}@${servers.production.web3.ip} \
-            ${servers.production.web3.password} \
-            "cd /var/www && tar -xzf app.tar.gz && systemctl restart nginx" \
-            ./logs/deploy_web3.log
+        run-remotely:
+          ip: ${servers.production.web3.ip}
+          user: ${servers.production.web3.user}
+          pass: ${servers.production.web3.password}
+          run: cd /var/www && tar -xzf app.tar.gz && systemctl restart nginx
+          log-into: ./logs/deploy_web3.log
 
   - name: "Verify Deployment"
     description: "Check if all servers are responding"
@@ -895,33 +902,34 @@ blocks:
       mkdir -p ./test_logs &&
       echo "Starting test suite..."
 
+  # Monitor test progress: tail -f ./test_logs/*.log
   - parallel:
       - name: "Run Unit Tests"
         description: "Execute unit tests on test server"
-        run: |
-          python3 remotely.py \
-            ${test_config.test_servers.unit_test.user}@${test_config.test_servers.unit_test.ip} \
-            ${test_config.test_servers.unit_test.password} \
-            "cd /app && pytest tests/unit/" \
-            ./test_logs/unit_tests.log
+        run-remotely:
+          ip: ${test_config.test_servers.unit_test.ip}
+          user: ${test_config.test_servers.unit_test.user}
+          pass: ${test_config.test_servers.unit_test.password}
+          run: cd /app && pytest tests/unit/
+          log-into: ./test_logs/unit_tests.log
 
       - name: "Run Integration Tests"
         description: "Execute integration tests"
-        run: |
-          python3 remotely.py \
-            ${test_config.test_servers.integration_test.user}@${test_config.test_servers.integration_test.ip} \
-            ${test_config.test_servers.integration_test.password} \
-            "cd /app && pytest tests/integration/" \
-            ./test_logs/integration_tests.log
+        run-remotely:
+          ip: ${test_config.test_servers.integration_test.ip}
+          user: ${test_config.test_servers.integration_test.user}
+          pass: ${test_config.test_servers.integration_test.password}
+          run: cd /app && pytest tests/integration/
+          log-into: ./test_logs/integration_tests.log
 
       - name: "Run E2E Tests"
         description: "Execute end-to-end tests"
-        run: |
-          python3 remotely.py \
-            ${test_config.test_servers.e2e_test.user}@${test_config.test_servers.e2e_test.ip} \
-            ${test_config.test_servers.e2e_test.password} \
-            "cd /app && pytest tests/e2e/" \
-            ./test_logs/e2e_tests.log
+        run-remotely:
+          ip: ${test_config.test_servers.e2e_test.ip}
+          user: ${test_config.test_servers.e2e_test.user}
+          pass: ${test_config.test_servers.e2e_test.password}
+          run: cd /app && pytest tests/e2e/
+          log-into: ./test_logs/e2e_tests.log
 
   - name: "Generate Test Report"
     description: "Compile test results"
@@ -1014,8 +1022,8 @@ blocks:
 
 Test commands individually before adding to workflow:
 ```bash
-# Test the command first
-python3 remotely.py user@host pass "ls -la" ./test.log
+# Test SSH connection manually first
+ssh user@host "ls -la"
 
 # Then add to workflow once verified
 ```
@@ -1024,12 +1032,14 @@ python3 remotely.py user@host pass "ls -la" ./test.log
 
 ✅ **Good:**
 ```yaml
-run: "python3 remotely.py ... ./logs/output.log"
+run-remotely:
+  log-into: ./logs/output.log
 ```
 
 ❌ **Avoid:**
 ```yaml
-run: "python3 remotely.py ... /home/myuser/logs/output.log"
+run-remotely:
+  log-into: /home/myuser/logs/output.log
 ```
 
 ## Troubleshooting
@@ -1180,8 +1190,13 @@ ${filename.key1.key2.key3}
 ```
 
 ### SSH Remote Execution
-```bash
-python3 remotely.py user@host password "command" log-file
+```yaml
+run-remotely:
+  ip: <host>
+  user: <username>
+  pass: <password>
+  run: <command>
+  log-into: <log-file>  # Stream: tail -f <log-file>
 ```
 
 ### Run Workflow

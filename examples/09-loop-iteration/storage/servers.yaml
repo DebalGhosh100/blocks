@@ -1,0 +1,28 @@
+web-servers:
+  - name: "web-01"
+    ip: "192.168.1.10"
+    port: 8080
+  
+  - name: "web-02"
+    ip: "192.168.1.11"
+    port: 8080
+  
+  - name: "web-03"
+    ip: "192.168.1.12"
+    port: 8080
+
+production-servers:
+  - name: "prod-app-01"
+    ip: "10.0.1.100"
+    username: "admin"
+    password: "admin123"
+  
+  - name: "prod-app-02"
+    ip: "10.0.1.101"
+    username: "admin"
+    password: "admin123"
+  
+  - name: "prod-db-01"
+    ip: "10.0.1.200"
+    username: "dbadmin"
+    password: "dbpass456"

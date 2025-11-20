@@ -1,20 +1,15 @@
 blocks:
-  - name: "Print System Information"
-    description: "Display current date and hostname"
-    run: "echo 'Current Date:' && date && echo 'Hostname:' && hostname"
+  # Print system information: current date and hostname
+  - run: "echo 'Current Date:' && date && echo 'Hostname:' && hostname"
 
-  - name: "List Current Directory"
-    description: "Show files in current directory"
-    run: "ls -la"
+  # List all files in the current directory
+  - run: "ls -la"
 
-  - name: "Display Environment Variables"
-    description: "Show important environment variables"
-    run: "echo 'User:' $USER && echo 'Home:' $HOME && echo 'Path:' $PATH"
+  # Display important environment variables
+  - run: "echo 'User:' $USER && echo 'Home:' $HOME && echo 'Path:' $PATH"
 
-  - name: "Create Test File"
-    description: "Create a simple test file"
-    run: "echo 'Hello from Blocks!' > test_output.txt && cat test_output.txt"
+  # Create a test file and display its contents
+  - run: "echo 'Hello from Blocks!' > test_output.txt && cat test_output.txt"
 
-  - name: "Cleanup"
-    description: "Remove test file"
-    run: "rm -f test_output.txt && echo 'Cleanup complete!'"
+  # Cleanup: remove test file
+  - run: "rm -f test_output.txt && echo 'Cleanup complete!'"

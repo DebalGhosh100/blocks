@@ -318,12 +318,13 @@ blocks:
 #### SSH Remote Execution
 ```yaml
 blocks:
-  - run: |
-      python3 remotely.py \
-        ${server.user}@${server.ip} \
-        ${server.password} \
-        "command" \
-        ./logs/output.log
+  # Stream logs: tail -f ./logs/output.log
+  - run-remotely:
+      ip: ${server.ip}
+      user: ${server.user}
+      pass: ${server.password}
+      run: command
+      log-into: ./logs/output.log
 ```
 
 #### Conditional Logic

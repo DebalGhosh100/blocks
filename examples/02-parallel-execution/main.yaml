@@ -1,30 +1,27 @@
 blocks:
-  - name: "Setup"
-    description: "Create output directory for parallel tasks"
-    run: "mkdir -p parallel_outputs && echo 'Setup complete'"
+  # Setup: Create output directory for parallel tasks
+  - run: "mkdir -p parallel_outputs && echo 'Setup complete'"
 
+  # Execute 4 tasks simultaneously - demonstrates parallel execution speed
   - parallel:
-      - name: "Task 1 - Count to 5"
-        description: "Count from 1 to 5 with delays"
-        run: |
+      # Task 1: Count from 1 to 5 with delays
+      - run: |
           for i in 1 2 3 4 5; do
             echo "Task 1: Count $i"
             sleep 1
           done
           echo "Task 1: Complete!" > parallel_outputs/task1.txt
 
-      - name: "Task 2 - Letters"
-        description: "Print letters A to E with delays"
-        run: |
+      # Task 2: Print letters A to E with delays
+      - run: |
           for letter in A B C D E; do
             echo "Task 2: Letter $letter"
             sleep 1
           done
           echo "Task 2: Complete!" > parallel_outputs/task2.txt
 
-      - name: "Task 3 - System Info"
-        description: "Gather system information"
-        run: |
+      # Task 3: Gather system information
+      - run: |
           echo "Task 3: Collecting system info..."
           echo "Date: $(date)" > parallel_outputs/task3.txt
           echo "Uptime: $(uptime)" >> parallel_outputs/task3.txt
@@ -33,9 +30,8 @@ blocks:
           sleep 2
           echo "Task 3: Complete!"
 
-      - name: "Task 4 - File Operations"
-        description: "Create and manipulate files"
-        run: |
+      # Task 4: Create multiple test files
+      - run: |
           echo "Task 4: Creating test files..."
           for i in 1 2 3; do
             echo "Test file $i" > parallel_outputs/testfile_$i.txt
@@ -43,14 +39,12 @@ blocks:
           done
           echo "Task 4: Complete!"
 
-  - name: "Verify Results"
-    description: "Check that all parallel tasks completed successfully"
-    run: |
+  # Verify all parallel tasks completed successfully
+  - run: |
       echo "Verifying parallel execution results..."
       ls -la parallel_outputs/
       echo "Contents of task outputs:"
       cat parallel_outputs/task1.txt parallel_outputs/task2.txt
 
-  - name: "Cleanup"
-    description: "Remove output directory"
-    run: "rm -rf parallel_outputs && echo 'Cleanup complete!'"
+  # Cleanup: Remove output directory
+  - run: "rm -rf parallel_outputs && echo 'Cleanup complete!'"

@@ -97,6 +97,7 @@ The framework now supports a dedicated YAML syntax for remote execution that's c
     pass: "mypassword"                      # SSH password
     run: "ls -la && df -h"                  # Command(s) to execute
     log-into: "./logs/output.log"           # Log file (optional for sequential, mandatory for parallel)
+                                             # Stream in real-time: tail -f ./logs/output.log
 ```
 
 ### Field Descriptions
@@ -120,11 +121,12 @@ The framework now supports a dedicated YAML syntax for remote execution that's c
     user: ${machines.server1.username}
     pass: ${machines.server1.password}
     run: "uname -a && df -h"
-    log-into: ./logs/server1_sysinfo.log
+    log-into: ./logs/server1_sysinfo.log  # Stream: tail -f ./logs/server1_sysinfo.log
 ```
 - Executes command and saves output to specified log file
 - Streams output in real-time to the file
 - Use when you need to preserve command output
+- **Monitor live:** `tail -f ./logs/server1_sysinfo.log`
 
 #### 2. Sequential with Streaming (No Log File)
 ```yaml
@@ -165,15 +167,21 @@ The framework now supports a dedicated YAML syntax for remote execution that's c
 - Each server's output is isolated in its own log file
 - Framework validates this requirement and returns an error if missing
 
-### Old Syntax (Still Supported)
+### Best Practice
 
-For backward compatibility, you can still use the `remotely.py` script directly:
+Always use the `run-remotely` syntax for SSH commands:
 
+✅ **Recommended:**
 ```yaml
-- run: python3 remotely.py user@host password "command" ./log.txt
+- run-remotely:
+    ip: <host>
+    user: <username>
+    pass: <password>
+    run: <command>
+    log-into: ./log.txt
 ```
 
-However, the new `run-remotely` syntax is **recommended** for better readability and validation.
+This provides better readability, validation, and maintainability.
 
 ## Workflow Breakdown
 
@@ -194,11 +202,12 @@ Creates the logs directory if it doesn't exist.
     user: ${machines.server1.username}
     pass: ${machines.server1.password}
     run: "uname -a && df -h"
-    log-into: ./logs/server1_sysinfo.log
+    log-into: ./logs/server1_sysinfo.log  # Stream: tail -f ./logs/server1_sysinfo.log
 ```
 - Uses new `run-remotely` syntax for cleaner configuration
 - Saves output to `./logs/server1_sysinfo.log`
 - Variables are interpolated from `storage/machines.yaml`
+- **Monitor live:** `tail -f ./logs/server1_sysinfo.log`
 
 ### Block 3: Sequential Remote Execution with Streaming
 ```yaml
@@ -217,6 +226,7 @@ Creates the logs directory if it doesn't exist.
 
 ### Block 4: Parallel Complete Setup (All 3 Servers)
 ```yaml
+# Monitor all servers in real-time: tail -f ./logs/server*_execution.log
 - parallel:
     - name: "Server 1 - Complete Setup"
       description: "Update, install tools, and gather info"
@@ -308,7 +318,7 @@ Timestamp: 2024-11-09T10:30:47.654321
 
 ## Real-Time Log Streaming
 
-The `remotely.py` script streams output **in real-time**, which means:
+Remote execution streams output **in real-time**, which means:
 
 ✅ **Progress bars** are captured (e.g., `wget`, `dd`, `rsync`)
 ✅ **Long-running commands** show output as they execute
@@ -317,13 +327,20 @@ The `remotely.py` script streams output **in real-time**, which means:
 
 Example with progress bar:
 ```yaml
-- run: |
-    python3 remotely.py user@host pass \
-      "wget http://example.com/large-file.iso" \
-      ./logs/download.log
+- run-remotely:
+    ip: ${server.ip}
+    user: ${server.user}
+    pass: ${server.pass}
+    run: wget http://example.com/large-file.iso
+    log-into: ./logs/download.log  # Watch: tail -f ./logs/download.log
 ```
 
 The log file will capture the wget progress bar updates!
+
+**Monitor download progress live:**
+```bash
+tail -f ./logs/download.log
+```
 
 ## Parallel Execution Benefits
 

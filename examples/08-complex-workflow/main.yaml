@@ -2,8 +2,7 @@ blocks:
   # ============================================================
   # PHASE 1: ENVIRONMENT SETUP
   # ============================================================
-  - name: "Initialize Project Structure"
-    description: "Create complete directory structure for complex workflow"
+  - # Initialize project structure: Create complete directory structure for complex workflow
     run: |
       echo "Creating project structure..."
       mkdir -p ./build/{src,dist,cache}
@@ -13,8 +12,7 @@ blocks:
       echo "Project structure created!"
       tree -L 2 . 2>/dev/null || ls -R
 
-  - name: "Environment Validation"
-    description: "Validate prerequisites and environment"
+  - # Environment validation: Validate prerequisites and environment
     run: |
       echo "=========================================="
       echo "    ENVIRONMENT VALIDATION"
@@ -52,8 +50,7 @@ blocks:
   # ============================================================
   # PHASE 2: BUILD STAGE
   # ============================================================
-  - name: "Prepare Build Environment"
-    description: "Set up build configurations"
+  - # Prepare build environment: Set up build configurations
     run: |
       echo "Preparing build environment..."
       echo "Build Version: ${workflow.version}" > ./build/build_info.txt
@@ -63,8 +60,7 @@ blocks:
       cat ./build/build_info.txt
 
   - parallel:
-      - name: "Compile Source Files"
-        description: "Compile application source code"
+      - # Compile source files: Compile application source code
         run: |
           echo "Compiling source files..."
           for i in {1..5}; do
@@ -74,8 +70,7 @@ blocks:
           done
           echo "✓ Source compilation complete" | tee ./logs/build/compile.log
 
-      - name: "Process Assets"
-        description: "Process and optimize assets"
+      - # Process assets: Process and optimize assets
         run: |
           echo "Processing assets..."
           for asset in image script style config; do
@@ -85,8 +80,7 @@ blocks:
           done
           echo "✓ Asset processing complete" | tee ./logs/build/assets.log
 
-      - name: "Generate Documentation"
-        description: "Generate API documentation"
+      - # Generate documentation: Generate API documentation
         run: |
           echo "Generating documentation..."
           echo "API Documentation - Version ${workflow.version}" > ./build/docs.txt
@@ -94,8 +88,7 @@ blocks:
           sleep 2
           echo "✓ Documentation generated" | tee ./logs/build/docs.log
 
-  - name: "Build Package"
-    description: "Create deployment package"
+  - # Build package: Create deployment package
     run: |
       echo "Creating deployment package..."
       cd ./build && tar -czf ../artifacts/app_v${workflow.version}_build${workflow.build_number}.tar.gz * 2>/dev/null
@@ -108,8 +101,7 @@ blocks:
   # ============================================================
   # PHASE 3: TESTING STAGE
   # ============================================================
-  - name: "Prepare Test Environment"
-    description: "Set up testing infrastructure"
+  - # Prepare test environment: Set up testing infrastructure
     run: |
       echo "Setting up test environment..."
       echo "Test Suite Version: ${workflow.version}" > ./tests/test_config.txt
@@ -117,8 +109,7 @@ blocks:
       echo "Test environment ready!"
 
   - parallel:
-      - name: "Run Unit Tests"
-        description: "Execute unit test suite"
+      - # Run unit tests: Execute unit test suite
         run: |
           echo "Running unit tests..."
           total_tests=50
@@ -149,8 +140,7 @@ blocks:
             exit 1
           fi
 
-      - name: "Run Integration Tests"
-        description: "Execute integration test suite"
+      - # Run integration tests: Execute integration test suite
         run: |
           echo "Running integration tests..."
           total_tests=30
@@ -172,8 +162,7 @@ blocks:
           echo "  Failed: $failed"
           echo "✓ Integration tests completed"
 
-      - name: "Run Performance Tests"
-        description: "Execute performance benchmarks"
+      - # Run performance tests: Execute performance benchmarks
         run: |
           echo "Running performance tests..."
           
@@ -185,8 +174,7 @@ blocks:
           cat ./logs/test/performance.log
           echo "✓ Performance tests passed"
 
-  - name: "Test Report"
-    description: "Generate comprehensive test report"
+  - # Test report: Generate comprehensive test report
     run: |
       echo ""
       echo "=========================================="
@@ -204,8 +192,7 @@ blocks:
   # ============================================================
   # PHASE 4: DEPLOYMENT STAGE
   # ============================================================
-  - name: "Pre-Deployment Checks"
-    description: "Validate deployment readiness"
+  - # Pre-deployment checks: Validate deployment readiness
     run: |
       echo "Running pre-deployment checks..."
       
@@ -228,8 +215,7 @@ blocks:
       echo "✓ Pre-deployment checks passed"
 
   - parallel:
-      - name: "Deploy to Server 1"
-        description: "Deploy application to primary server"
+      - # Deploy to Server 1: Deploy application to primary server
         run: |
           echo "Deploying to Server 1 (${servers.prod1.ip})..."
           
@@ -250,8 +236,7 @@ blocks:
           
           echo "✓ Deployment to Server 1 complete" | tee -a ./logs/deploy/server1.log
 
-      - name: "Deploy to Server 2"
-        description: "Deploy application to secondary server"
+      - # Deploy to Server 2: Deploy application to secondary server
         run: |
           echo "Deploying to Server 2 (${servers.prod2.ip})..."
           
@@ -266,8 +251,7 @@ blocks:
           
           echo "✓ Deployment to Server 2 complete" | tee -a ./logs/deploy/server2.log
 
-      - name: "Deploy to Server 3"
-        description: "Deploy application to tertiary server"
+      - # Deploy to Server 3: Deploy application to tertiary server
         run: |
           echo "Deploying to Server 3 (${servers.prod3.ip})..."
           
@@ -282,8 +266,7 @@ blocks:
           
           echo "✓ Deployment to Server 3 complete" | tee -a ./logs/deploy/server3.log
 
-  - name: "Post-Deployment Verification"
-    description: "Verify deployments across all servers"
+  - # Post-deployment verification: Verify deployments across all servers
     run: |
       echo ""
       echo "=========================================="
@@ -310,8 +293,7 @@ blocks:
   # PHASE 5: HEALTH CHECKS & MONITORING
   # ============================================================
   - parallel:
-      - name: "Health Check - Server 1"
-        description: "Verify Server 1 health"
+      - # Health Check - Server 1: Verify Server 1 health
         run: |
           echo "Checking Server 1 health..."
           echo "  HTTP Status: 200 OK" | tee ./logs/monitoring/health_server1.log
@@ -320,8 +302,7 @@ blocks:
           echo "  Memory Usage: 2.1GB / 8GB" | tee -a ./logs/monitoring/health_server1.log
           echo "✓ Server 1 healthy" | tee -a ./logs/monitoring/health_server1.log
 
-      - name: "Health Check - Server 2"
-        description: "Verify Server 2 health"
+      - # Health Check - Server 2: Verify Server 2 health
         run: |
           echo "Checking Server 2 health..."
           echo "  HTTP Status: 200 OK" | tee ./logs/monitoring/health_server2.log
@@ -330,8 +311,7 @@ blocks:
           echo "  Memory Usage: 2.3GB / 8GB" | tee -a ./logs/monitoring/health_server2.log
           echo "✓ Server 2 healthy" | tee -a ./logs/monitoring/health_server2.log
 
-      - name: "Health Check - Server 3"
-        description: "Verify Server 3 health"
+      - # Health Check - Server 3: Verify Server 3 health
         run: |
           echo "Checking Server 3 health..."
           echo "  HTTP Status: 200 OK" | tee ./logs/monitoring/health_server3.log
@@ -343,8 +323,7 @@ blocks:
   # ============================================================
   # PHASE 6: FINAL REPORTING
   # ============================================================
-  - name: "Generate Workflow Report"
-    description: "Create comprehensive workflow execution report"
+  - # Generate workflow report: Create comprehensive workflow execution report
     run: |
       report="./artifacts/workflow_report_${workflow.build_number}.txt"
       
@@ -394,8 +373,7 @@ blocks:
       echo ""
       echo "Report saved to: $report"
 
-  - name: "Workflow Summary"
-    description: "Display final workflow statistics"
+  - # Workflow summary: Display final workflow statistics
     run: |
       echo ""
       echo "╔════════════════════════════════════════════════════════════╗"
@@ -416,8 +394,7 @@ blocks:
       echo ""
       echo "✓ Workflow execution complete!"
 
-  - name: "Cleanup (Optional)"
-    description: "Clean up temporary build files"
+  - # Cleanup (Optional): Clean up temporary build files
     run: |
       echo "Cleaning up temporary files..."
       echo "Keeping:"

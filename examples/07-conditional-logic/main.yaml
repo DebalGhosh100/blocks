@@ -1,10 +1,8 @@
 blocks:
-  - name: "Setup"
-    description: "Create test environment"
+  - # Setup: Create test environment
     run: "mkdir -p ./test_results && echo 'Test environment ready'"
 
-  - name: "Check File Existence"
-    description: "Conditional execution based on file existence"
+  - # Check file existence: Conditional execution based on file existence
     run: |
       test_file="./test_results/data.txt"
       
@@ -17,8 +15,7 @@ blocks:
         echo "✓ File created: $test_file"
       fi
 
-  - name: "Check Directory Status"
-    description: "Test if directory exists and is writable"
+  - # Check directory status: Test if directory exists and is writable
     run: |
       test_dir="./test_results"
       
@@ -38,8 +35,7 @@ blocks:
         echo "✓ Directory created"
       fi
 
-  - name: "Validate Environment Variable"
-    description: "Check if required environment variable is set"
+  - # Validate environment variable: Check if required environment variable is set
     run: |
       # Check if USER variable is set
       if [ -z "$USER" ]; then
@@ -57,8 +53,7 @@ blocks:
         echo "✗ HOME directory not found"
       fi
 
-  - name: "Command Success/Failure Handling"
-    description: "Handle command failures gracefully"
+  - # Command success/failure handling: Handle command failures gracefully
     run: |
       echo "Attempting risky operation..."
       
@@ -76,8 +71,7 @@ blocks:
       
       echo "✓ Block completed despite optional failure"
 
-  - name: "Numeric Comparison"
-    description: "Conditional logic with numeric comparisons"
+  - # Numeric comparison: Conditional logic with numeric comparisons
     run: |
       threshold=${config.thresholds.max_size}
       current_value=75
@@ -95,8 +89,7 @@ blocks:
         echo "✓ Value within acceptable range"
       fi
 
-  - name: "String Comparison"
-    description: "Conditional logic with string comparisons"
+  - # String comparison: Conditional logic with string comparisons
     run: |
       environment=${config.environment}
       
@@ -117,8 +110,7 @@ blocks:
         echo "   - Logging level: VERBOSE"
       fi
 
-  - name: "Multiple Condition Check"
-    description: "Complex conditional with AND/OR logic"
+  - # Multiple condition check: Complex conditional with AND/OR logic
     run: |
       file_exists=true
       has_permission=true
@@ -141,8 +133,7 @@ blocks:
         exit 1
       fi
 
-  - name: "Case Statement Example"
-    description: "Switch-case style conditional logic"
+  - # Case statement example: Switch-case style conditional logic
     run: |
       action=${config.action}
       
@@ -173,8 +164,7 @@ blocks:
           ;;
       esac
 
-  - name: "Loop with Conditional"
-    description: "Iterate and apply conditional logic"
+  - # Loop with conditional: Iterate and apply conditional logic
     run: |
       echo "Processing items with conditional logic..."
       
@@ -188,8 +178,7 @@ blocks:
       
       echo "✓ Loop processing complete"
 
-  - name: "Retry Logic with Backoff"
-    description: "Retry failed commands with exponential backoff"
+  - # Retry logic with backoff: Retry failed commands with exponential backoff
     run: |
       max_retries=3
       retry_count=0
@@ -220,8 +209,7 @@ blocks:
         exit 1
       fi
 
-  - name: "Error Handling with Trap"
-    description: "Handle errors and cleanup on exit"
+  - # Error handling with trap: Handle errors and cleanup on exit
     run: |
       # Create cleanup function
       cleanup() {
@@ -244,8 +232,7 @@ blocks:
       echo "✓ Processing complete"
       # cleanup() will run automatically on exit
 
-  - name: "Display Summary"
-    description: "Show summary of conditional logic tests"
+  - # Display summary: Show summary of conditional logic tests
     run: |
       echo ""
       echo "=========================================="
@@ -267,6 +254,5 @@ blocks:
       echo "All conditional logic tests completed!"
       echo "=========================================="
 
-  - name: "Cleanup"
-    description: "Remove test environment"
+  - # Cleanup: Remove test environment
     run: "rm -rf ./test_results && echo 'Test environment cleaned up'"
