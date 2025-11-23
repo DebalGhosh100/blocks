@@ -205,8 +205,10 @@ class BlockExecutor:
         else:
             # Unix: Use bash with environment and PWD capture
             # Special markers (__BLOCKS_PWD__, __BLOCKS_ENV__) separate output sections
+            # Ensure command ends with newline before appending tracking code
+            command_normalized = command.rstrip() + '\n'
             env_capture_command = (
-                f"{command}; "
+                f"{command_normalized}"
                 f"if [ $? -eq 0 ]; then "
                 f"echo '__BLOCKS_PWD__'; pwd; "
                 f"echo '__BLOCKS_ENV__'; export -p; "
