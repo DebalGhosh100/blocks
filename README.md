@@ -6,6 +6,7 @@ A powerful YAML-based workflow automation tool for executing sequential and para
 
 ## Table of Contents
 - [Overview](#overview)
+- [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Writing Workflow YAML Files](#writing-workflow-yaml-files)
@@ -29,6 +30,50 @@ Blocks Executor allows you to define complex workflows in simple YAML files. Key
 - ✅ **Variable Interpolation**: Reference config values anywhere in your workflow
 - ✅ **SSH Remote Execution**: Execute commands on remote machines with real-time log streaming
 - ✅ **Detailed Reporting**: Get execution summaries with timing and status
+
+## Prerequisites
+
+Before using Cocoon, ensure your Linux machine has the following installed:
+
+### Required Tools
+
+1. **curl** - For downloading scripts
+   ```bash
+   # Check if curl is installed
+   curl --version
+   ```
+
+2. **git** - For cloning repositories
+   ```bash
+   # Check if git is installed
+   git --version
+   ```
+
+3. **python3-pip** - For installing Python dependencies
+   ```bash
+   # Check if pip is installed
+   pip3 --version
+   ```
+
+### Upgrade pip (Important)
+
+After installing the prerequisites, upgrade pip to the latest version:
+
+```bash
+python3 -m pip install --upgrade pip --break-system-packages && pip3 --version
+```
+
+**Note:** The `--break-system-packages` flag allows pip to install packages outside of virtual environments, which is necessary for system-wide framework execution.
+
+### Verify Installation
+
+Run these commands to verify everything is installed correctly:
+
+```bash
+curl --version && git --version && pip3 --version
+```
+
+If all three commands display version information, you're ready to use Cocoon!
 
 ## Installation
 
@@ -249,9 +294,9 @@ blocks:
   - name: "Multi-step Setup"
     description: "Install and configure software"
     run: |
-      sudo apt-get update &&
-      sudo apt-get install -y python3-pip &&
-      pip3 install numpy pandas
+      mkdir -p ./config &&
+      cp settings.ini ./config/ &&
+      echo "Setup complete"
 ```
 
 ### Sequential Execution
@@ -730,18 +775,6 @@ user:
 **`setup.yaml`:**
 ```yaml
 blocks:
-  - name: "Update System"
-    description: "Update package lists"
-    run: "sudo apt-get update"
-
-  - name: "Install Essential Packages"
-    description: "Install required packages"
-    run: "sudo apt-get install -y ${config.packages.essential}"
-
-  - name: "Install Development Tools"
-    description: "Install development packages"
-    run: "sudo apt-get install -y ${config.packages.development}"
-
   - name: "Create User Directory"
     description: "Setup user workspace"
     run: |
@@ -959,22 +992,22 @@ While `name` is optional, providing descriptive names improves readability:
 ❌ **Less Clear:**
 ```yaml
 blocks:
-  - run: "apt-get install python3"
+  - run: "echo 'Processing data'"
 ```
 
 ✅ **Better:**
 ```yaml
 blocks:
-  - name: "Install Python 3"
-    run: "sudo apt-get install -y python3 python3-pip"
+  - name: "Process Data"
+    run: "python3 process.py --input data.csv"
 ```
 
 ✅ **Best:**
 ```yaml
 blocks:
-  - name: "Install Python 3"
-    description: "Install Python 3 interpreter and pip package manager"
-    run: "sudo apt-get install -y python3 python3-pip"
+  - name: "Process Data"
+    description: "Process CSV data and generate reports"
+    run: "python3 process.py --input data.csv --output reports/"
 ```
 
 ### 3. Add Error Handling
@@ -982,12 +1015,12 @@ blocks:
 Use `&&` to chain commands and stop on errors:
 ```yaml
 blocks:
-  - name: "Safe Installation"
-    description: "Install package with error checking"
+  - name: "Safe Data Processing"
+    description: "Process data with error checking"
     run: |
-      sudo apt-get update &&
-      sudo apt-get install -y mypackage &&
-      mypackage --verify
+      mkdir -p ./output &&
+      python3 validate.py --input data.csv &&
+      python3 process.py --input data.csv --output ./output/
 ```
 
 ### 4. Create Logs Directory First
@@ -1022,8 +1055,8 @@ blocks:
 
 Test commands individually before adding to workflow:
 ```bash
-# Test SSH connection manually first
-ssh user@host "ls -la"
+# Test command locally first
+python3 script.py --test
 
 # Then add to workflow once verified
 ```
@@ -1094,9 +1127,9 @@ run-remotely:
 **Problem:** Commands fail with permission errors
 
 **Solution:**
-- Add `sudo` for privileged operations
-- Ensure user has necessary permissions
-- For SSH: Check remote user's sudo privileges
+- Ensure user has necessary file/directory permissions
+- Check file ownership: `ls -l filename`
+- For SSH: Verify remote user has proper access rights
 
 ### Issue: Workflow stops unexpectedly
 
@@ -1207,3 +1240,4 @@ python3 blocks_executor.py workflow.yaml
 ---
 
 **Happy Automating! 🚀**
+
