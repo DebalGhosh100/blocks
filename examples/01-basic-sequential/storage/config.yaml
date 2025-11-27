@@ -1,5 +1,0 @@
-# This example doesn't use variables, but storage directory is required
-# by the framework structure
-
-placeholder:
-  note: "This example demonstrates basic sequential execution without variable interpolation"
