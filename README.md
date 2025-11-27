@@ -8,7 +8,7 @@ A shell script to clone a git repository, copy its contents, and run blocks auto
 Run directly from the repository using curl:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/<owner>/<repo>/<branch>/evaporate.sh | bash -s -- <git_branch> <git_repo_url> [additional_files_to_remove...]
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/evaporate/evaporate.sh | bash -s -- <git_branch> <git_repo_url> [additional_files_to_remove...]
 ```
 
 ### Parameters
@@ -53,3 +53,4 @@ curl -sSL https://raw.githubusercontent.com/<owner>/<repo>/<branch>/evaporate.sh
 chmod +x evaporate.sh
 ./evaporate.sh <git_branch> <git_repo_url> [additional_files_to_remove...]
 ```
+
