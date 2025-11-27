@@ -1,6 +1,7 @@
+
 # Evaporate
 
-A shell script to clone a git repository, create a 'storage' directory, copy all yamls in the current-directory into the newly created storage directory, and run blocks automation.
+A shell script to clone a git repository, create a 'storage' directory, copy all yamls in the current-directory into the newly created storage directory, and run the cocoon blocks-automation script.
 
 ## Usage
 
