@@ -33,6 +33,16 @@ class ConfigLoader:
             with open(yml_file, 'r', encoding='utf-8') as f:
                 self.config[config_name] = yaml.safe_load(f)
     
+    def reload_configs(self):
+        """Reload all YAML files from storage directory.
+        
+        This method is called after each run block execution to pick up
+        any changes made to storage YAML files during workflow execution.
+        This allows workflows to dynamically update configurations mid-execution.
+        """
+        self.config = {}  # Clear existing config
+        self._load_all_configs()  # Reload all files
+    
     def get_value(self, path: str) -> Any:
         """
         Get value from config using dot notation

@@ -572,6 +572,10 @@ class BlockExecutor:
         status = "✓ SUCCESS" if success else "✗ FAILED"
         print(Colors.colorize(f"  Status: {status} (Duration: {duration:.2f}s)", status_color))
         
+        # Reload configurations from storage directory after each block execution
+        # This allows workflows to update storage YAMLs mid-execution
+        self.config_loader.reload_configs()
+        
         return result
     
     def _execute_remote_with_log(
@@ -775,6 +779,10 @@ class BlockExecutor:
         status_color = Colors.BOLD_GREEN if success else Colors.BOLD_RED
         status = "✓ SUCCESS" if success else "✗ FAILED"
         print(Colors.colorize(f"  Status: {status} (Duration: {duration:.2f}s)", status_color))
+        
+        # Reload configurations from storage directory after each block execution
+        # This allows workflows to update storage YAMLs mid-execution
+        self.config_loader.reload_configs()
         
         return result
     

@@ -32,7 +32,7 @@ cd "$TEMP_DIR"
 
 # Step 2: Install dependencies
 echo -e "${YELLOW}[2/5] Installing dependencies...${NC}"
-pip3 install -q -r requirements.txt --break-system-packages
+pip3 install -q -r requirements.txt
 
 # Step 3: Execute workflow
 echo -e "${YELLOW}[3/5] Executing workflow...${NC}"
