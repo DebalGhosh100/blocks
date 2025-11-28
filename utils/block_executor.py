@@ -802,6 +802,10 @@ class BlockExecutor:
         Returns:
             List of expanded block dictionaries
         """
+        # Reload configs before expanding loop to ensure fresh list data
+        # This allows workflows to modify the list before the loop executes
+        self.config_loader.reload_configs()
+        
         individual_var = loop_config.get('individual')
         list_path = loop_config.get('in', '')
         
@@ -1096,6 +1100,7 @@ class BlockExecutor:
             # Handle for-loop block
             if 'for' in item:
                 loop_config = item['for']
+                # Config reload happens inside _expand_for_loop before expansion
                 expanded_blocks = self._expand_for_loop(loop_config)
                 
                 # Execute each expanded block sequentially
@@ -1105,6 +1110,8 @@ class BlockExecutor:
                     
                     if not result['success']:
                         all_success = False
+                    
+                    # Note: Config reload already happens inside execute_block()
             
             # Handle parallel execution block
             elif 'parallel' in item:
@@ -1113,6 +1120,7 @@ class BlockExecutor:
                 # Check if parallel block contains a for-loop
                 if isinstance(parallel_blocks, dict) and 'for' in parallel_blocks:
                     # Expand the for-loop first
+                    # Config reload happens inside _expand_for_loop before expansion
                     loop_config = parallel_blocks['for']
                     parallel_blocks = self._expand_for_loop(loop_config)
                 
