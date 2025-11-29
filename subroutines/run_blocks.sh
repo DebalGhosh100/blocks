@@ -35,13 +35,13 @@ cd "$TEMP_DIR"
 
 # Step 2: Install dependencies
 echo -e "${YELLOW}[2/5] Installing dependencies...${NC}"
-pip3 install -q -r requirements.txt
+pip3 install -r requirements.txt
 
 # Step 3: Execute workflow
 echo -e "${YELLOW}[3/5] Executing workflow...${NC}"
 echo -e "Workflow file: $WORKFLOW_FILE"
 echo -e "Storage directory: $STORAGE_DIR"
-python3 blocks_executor.py "../$WORKFLOW_FILE" --storage "../$STORAGE_DIR"
+python3 -u blocks_executor.py "../$WORKFLOW_FILE" --storage "../$STORAGE_DIR"
 
 # Step 4: Return to original directory
 echo -e "${YELLOW}[4/5] Returning to project directory...${NC}"
