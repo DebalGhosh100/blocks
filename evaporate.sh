@@ -39,11 +39,14 @@ rm -rf temp-clone .git .gitattributes README.md
 echo "=== Creating storage and backing up YAML files ==="
 mkdir -p storage
 # Copy/overwrite YAML files to storage directory
-for yaml_file in *.yaml 2>/dev/null; do
+shopt -s nullglob
+for yaml_file in *.yaml; do
     if [ -f "$yaml_file" ]; then
+        echo "Backing up: $yaml_file"
         cp -f "$yaml_file" storage/
     fi
 done
+shopt -u nullglob
 
 echo "=== Running blocks script ==="
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
