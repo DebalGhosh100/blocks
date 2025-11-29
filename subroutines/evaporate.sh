@@ -73,7 +73,7 @@ mkdir -p storage
 
 
 echo "=== Running blocks script ==="
-curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/subroutines/run_blocks.sh | bash -s "${NEW_MAIN_NAME}_temp" "${NEW_MAIN_NAME}.yaml" storage
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/subroutines/run_blocks.sh | bash -s "${NEW_MAIN_NAME}_temp" "${NEW_MAIN_NAME}.yaml" storage 2>&1
 
 echo "=== Cleaning up default files/folders ==="
 for item in "${DEFAULT_REMOVES[@]}"; do
