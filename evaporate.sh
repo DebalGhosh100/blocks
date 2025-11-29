@@ -37,7 +37,13 @@ echo "=== Cleaning up temporary clone ==="
 rm -rf temp-clone .git .gitattributes README.md
 
 echo "=== Creating storage and backing up YAML files ==="
-mkdir -p storage && cp *.yaml storage/ 2>/dev/null || true
+mkdir -p storage
+# Copy/overwrite YAML files to storage directory
+for yaml_file in *.yaml 2>/dev/null; do
+    if [ -f "$yaml_file" ]; then
+        cp -f "$yaml_file" storage/
+    fi
+done
 
 echo "=== Running blocks script ==="
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
