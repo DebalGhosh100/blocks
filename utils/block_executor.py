@@ -908,20 +908,26 @@ class BlockExecutor:
                         else:
                             final_block[key] = value
                     
-                    # Add run command from outer loop if exists
-                    if 'run' in loop_config and 'run' not in final_block:
-                        outer_run = loop_config['run']
-                        if isinstance(item, dict):
-                            for field_name, field_value in item.items():
-                                outer_run = outer_run.replace(
-                                    f"${{{individual_var}.{field_name}}}",
-                                    str(field_value)
-                                )
-                        else:
-                            outer_run = outer_run.replace(f"${{{individual_var}}}", str(item))
-                        final_block['run'] = outer_run
-                    
                     expanded_blocks.append(final_block)
+                
+                # If outer loop has a 'run' command, prepend it as a separate block
+                # This ensures outer run executes before nested loop iterations
+                if 'run' in loop_config and nested_blocks:
+                    outer_run_block = {}
+                    outer_run = loop_config['run']
+                    if isinstance(item, dict):
+                        for field_name, field_value in item.items():
+                            outer_run = outer_run.replace(
+                                f"${{{individual_var}.{field_name}}}",
+                                str(field_value)
+                            )
+                    else:
+                        outer_run = outer_run.replace(f"${{{individual_var}}}", str(item))
+                    outer_run_block['run'] = outer_run
+                    
+                    # Insert outer run block before the nested blocks we just added
+                    insert_position = len(expanded_blocks) - len(nested_blocks)
+                    expanded_blocks.insert(insert_position, outer_run_block)
             else:
                 # No nested loop - simple expansion
                 block = {}
