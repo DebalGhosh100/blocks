@@ -841,6 +841,10 @@ class BlockExecutor:
                 if 'run' in loop_config:
                     outer_run_block = {}
                     outer_run = loop_config['run']
+                    
+                    # Debug: Show outer run before substitution
+                    print(Colors.colorize(f"DEBUG: Outer run before substitution: {repr(outer_run)}", Colors.YELLOW))
+                    
                     if isinstance(item, dict):
                         for field_name, field_value in item.items():
                             outer_run = outer_run.replace(
@@ -849,6 +853,10 @@ class BlockExecutor:
                             )
                     else:
                         outer_run = outer_run.replace(f"${{{individual_var}}}", str(item))
+                    
+                    # Debug: Show outer run after substitution
+                    print(Colors.colorize(f"DEBUG: Outer run after substitution: {repr(outer_run)}", Colors.YELLOW))
+                    
                     outer_run_block['run'] = outer_run
                     expanded_blocks.append(outer_run_block)
                 
@@ -911,6 +919,11 @@ class BlockExecutor:
                     
                     # Recursively expand nested loop
                     nested_blocks = self._expand_for_loop(nested_loop_config_copy)
+                    
+                    # Debug: Check what nested blocks contain
+                    if not nested_blocks or (nested_blocks and not nested_blocks[0]):
+                        print(Colors.colorize(f"DEBUG: Nested blocks are empty or malformed!", Colors.BOLD_RED))
+                        print(Colors.colorize(f"nested_loop_config_copy: {nested_loop_config_copy}", Colors.YELLOW))
                 
                 # For each nested block, also substitute the outer variable
                 for nested_block in nested_blocks:
