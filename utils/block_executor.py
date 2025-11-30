@@ -749,13 +749,6 @@ class BlockExecutor:
         name = block.get('name', command[:50] + '...' if len(command) > 50 else command)
         description = block.get('description', '')
         
-        # Debug: Print block contents if command is empty
-        if not command:
-            print(Colors.colorize(f"\n{'='*60}", Colors.BOLD_RED))
-            print(Colors.colorize(f"DEBUG: Empty command detected!", Colors.BOLD_RED))
-            print(Colors.colorize(f"Block contents: {block}", Colors.YELLOW))
-            print(Colors.colorize(f"{'='*60}", Colors.BOLD_RED))
-        
         # Print block header
         print(Colors.colorize(f"\n{'='*60}", Colors.BOLD_CYAN))
         if name:
@@ -834,23 +827,53 @@ class BlockExecutor:
         
         # Iterate over each item in the list
         for item in list_items:
-            # Debug: Show loop_config structure
-            print(Colors.colorize(f"DEBUG: Processing item: {item}", Colors.YELLOW))
-            print(Colors.colorize(f"DEBUG: loop_config keys: {loop_config.keys()}", Colors.YELLOW))
-            print(Colors.colorize(f"DEBUG: Has 'for'? {'for' in loop_config}", Colors.YELLOW))
-            print(Colors.colorize(f"DEBUG: Has 'run'? {'run' in loop_config}", Colors.YELLOW))
-            
-            # Handle nested for-loops
-            if 'for' in loop_config:
+            # Handle for-loops with blocks array (multiple sub-blocks)
+            if 'blocks' in loop_config:
+                # Process each block in the blocks array
+                blocks_array = loop_config['blocks']
+                for block_template in blocks_array:
+                    # Substitute variables in this block
+                    substituted_block = {}
+                    for key, value in block_template.items():
+                        if isinstance(value, str):
+                            if isinstance(item, dict):
+                                for field_name, field_value in item.items():
+                                    value = value.replace(
+                                        f"${{{individual_var}.{field_name}}}",
+                                        str(field_value)
+                                    )
+                            else:
+                                value = value.replace(f"${{{individual_var}}}", str(item))
+                            substituted_block[key] = value
+                        elif isinstance(value, dict):
+                            # Handle nested structures like for loops or run-remotely
+                            if key == 'for':
+                                # This is a nested for-loop, need to substitute the 'in' path
+                                nested_for = dict(value)
+                                nested_in_path = nested_for.get('in', '')
+                                if isinstance(item, dict):
+                                    for field_name, field_value in item.items():
+                                        nested_in_path = nested_in_path.replace(
+                                            f"${{{individual_var}.{field_name}}}",
+                                            str(field_value)
+                                        )
+                                else:
+                                    nested_in_path = nested_in_path.replace(f"${{{individual_var}}}", str(item))
+                                nested_for['in'] = nested_in_path
+                                substituted_block[key] = nested_for
+                            else:
+                                substituted_block[key] = self._substitute_in_dict(value, individual_var, item)
+                        else:
+                            substituted_block[key] = value
+                    
+                    expanded_blocks.append(substituted_block)
+            # Handle nested for-loops (legacy syntax without blocks array)
+            elif 'for' in loop_config:
                 # If outer loop has a 'run' command, add it first as a separate block
                 # This ensures outer run executes before nested loop iterations
                 if 'run' in loop_config:
                     outer_run_block = {}
                     outer_run = loop_config['run']
-                    
-                    # Debug: Show outer run before substitution
-                    print(Colors.colorize(f"DEBUG: Outer run before substitution: {repr(outer_run)}", Colors.YELLOW))
-                    
                     if isinstance(item, dict):
                         for field_name, field_value in item.items():
                             outer_run = outer_run.replace(
@@ -859,10 +882,6 @@ class BlockExecutor:
                             )
                     else:
                         outer_run = outer_run.replace(f"${{{individual_var}}}", str(item))
-                    
-                    # Debug: Show outer run after substitution
-                    print(Colors.colorize(f"DEBUG: Outer run after substitution: {repr(outer_run)}", Colors.YELLOW))
-                    
                     outer_run_block['run'] = outer_run
                     expanded_blocks.append(outer_run_block)
                 
@@ -925,11 +944,6 @@ class BlockExecutor:
                     
                     # Recursively expand nested loop
                     nested_blocks = self._expand_for_loop(nested_loop_config_copy)
-                    
-                    # Debug: Check what nested blocks contain
-                    if not nested_blocks or (nested_blocks and not nested_blocks[0]):
-                        print(Colors.colorize(f"DEBUG: Nested blocks are empty or malformed!", Colors.BOLD_RED))
-                        print(Colors.colorize(f"nested_loop_config_copy: {nested_loop_config_copy}", Colors.YELLOW))
                 
                 # For each nested block, also substitute the outer variable
                 for nested_block in nested_blocks:
