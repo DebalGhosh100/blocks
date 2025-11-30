@@ -344,251 +344,45 @@ class BlockExecutor:
     
     def execute_parallel_blocks(self, blocks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
-        Expand a for-loop into individual blocks by iterating over a list.
+        Execute multiple blocks in parallel using threading.
         
-        Supports syntax:
-        for:
-          individual: item_name
-          in: ${config.list_path}
-          run: command with ${item_name}
-          
-        Args:
-            loop_config: Dictionary containing for-loop configuration
-            
-        Returns:
-            List of expanded block dictionaries
-        """
-        # Reload configs before expanding loop to ensure fresh list data
-        # This allows workflows to modify the list before the loop executes
-        self.config_loader.reload_configs()
-        
-        individual_var = loop_config.get('individual')
-        list_path = loop_config.get('in', '')
-        
-        if not individual_var or not list_path:
-            print(Colors.colorize("Error: for-loop missing 'individual' or 'in' field", Colors.BOLD_RED))
-            return []
-        
-        # Interpolate the list path to get the actual list
-        interpolated_path = self.config_loader.interpolate(list_path)
-        
-        # Get the list from config using dot notation
-        list_items = self.config_loader.get_value(list_path.replace('${', '').replace('}', ''))
-        
-        if not isinstance(list_items, list):
-            print(Colors.colorize(f"Error: '{list_path}' does not reference a list", Colors.BOLD_RED))
-            return []
-        
-        expanded_blocks = []
-        
-        # Iterate over each item in the list
-        for item in list_items:
-            # Handle for-loops with blocks array (multiple sub-blocks)
-            if 'blocks' in loop_config:
-                # Process each block in the blocks array
-                blocks_array = loop_config['blocks']
-                for block_template in blocks_array:
-                    # Substitute variables in this block
-                    substituted_block = {}
-                    for key, value in block_template.items():
-                        if isinstance(value, str):
-                            if isinstance(item, dict):
-                                for field_name, field_value in item.items():
-                                    value = value.replace(
-                                        f"${{{individual_var}.{field_name}}}",
-                                        str(field_value)
-                                    )
-                            else:
-                                value = value.replace(f"${{{individual_var}}}", str(item))
-                            substituted_block[key] = value
-                        elif isinstance(value, dict):
-                            # Handle nested structures like for loops or run-remotely
-                            if key == 'for':
-                                # This is a nested for-loop, need to substitute the 'in' path
-                                nested_for = dict(value)
-                                nested_in_path = nested_for.get('in', '')
-                                if isinstance(item, dict):
-                                    for field_name, field_value in item.items():
-                                        nested_in_path = nested_in_path.replace(
-                                            f"${{{individual_var}.{field_name}}}",
-                                            str(field_value)
-                                        )
-                                else:
-                                    nested_in_path = nested_in_path.replace(f"${{{individual_var}}}", str(item))
-                                nested_for['in'] = nested_in_path
-                                substituted_block[key] = nested_for
-                            else:
-                                substituted_block[key] = self._substitute_in_dict(value, individual_var, item)
-                        else:
-                            substituted_block[key] = value
-                    
-                    expanded_blocks.append(substituted_block)
-            # Handle nested for-loops (legacy syntax without blocks array)
-            elif 'for' in loop_config:
-                # If outer loop has a 'run' command, add it first as a separate block
-                # This ensures outer run executes before nested loop iterations
-                if 'run' in loop_config:
-                    outer_run_block = {}
-                    outer_run = loop_config['run']
-                    if isinstance(item, dict):
-                        for field_name, field_value in item.items():
-                            outer_run = outer_run.replace(
-                                f"${{{individual_var}.{field_name}}}",
-                                str(field_value)
-                            )
-                    else:
-                        outer_run = outer_run.replace(f"${{{individual_var}}}", str(item))
-                    outer_run_block['run'] = outer_run
-                    expanded_blocks.append(outer_run_block)
-                
-                # This is a nested loop - process outer item first, then expand inner loop
-                nested_loop_config = loop_config['for']
-                
-                # Get the nested list - could be a path or direct value from outer item
-                nested_in_path = nested_loop_config.get('in', '')
-                nested_list = None
-                
-                # Check if nested_in_path references a field in the current item (dict)
-                if isinstance(item, dict):
-                    # Try to extract field name from ${individual_var.field} pattern
-                    import re
-                    pattern = f"\\${{{individual_var}\\.([^}}]+)\\}}"
-                    match = re.search(pattern, nested_in_path)
-                    if match:
-                        field_name = match.group(1)
-                        if field_name in item:
-                            # Direct access to the nested list from current item
-                            nested_list = item[field_name]
-                
-                # If we found a direct list, create a temporary config
-                if nested_list is not None and isinstance(nested_list, list):
-                    # Create expanded blocks directly from the nested list
-                    nested_individual = nested_loop_config.get('individual')
-                    nested_blocks = []
-                    
-                    for nested_item in nested_list:
-                        nested_block = {}
-                        for key, value in nested_loop_config.items():
-                            if key in ['individual', 'in', 'for']:
-                                continue
-                            
-                            if isinstance(value, str):
-                                if isinstance(nested_item, dict):
-                                    substituted = value
-                                    for nf, nv in nested_item.items():
-                                        substituted = substituted.replace(f"${{{nested_individual}.{nf}}}", str(nv))
-                                    nested_block[key] = substituted
-                                else:
-                                    nested_block[key] = value.replace(f"${{{nested_individual}}}", str(nested_item))
-                            elif isinstance(value, dict):
-                                nested_block[key] = self._substitute_in_dict(value, nested_individual, nested_item)
-                        nested_blocks.append(nested_block)
-                else:
-                    # Path-based nested loop - substitute and resolve
-                    if isinstance(item, dict):
-                        for field_name, field_value in item.items():
-                            nested_in_path = nested_in_path.replace(
-                                f"${{{individual_var}.{field_name}}}",
-                                str(field_value)
-                            )
-                    else:
-                        nested_in_path = nested_in_path.replace(f"${{{individual_var}}}", str(item))
-                    
-                    # Update nested loop config with substituted path
-                    nested_loop_config_copy = dict(nested_loop_config)
-                    nested_loop_config_copy['in'] = nested_in_path
-                    
-                    # Recursively expand nested loop
-                    nested_blocks = self._expand_for_loop(nested_loop_config_copy)
-                
-                # For each nested block, also substitute the outer variable
-                for nested_block in nested_blocks:
-                    final_block = {}
-                    for key, value in nested_block.items():
-                        if isinstance(value, str):
-                            if isinstance(item, dict):
-                                for field_name, field_value in item.items():
-                                    value = value.replace(
-                                        f"${{{individual_var}.{field_name}}}",
-                                        str(field_value)
-                                    )
-                            else:
-                                value = value.replace(f"${{{individual_var}}}", str(item))
-                            final_block[key] = value
-                        elif isinstance(value, dict):
-                            final_block[key] = self._substitute_in_dict(value, individual_var, item)
-                        else:
-                            final_block[key] = value
-                    
-                    expanded_blocks.append(final_block)
-            else:
-                # No nested loop - simple expansion
-                block = {}
-                
-                # Process each key in the loop config
-                for key, value in loop_config.items():
-                    if key in ['individual', 'in']:
-                        continue  # Skip loop control keys
-                    
-                    # Substitute the individual variable in the value
-                    if isinstance(value, str):
-                        # Handle both simple strings and dicts
-                        if isinstance(item, dict):
-                            # Item is a dict - replace ${individual_var.field} patterns
-                            substituted_value = value
-                            for field_name, field_value in item.items():
-                                substituted_value = substituted_value.replace(
-                                    f"${{{individual_var}.{field_name}}}",
-                                    str(field_value)
-                                )
-                            block[key] = substituted_value
-                        else:
-                            # Item is a simple value - replace ${individual_var}
-                            block[key] = value.replace(f"${{{individual_var}}}", str(item))
-                    elif isinstance(value, dict):
-                        # Handle nested dictionaries (like run-remotely config)
-                        block[key] = self._substitute_in_dict(value, individual_var, item)
-            
-                expanded_blocks.append(block)
-        
-        return expanded_blocks
-    
-    def _substitute_in_dict(self, data: Dict[str, Any], var_name: str, var_value: Any) -> Dict[str, Any]:
-        """
-        Recursively substitute variable references in a dictionary.
+        All blocks are started simultaneously in separate threads and
+        executed concurrently. Results are collected after all threads complete.
         
         Args:
-            data: Dictionary to process
-            var_name: Variable name to substitute
-            var_value: Value to substitute (can be dict or simple value)
+            blocks: List of block dictionaries to execute in parallel
             
         Returns:
-            Dictionary with substitutions applied
+            List of execution result dictionaries
         """
-        result = {}
+        results = []
+        threads = []
         
-        for key, value in data.items():
-            if isinstance(value, str):
-                if isinstance(var_value, dict):
-                    # Replace ${var_name.field} patterns
-                    substituted = value
-                    for field_name, field_val in var_value.items():
-                        substituted = substituted.replace(
-                            f"${{{var_name}.{field_name}}}",
-                            str(field_val)
-                        )
-                    result[key] = substituted
-                else:
-                    # Replace ${var_name}
-                    result[key] = value.replace(f"${{{var_name}}}", str(var_value))
-            elif isinstance(value, dict):
-                result[key] = self._substitute_in_dict(value, var_name, var_value)
-            elif isinstance(value, list):
-                result[key] = [self._substitute_in_dict(item, var_name, var_value) if isinstance(item, dict) else item for item in value]
-            else:
-                result[key] = value
+        # Helper function to execute a block and store its result
+        def execute_and_store(block: Dict[str, Any], result_list: List[Dict[str, Any]]):
+            result = self.execute_block(block)
+            result_list.append(result)
         
-        return result
+        
+        # Start all blocks in separate threads
+        print(Colors.colorize(f"\n{'~'*60}", Colors.BOLD_YELLOW))
+        print(Colors.colorize(f"PARALLEL EXECUTION: Starting {len(blocks)} tasks", Colors.BOLD_YELLOW))
+        print(Colors.colorize(f"{'~'*60}", Colors.BOLD_YELLOW))
+        
+        for block in blocks:
+            thread = threading.Thread(target=execute_and_store, args=(block, results))
+            thread.start()
+            threads.append(thread)
+        
+        # Wait for all threads to complete
+        for thread in threads:
+            thread.join()
+        
+        print(Colors.colorize(f"\n{'~'*60}", Colors.BOLD_YELLOW))
+        print(Colors.colorize(f"PARALLEL EXECUTION: All {len(blocks)} tasks completed", Colors.BOLD_YELLOW))
+        print(Colors.colorize(f"{'~'*60}", Colors.BOLD_YELLOW))
+        
+        return results
     
     # ========================================================================
     # WORKFLOW EXECUTION
