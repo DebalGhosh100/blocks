@@ -749,6 +749,13 @@ class BlockExecutor:
         name = block.get('name', command[:50] + '...' if len(command) > 50 else command)
         description = block.get('description', '')
         
+        # Debug: Print block contents if command is empty
+        if not command:
+            print(Colors.colorize(f"\n{'='*60}", Colors.BOLD_RED))
+            print(Colors.colorize(f"DEBUG: Empty command detected!", Colors.BOLD_RED))
+            print(Colors.colorize(f"Block contents: {block}", Colors.YELLOW))
+            print(Colors.colorize(f"{'='*60}", Colors.BOLD_RED))
+        
         # Print block header
         print(Colors.colorize(f"\n{'='*60}", Colors.BOLD_CYAN))
         if name:
