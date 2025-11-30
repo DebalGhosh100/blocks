@@ -834,6 +834,12 @@ class BlockExecutor:
         
         # Iterate over each item in the list
         for item in list_items:
+            # Debug: Show loop_config structure
+            print(Colors.colorize(f"DEBUG: Processing item: {item}", Colors.YELLOW))
+            print(Colors.colorize(f"DEBUG: loop_config keys: {loop_config.keys()}", Colors.YELLOW))
+            print(Colors.colorize(f"DEBUG: Has 'for'? {'for' in loop_config}", Colors.YELLOW))
+            print(Colors.colorize(f"DEBUG: Has 'run'? {'run' in loop_config}", Colors.YELLOW))
+            
             # Handle nested for-loops
             if 'for' in loop_config:
                 # If outer loop has a 'run' command, add it first as a separate block
