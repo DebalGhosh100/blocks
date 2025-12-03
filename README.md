@@ -25,7 +25,7 @@ Blocks Executor allows you to define complex workflows in simple YAML files. Key
 
 - ✅ **Sequential Execution**: Run tasks in order
 - ✅ **Parallel Execution**: Run multiple tasks simultaneously
-- ✅ **Loop Iteration**: Iterate over lists with for-loops
+- ✅ **Loop Comprehension**: Iterate over lists with for-loops
 - ✅ **Configuration Management**: Store reusable configs in YAML files
 - ✅ **Variable Interpolation**: Reference config values anywhere in your workflow
 - ✅ **SSH Remote Execution**: Execute commands on remote machines with real-time log streaming
@@ -420,7 +420,7 @@ blocks:
               ${database.name} > backup.sql
 ```
 
-## Loop Iteration
+## Loop Comprehension
 
 ### Syntax
 
@@ -1240,6 +1240,7 @@ python3 blocks_executor.py workflow.yaml
 ---
 
 **Happy Automating! 🚀**
+
 
 
 
