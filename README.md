@@ -101,11 +101,6 @@ Or use the full command directly without installing the alias:
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
 
-**Windows (PowerShell):**
-```powershell
-iwr -useb https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.ps1 | iex
-```
-
 **Alternative (if you prefer to see the script first):**
 
 Linux/Mac:
@@ -1241,6 +1236,7 @@ python3 blocks_executor.py workflow.yaml
 ---
 
 **Happy Automating! 🚀**
+
 
 
 
