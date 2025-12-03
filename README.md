@@ -143,7 +143,8 @@ your-project/
     ├── servers.yaml
     └── ... (other config files)
 ```
-<img width="2058" height="737" alt="image" src="https://github.com/user-attachments/assets/51f31518-a07d-404a-ad6d-69abcdcd3f51" />
+<img width="2423" height="981" alt="image" src="https://github.com/user-attachments/assets/3feba402-08f1-4825-b610-a7abfbce9461" />
+
 
 After running the one-liner, the framework will execute your workflow and then self-destruct, leaving only your original files and any generated logs.
 
@@ -1241,4 +1242,5 @@ python3 blocks_executor.py workflow.yaml
 ---
 
 **Happy Automating! 🚀**
+
 
