@@ -12,7 +12,7 @@ A powerful YAML-based workflow automation tool for executing sequential and para
 - [Writing Workflow YAML Files](#writing-workflow-yaml-files)
 - [Configuration Management](#configuration-management)
 - [Variable Interpolation](#variable-interpolation)
-- [Loop Iteration](#loop-iteration)
+- [Loop Comprehension](#loop-iteration)
 - [Parallel Execution](#parallel-execution)
 - [SSH Remote Execution](#ssh-remote-execution)
 - [Complete Examples](#complete-examples)
@@ -1240,6 +1240,7 @@ python3 blocks_executor.py workflow.yaml
 ---
 
 **Happy Automating! 🚀**
+
 
 
 
