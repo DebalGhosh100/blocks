@@ -52,7 +52,7 @@ Before using Cocoon, ensure your Linux machine has the following installed:
 3. **python3-pip** - For installing Python dependencies
    
    
-   **pip 23.0** or higher
+   **pip 23.0** or higher is required.
    ```bash
    # Check if pip is installed
    pip3 --version
@@ -1241,6 +1241,7 @@ python3 blocks_executor.py workflow.yaml
 ---
 
 **Happy Automating! 🚀**
+
 
 
 
