@@ -35,7 +35,7 @@ Blocks Executor allows you to define complex workflows in simple YAML files. Key
 
 Before using Cocoon, ensure your Linux machine has the following installed:
 
-### Required Tools
+### Prerequisites
 
 1. **curl** - For downloading scripts
    ```bash
@@ -50,6 +50,9 @@ Before using Cocoon, ensure your Linux machine has the following installed:
    ```
 
 3. **python3-pip** - For installing Python dependencies
+   
+   
+   **pip 23.0** or higher
    ```bash
    # Check if pip is installed
    pip3 --version
@@ -57,7 +60,7 @@ Before using Cocoon, ensure your Linux machine has the following installed:
 
 ### Upgrade pip (Important)
 
-After installing the prerequisites, upgrade pip to the latest version:
+After installing the prerequisites, upgrade pip to the latest version [   **pip 23.0** or higher]:
 
 ```bash
 python3 -m pip install --upgrade pip --break-system-packages && pip3 --version
@@ -361,12 +364,7 @@ paths:
   data: "/data/myapp"
 ```
 
-### Configuration Rules
 
-- ✅ **Nested dictionaries**: Any level of nesting is supported
-- ✅ **Multiple files**: Create as many YAML files as needed
-- ✅ **Any filename**: Use descriptive names (e.g., `machines.yaml`, `credentials.yaml`)
-- ❌ **No lists**: Only key-value pairs (dictionaries) are supported
 
 ## Variable Interpolation
 
@@ -1242,5 +1240,6 @@ python3 blocks_executor.py workflow.yaml
 ---
 
 **Happy Automating! 🚀**
+
 
 
