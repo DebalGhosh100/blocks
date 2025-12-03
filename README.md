@@ -112,13 +112,6 @@ chmod +x run_blocks.sh
 ./run_blocks.sh
 ```
 
-Windows PowerShell:
-```powershell
-# Download and inspect the script
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.ps1 -OutFile run_blocks.ps1
-# Review the script, then run it
-.\run_blocks.ps1
-```
 
 **What this does:**
 1. Clones the repository into a temporary `.blocks_temp` directory
