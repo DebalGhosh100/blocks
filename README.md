@@ -7,11 +7,24 @@ A shell script to clone a git repository, create a 'storage' directory, copy all
 
 ## Usage
 
-Run directly from the repository using curl:
+Run directly from the your current directory using curl:
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/evaporate/evaporate.sh | bash -s -- <git_branch> <git_repo_url> [additional_files_to_remove...]
 ```
+### That's a huge curl, barely readable. 
+# 😮‍💨 
+### Here's a quick alias:
+
+```bash
+alias evaporate='curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/evaporate/evaporate.sh | bash -s --'
+```
+The Cocoon parser can be executed directly from the your current directory:
+```bash
+evaporate <git_branch> <git_repo_url> [additional_files_to_remove...]
+```
+
+
 **All yamls in your current directory will be dumped in [and / or] overridden in the storage directory when the remote procedural-call is made using this curl.**
 
 
@@ -31,5 +44,6 @@ curl -sSL https://raw.githubusercontent.com/<owner>/<repo>/<branch>/evaporate.sh
 chmod +x evaporate.sh
 ./evaporate.sh <git_branch> <git_repo_url> [additional_files_to_remove...]
 ```
+
 
 
