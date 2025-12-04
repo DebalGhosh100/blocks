@@ -133,6 +133,11 @@ your-project/
 
 
 After running the one-liner, the framework will execute your workflow and then self-destruct, leaving only your original files and any generated logs.
+### But there's a cooler way to do it !
+
+Create a git repo, push your main.yaml and other scripting logic into the repo **and treat your current working directory as the storage directory !**
+
+**The [evaporate](https://github.com/DebalGhosh100/blocks/tree/evaporate) script handles the rest for you.**
 
 ---
 ## Quick Start
@@ -1166,6 +1171,7 @@ python3 blocks_executor.py workflow.yaml
 ---
 
 **Happy Automating! 🚀**
+
 
 
 
