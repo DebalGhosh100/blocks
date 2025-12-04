@@ -68,7 +68,7 @@ python3 -m pip install --upgrade pip --break-system-packages && pip3 --version
 
 **Note:** The `--break-system-packages` flag allows pip to install packages outside of virtual environments, which is necessary for system-wide framework execution.
 
-### Verify Installation
+### Verify Fulfillment of Prerequisites
 
 Run these commands to verify everything is installed correctly:
 
@@ -1168,6 +1168,7 @@ python3 blocks_executor.py workflow.yaml
 ---
 
 **Happy Automating! 🚀**
+
 
 
 
