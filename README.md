@@ -12,7 +12,7 @@ Run directly from the your current directory using curl:
 ```bash
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/evaporate/evaporate.sh | bash -s -- <git_branch> <git_repo_url> [additional_files_to_remove...]
 ```
-### That's a huge curl, barely readable. 
+### Way too messy, barely readable. 
 # 😮‍💨 
 ### Here's a quick alias:
 
@@ -44,6 +44,7 @@ curl -sSL https://raw.githubusercontent.com/<owner>/<repo>/<branch>/evaporate.sh
 chmod +x evaporate.sh
 ./evaporate.sh <git_branch> <git_repo_url> [additional_files_to_remove...]
 ```
+
 
 
 
