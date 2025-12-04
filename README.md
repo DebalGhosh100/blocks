@@ -119,11 +119,7 @@ chmod +x run_blocks.sh
 3. Executes your `main.yaml` workflow using configurations from your `storage/` directory
 4. Cleans up by deleting all framework files after execution completes
 
-**Prerequisites:**
-- Python 3 installed on your system
-- Git installed on your system
-- `main.yaml` file in your current directory
-- `storage/` directory with configuration YAML files in your current directory
+
 
 **Your directory structure should be:**
 ```
@@ -141,79 +137,7 @@ your-project/
 After running the one-liner, the framework will execute your workflow and then self-destruct, leaving only your original files and any generated logs.
 
 ---
-
-### Method 2: Standard Installation (For Development)
-
-If you want to keep the framework installed for repeated use:
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/DebalGhosh100/blocks.git
-   cd blocks
-   ```
-
-2. **Install Python dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Verify installation:**
-   ```bash
-   python3 blocks_executor.py --help
-   ```
-
 ## Quick Start
-
-### Option A: One-Command Execution (No Installation)
-
-If you want to run the framework without installing it permanently:
-
-1. **Create your workflow and configuration:**
-
-```bash
-# Create your project directory
-mkdir my-project && cd my-project
-
-# Create storage directory
-mkdir storage
-
-# Create a configuration file
-cat > storage/machines.yaml << 'EOF'
-server1:
-  ip: "192.168.1.10"
-  username: "admin"
-  password: "password123"
-EOF
-
-# Create your workflow
-cat > main.yaml << 'EOF'
-blocks:
-  - name: "Test Connection"
-    run: "echo 'Testing server at ${machines.server1.ip}'"
-EOF
-```
-
-2. **(Optional) Install the Cocoon alias for convenience:**
-
-```bash
-echo "alias cocoon='curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash'" >> ~/.bashrc && source ~/.bashrc
-```
-
-3. **Execute with one command:**
-
-```bash
-# If you installed the alias:
-cocoon
-
-# Or use the full command directly:
-curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
-```
-
-The framework will execute your workflow and automatically clean up afterward!
-
----
-
-### Option B: Standard Quick Start (Persistent Installation)
 
 ### 1. Create a storage directory for configurations
 
@@ -242,11 +166,26 @@ blocks:
   - run: "ls -la"
 ```
 
-### 3. Run the workflow
+
+### 3. **Install the Cocoon alias for convenience:**
 
 ```bash
-python3 blocks_executor.py hello.yaml
+echo "alias cocoon='curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash'" >> ~/.bashrc && source ~/.bashrc
 ```
+
+### 4. **Execute with one command:**
+
+```bash
+# If you installed the alias:
+cocoon
+
+# Or use the full command directly:
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
+```
+
+The framework will execute your workflow and automatically clean up afterward!
+
+
 
 ## Writing Workflow YAML Files
 
@@ -1229,6 +1168,7 @@ python3 blocks_executor.py workflow.yaml
 ---
 
 **Happy Automating! 🚀**
+
 
 
 
