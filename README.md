@@ -35,8 +35,6 @@ Blocks Executor allows you to define complex workflows in simple YAML files. Key
 
 Before using Cocoon, ensure your Linux machine has the following installed:
 
-### Prerequisites
-
 1. **curl** - For downloading scripts
    ```bash
    # Check if curl is installed
@@ -78,7 +76,7 @@ curl --version && git --version && pip3 --version
 
 If all three commands display version information, you're ready to use Cocoon!
 
-## Installation
+## Installation [just add an alias 😎]
 
 ### Method 1: One-Command Execution (Recommended)
 
@@ -1168,6 +1166,7 @@ python3 blocks_executor.py workflow.yaml
 ---
 
 **Happy Automating! 🚀**
+
 
 
 
