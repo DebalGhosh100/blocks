@@ -72,24 +72,43 @@ class SSHLogStreamer:
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         
         try:
-            # Connect with or without password (key-based auth if password is None)
+            # When no password is provided, try to manually authenticate with "none" method first
+            # This is needed for servers that allow passwordless authentication
+            if not self.password:
+                try:
+                    # Create transport and try "none" authentication
+                    transport = paramiko.Transport((host, port))
+                    transport.connect(username=user)
+                    # Try "none" authentication
+                    transport.auth_none(user)
+                    # If we get here, "none" auth succeeded
+                    self.client._transport = transport
+                    print(Colors.colorize(f"Successfully connected to {host} (passwordless)", Colors.GREEN))
+                    return True
+                except paramiko.ssh_exception.BadAuthenticationType as e:
+                    # "none" auth not allowed, fall back to normal connection
+                    transport.close()
+                except:
+                    # Any other error, fall back to normal connection
+                    try:
+                        transport.close()
+                    except:
+                        pass
+            
+            # Standard connection with keys/password
             connect_params = {
                 'hostname': host,
                 'port': port,
                 'username': user,
-                'timeout': 10
+                'timeout': 10,
+                'look_for_keys': not self.password,
+                'allow_agent': not self.password,
+                'gss_auth': False,
+                'gss_kex': False
             }
             
-            # Configure authentication method
             if self.password:
-                # Use password authentication
                 connect_params['password'] = self.password
-                connect_params['look_for_keys'] = False  # Don't look for keys when password is provided
-            else:
-                # Use key-based authentication
-                connect_params['look_for_keys'] = True  # Explicitly enable key lookup
-                connect_params['allow_agent'] = True    # Allow SSH agent
-                # Note: paramiko will automatically look in ~/.ssh/ for id_rsa, id_dsa, id_ecdsa, id_ed25519
             
             self.client.connect(**connect_params)
             print(Colors.colorize(f"Successfully connected to {host}", Colors.GREEN))
@@ -99,7 +118,8 @@ class SSHLogStreamer:
                 print(Colors.colorize(f"Connection failed: Authentication failed (incorrect password)", Colors.RED))
             else:
                 print(Colors.colorize(f"Connection failed: No valid SSH keys found or not authorized on remote host", Colors.RED))
-                print(Colors.colorize(f"  Hint: Ensure SSH keys are set up in ~/.ssh/ and the public key is added to the remote server's ~/.ssh/authorized_keys", Colors.YELLOW))
+                print(Colors.colorize(f"  Attempted: Passwordless auth, SSH keys from ~/.ssh/, and SSH agent", Colors.YELLOW))
+                print(Colors.colorize(f"  Hint: Ensure SSH keys are set up or the server allows passwordless access", Colors.YELLOW))
                 print(Colors.colorize(f"  Or provide a password using the 'pass' field in your workflow", Colors.YELLOW))
             return False
         except Exception as e:
