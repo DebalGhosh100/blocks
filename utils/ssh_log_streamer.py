@@ -89,10 +89,19 @@ class SSHLogStreamer:
                 # Use key-based authentication
                 connect_params['look_for_keys'] = True  # Explicitly enable key lookup
                 connect_params['allow_agent'] = True    # Allow SSH agent
+                # Note: paramiko will automatically look in ~/.ssh/ for id_rsa, id_dsa, id_ecdsa, id_ed25519
             
             self.client.connect(**connect_params)
             print(Colors.colorize(f"Successfully connected to {host}", Colors.GREEN))
             return True
+        except paramiko.ssh_exception.AuthenticationException as e:
+            if self.password:
+                print(Colors.colorize(f"Connection failed: Authentication failed (incorrect password)", Colors.RED))
+            else:
+                print(Colors.colorize(f"Connection failed: No valid SSH keys found or not authorized on remote host", Colors.RED))
+                print(Colors.colorize(f"  Hint: Ensure SSH keys are set up in ~/.ssh/ and the public key is added to the remote server's ~/.ssh/authorized_keys", Colors.YELLOW))
+                print(Colors.colorize(f"  Or provide a password using the 'pass' field in your workflow", Colors.YELLOW))
+            return False
         except Exception as e:
             print(Colors.colorize(f"Connection failed: {e}", Colors.RED))
             return False
