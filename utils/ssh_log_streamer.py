@@ -80,9 +80,15 @@ class SSHLogStreamer:
                 'timeout': 10
             }
             
-            # Only add password if provided (otherwise use key-based authentication)
+            # Configure authentication method
             if self.password:
+                # Use password authentication
                 connect_params['password'] = self.password
+                connect_params['look_for_keys'] = False  # Don't look for keys when password is provided
+            else:
+                # Use key-based authentication
+                connect_params['look_for_keys'] = True  # Explicitly enable key lookup
+                connect_params['allow_agent'] = True    # Allow SSH agent
             
             self.client.connect(**connect_params)
             print(Colors.colorize(f"Successfully connected to {host}", Colors.GREEN))
