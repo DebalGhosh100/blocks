@@ -94,7 +94,7 @@ The framework now supports a dedicated YAML syntax for remote execution that's c
 - run-remotely:
     ip: "192.168.1.100"                    # Server IP address
     user: "admin"                           # SSH username
-    pass: "mypassword"                      # SSH password
+    pass: "mypassword"                      # SSH password (optional, uses key-based auth if omitted)
     run: "ls -la && df -h"                  # Command(s) to execute
     log-into: "./logs/output.log"           # Log file (optional for sequential, mandatory for parallel)
                                              # Stream in real-time: tail -f ./logs/output.log
@@ -106,7 +106,7 @@ The framework now supports a dedicated YAML syntax for remote execution that's c
 |-------|------|----------|-------------|
 | `ip` | string | ✅ Yes | IP address or hostname of the remote server |
 | `user` | string | ✅ Yes | SSH username for authentication |
-| `pass` | string | ✅ Yes | SSH password for authentication |
+| `pass` | string | ⚠️ Optional | SSH password for authentication. If omitted, uses key-based authentication (SSH keys) |
 | `run` | string | ✅ Yes | Linux command(s) to execute (can chain with `&&` or `;`) |
 | `log-into` | string | ⚠️ Conditional | Log file path. **Optional** for sequential execution, **mandatory** for parallel execution |
 
@@ -143,7 +143,23 @@ The framework now supports a dedicated YAML syntax for remote execution that's c
 - No log file is created
 - Use for quick checks or when logs aren't needed
 
-#### 3. Parallel Execution (Log Files Mandatory)
+#### 3. Key-Based Authentication (No Password)
+```yaml
+- name: "Deploy with SSH Keys"
+  description: "Use SSH key-based authentication"
+  run-remotely:
+    ip: ${machines.server1.ip}
+    user: ${machines.server1.username}
+    # pass field omitted - uses SSH keys from ~/.ssh/
+    run: "git pull && npm install && pm2 restart app"
+    log-into: ./logs/deploy.log
+```
+- Omit the `pass` field to use SSH key-based authentication
+- Requires SSH keys to be set up on the remote server
+- More secure than password authentication
+- Ideal for production deployments
+
+#### 4. Parallel Execution (Log Files Mandatory)
 ```yaml
 - parallel:
     - name: "Server 1 Setup"

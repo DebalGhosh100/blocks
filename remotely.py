@@ -18,16 +18,20 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python remotely.py user@host.com password123 "ls -la" ./logs/output.log
-  python remotely.py ssh://admin@192.168.1.100 pass "wget http://example.com/large.iso" ./logs/download.log
-  python remotely.py root@server.com secret "dd if=/dev/zero of=/tmp/test bs=1M count=1000" ./logs/dd.log
+  # With password
+  python remotely.py user@host.com "ls -la" ./logs/output.log -p password123
+  python remotely.py ssh://admin@192.168.1.100 "wget http://example.com/large.iso" ./logs/download.log --password pass
+  
+  # Without password (uses key-based authentication)
+  python remotely.py user@host.com "ls -la" ./logs/output.log
+  python remotely.py root@server.com "dd if=/dev/zero of=/tmp/test bs=1M count=1000" ./logs/dd.log
         """
     )
     
     parser.add_argument('ssh_url', help='SSH URL (user@host or ssh://user@host:port)')
-    parser.add_argument('password', help='Password for SSH authentication')
     parser.add_argument('command', help='Linux command to execute on remote machine')
     parser.add_argument('log_file', help='Destination log file path (relative or absolute)')
+    parser.add_argument('-p', '--password', default=None, help='Password for SSH authentication (optional, uses key-based auth if not provided)')
     
     # Parse arguments
     if len(sys.argv) == 1:

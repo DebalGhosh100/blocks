@@ -70,10 +70,13 @@ class RemoteExecutor:
             sys.executable,  # Use same Python interpreter
             remotely_script,
             ssh_url,
-            password,
             command,
             log_file
         ]
+        
+        # Add password as optional flag if provided
+        if password:
+            remotely_cmd.extend(['-p', password])
         
         try:
             # Execute remotely.py as subprocess

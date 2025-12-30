@@ -72,13 +72,19 @@ class SSHLogStreamer:
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         
         try:
-            self.client.connect(
-                hostname=host,
-                port=port,
-                username=user,
-                password=self.password,
-                timeout=10
-            )
+            # Connect with or without password (key-based auth if password is None)
+            connect_params = {
+                'hostname': host,
+                'port': port,
+                'username': user,
+                'timeout': 10
+            }
+            
+            # Only add password if provided (otherwise use key-based authentication)
+            if self.password:
+                connect_params['password'] = self.password
+            
+            self.client.connect(**connect_params)
             print(Colors.colorize(f"Successfully connected to {host}", Colors.GREEN))
             return True
         except Exception as e:
@@ -89,8 +95,8 @@ class SSHLogStreamer:
         """Prepare command by injecting password for sudo commands"""
         command = self.command
         
-        # Check if command contains sudo
-        if 'sudo' in command:
+        # Check if command contains sudo and password is provided
+        if 'sudo' in command and self.password:
             # Wrap sudo commands to use -S flag (read password from stdin)
             # This allows non-interactive sudo execution
             # Replace 'sudo' with 'echo password | sudo -S'

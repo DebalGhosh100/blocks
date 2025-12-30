@@ -172,7 +172,7 @@ class BlockExecutor:
         - run-remotely: Dictionary with connection details
           - ip: Remote host IP address
           - user: SSH username
-          - pass: SSH password
+          - pass: SSH password (optional, uses key-based auth if not provided)
           - run: Command to execute remotely
           - log-into: (Optional) Log file path for output capture
         - name: Display name (optional)

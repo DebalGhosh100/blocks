@@ -627,10 +627,14 @@ Execute commands on remote machines with the `run-remotely` configuration block.
 run-remotely:
   ip: <host>
   user: <username>
-  pass: <password>
+  pass: <password>  # Optional: omit to use SSH key-based authentication
   run: <command>
   log-into: <log-file>  # Stream in real-time: tail -f <log-file>
 ```
+
+**Authentication Options:**
+- **Password Authentication:** Include the `pass` field with the SSH password
+- **Key-Based Authentication:** Omit the `pass` field to use SSH keys from `~/.ssh/`
 
 ### SSH in Workflows
 
@@ -678,6 +682,23 @@ blocks:
           pass: ${machines.server2.password}
           run: wget http://example.com/large-file.iso
           log-into: ./logs/server2_download.log
+```
+
+**Example with SSH Keys (No Password):**
+```yaml
+blocks:
+  - name: "Deploy Application"
+    description: "Deploy using SSH keys"
+    run-remotely:
+      ip: ${machines.prod.ip}
+      user: ${machines.prod.username}
+      # pass field omitted - uses SSH keys
+      run: |
+        cd /var/www/app &&
+        git pull origin main &&
+        npm install &&
+        pm2 restart app
+      log-into: ./logs/deploy.log
 ```
 
 ### SSH Log Files
