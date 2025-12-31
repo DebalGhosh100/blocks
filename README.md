@@ -351,6 +351,55 @@ blocks:
               ${database.name} > backup.sql
 ```
 
+### Persisting Paths Declaratively
+
+Instead of manually writing paths to YAML files with echo commands, use the `persist-paths` block type for cleaner, more maintainable workflows:
+
+**Traditional approach (verbose):**
+```yaml
+blocks:
+  - run: |
+      mkdir -p storage
+      echo "project-dir: $(pwd)" > storage/paths.yaml
+      echo "home-dir: /home" >> storage/paths.yaml
+```
+
+**Modern approach with persist-paths:**
+```yaml
+blocks:
+  - persist-paths:
+      project-dir: $(pwd)
+      home-dir: /home
+      config-dir: ${paths.project-dir}/config
+```
+
+**Key Features:**
+- **Shell Command Evaluation**: Use `$(command)` to dynamically evaluate shell commands
+- **Variable Interpolation**: Use `${config.key}` to reference existing configuration values
+- **Automatic Merging**: New paths are merged with existing `storage/paths.yaml` content
+- **Config Reload**: Configuration automatically reloads after persistence for use in subsequent blocks
+- **Nested References**: Reference paths defined in earlier persist-paths blocks
+
+**Example with nested references:**
+```yaml
+blocks:
+  # First, persist the base directory
+  - persist-paths:
+      base-dir: $(pwd)
+  
+  # Then, build on it in later blocks
+  - persist-paths:
+      logs-dir: ${paths.base-dir}/logs
+      data-dir: ${paths.base-dir}/data
+  
+  # Use the persisted paths in commands
+  - run: "mkdir -p ${paths.logs-dir} ${paths.data-dir}"
+  - run: "echo 'Log entry' > ${paths.logs-dir}/app.log"
+```
+
+The `persist-paths` block automatically creates `storage/paths.yaml` if it doesn't exist and merges your definitions with any existing content.
+
+
 ## Loop Comprehension
 
 ### Syntax

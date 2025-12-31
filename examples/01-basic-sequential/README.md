@@ -5,9 +5,11 @@ This example demonstrates the simplest use case of Blocks - executing commands s
 
 ## What This Example Demonstrates
 - ✅ Basic sequential block execution
+- ✅ Path persistence using persist-paths blocks
 - ✅ Simple shell commands
 - ✅ Multi-command execution within a single block
 - ✅ File creation and cleanup
+- ✅ Variable interpolation with persisted paths
 
 ## Prerequisites
 - Python 3.x installed
@@ -41,12 +43,13 @@ curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks
 
 ## Expected Output
 The workflow will:
-1. Print system information (date, hostname)
-2. List files in the current directory
-3. Display environment variables
-4. Create a test file with content "Hello from Blocks!"
-5. Display the test file content
-6. Clean up by removing the test file
+1. Persist project paths to storage/paths.yaml
+2. Print system information (date, hostname)
+3. List files in the current directory
+4. Display environment variables and the persisted project directory path
+5. Create a test file with content "Hello from Blocks!"
+6. Display the test file content
+7. Clean up by removing the test file
 
 ## Workflow Breakdown
 
