@@ -130,6 +130,43 @@ chmod +x vaporise.sh
 ./vaporise.sh DebalGhosh100/blocks main examples/01-basic-sequential
 ```
 
+## ⚡ Create an Alias for Quick Access
+
+For even faster usage, create a shell alias to avoid typing the full curl command:
+
+### Bash/Zsh
+
+Add this to your `~/.bashrc` or `~/.zshrc`:
+
+```bash
+echo "alias vaporise='curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/tooling/vaporise.sh | bash -s --'" >> ~/.bashrc
+source ~/.bashrc
+```
+
+### Usage After Aliasing
+
+Once the alias is set up, you can use vaporise directly:
+
+```bash
+# Extract specific subdirectory
+vaporise DebalGhosh100/blocks main examples/01-basic-sequential
+
+# Extract entire repository
+vaporise DebalGhosh100/blocks main
+
+# Private repo with token
+vaporise owner/private-repo main "" github_pat_xxx
+
+# Subdirectory from private repo
+vaporise owner/private-repo main src/components github_pat_xxx
+```
+
+**Benefits:**
+- ⚡ Shorter command
+- 🎯 Cleaner syntax
+- 🚀 Works from anywhere
+- 💾 No local script needed
+
 ## 💡 Use Cases
 
 ### 1. Grab Example Projects
