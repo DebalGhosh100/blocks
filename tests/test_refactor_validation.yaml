@@ -1,9 +1,0 @@
-blocks:
-  # Simple validation test for refactored block_executor
-  - run: "echo 'Testing refactored code'"
-  - run: "mkdir -p test_refactor"
-  - run: "cd test_refactor && echo 'success' > result.txt"
-  - run: "cat result.txt"
-  - run: "cd .."
-  - run: "rm -rf test_refactor"
-  - run: "echo 'All tests passed!'"
