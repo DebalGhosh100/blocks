@@ -89,7 +89,17 @@ Examples:
         sys.exit(0 if success else 1)
         
     except yaml.YAMLError as e:
-        print(Colors.colorize(f"Error parsing YAML file: {e}", Colors.BOLD_RED))
+        error_msg = str(e)
+        print(Colors.colorize(f"Error parsing YAML file: {error_msg}", Colors.BOLD_RED))
+        
+        # Provide helpful hint for common YAML quoting issues
+        if "mapping values are not allowed here" in error_msg:
+            print(Colors.colorize("\n💡 Tip: This error often occurs when colons (:) appear in unquoted strings.", Colors.YELLOW))
+            print(Colors.colorize("    Try wrapping your command in quotes:", Colors.YELLOW))
+            print(Colors.colorize('    ✓ Correct:   run: "echo \\"text: value\\" >> file.txt"', Colors.GREEN))
+            print(Colors.colorize('    ✓ Correct:   run: \'echo "text: value" >> file.txt\'', Colors.GREEN))
+            print(Colors.colorize('    ✗ Incorrect: run: echo "text: value" >> file.txt', Colors.RED))
+        
         os.chdir(original_cwd)  # Restore original directory
         sys.exit(1)
     except KeyboardInterrupt:
