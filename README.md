@@ -126,7 +126,7 @@ your-project/
 └── storage/            # Your configuration files
     ├── machines.yaml
     ├── servers.yaml
-    └── ... (other config files)
+    └── ... (other storage files)
 ```
 <img width="2448" height="944" alt="image" src="https://github.com/user-attachments/assets/928f05dc-bcd0-4440-b4ce-13af42371722" />
 
@@ -242,15 +242,12 @@ By default, blocks execute sequentially (one after another):
 ```yaml
 blocks:
   - name: "Step 1"
-    description: "First step"
     run: "echo 'Starting...'"
 
   - name: "Step 2"
-    description: "Second step"
     run: "echo 'Processing...'"
 
   - name: "Step 3"
-    description: "Final step"
     run: "echo 'Complete!'"
 ```
 
@@ -323,7 +320,6 @@ Use in workflow:
 ```yaml
 blocks:
   - name: "Connect to Web Server"
-    description: "SSH into web server"
     run: "ssh ${servers.web.user}@${servers.web.ip}"
 ```
 
@@ -343,7 +339,6 @@ blocks:
 ```yaml
 blocks:
   - name: "Database Backup"
-    description: "Backup database to file"
     run: |
       pg_dump -h ${database.host} \
               -p ${database.port} \
@@ -512,25 +507,16 @@ Use the `parallel:` keyword to execute multiple blocks simultaneously:
 ```yaml
 blocks:
   - name: "Setup Phase"
-    description: "Prepare environment"
     run: "echo 'Setting up...'"
 
   - parallel:
-      - name: "Task A"
-        description: "First parallel task"
-        run: "echo 'Running A' && sleep 5"
+      - run: "echo 'Running A' && sleep 5"
 
-      - name: "Task B"
-        description: "Second parallel task"
-        run: "echo 'Running B' && sleep 5"
+      - run: "echo 'Running B' && sleep 5"
 
-      - name: "Task C"
-        description: "Third parallel task"
-        run: "echo 'Running C' && sleep 5"
+      - run: "echo 'Running C' && sleep 5"
 
-  - name: "Cleanup Phase"
-    description: "Clean up after parallel tasks"
-    run: "echo 'All parallel tasks complete!'"
+  - run: "echo 'All parallel tasks complete!'"
 ```
 
 **Execution Timeline:**
@@ -544,16 +530,16 @@ blocks:
 ```yaml
 blocks:
   - parallel:
+
+      # Downloading datasets from large servers
+
       - name: "Download Dataset 1"
-        description: "Download large dataset from server 1"
         run: "wget http://server1.com/dataset1.tar.gz -O dataset1.tar.gz"
 
       - name: "Download Dataset 2"
-        description: "Download large dataset from server 2"
         run: "wget http://server2.com/dataset2.tar.gz -O dataset2.tar.gz"
 
       - name: "Download Dataset 3"
-        description: "Download large dataset from server 3"
         run: "wget http://server3.com/dataset3.tar.gz -O dataset3.tar.gz"
 
   - name: "Process All Datasets"
@@ -742,7 +728,7 @@ blocks:
     run-remotely:
       ip: ${machines.prod.ip}
       user: ${machines.prod.username}
-      # pass field omitted - uses SSH keys
+      # pass field omitted - uses SSH keys if found, otherwise attempt passwordless auth-access
       run: |
         cd /var/www/app &&
         git pull origin main &&
@@ -885,19 +871,15 @@ blocks:
 
   - parallel:
       - name: "Process Chunk 1"
-        description: "Process data chunk 1"
         run: "python3 process.py --chunk 1 --threads ${pipeline.processing.threads}"
 
       - name: "Process Chunk 2"
-        description: "Process data chunk 2"
         run: "python3 process.py --chunk 2 --threads ${pipeline.processing.threads}"
 
       - name: "Process Chunk 3"
-        description: "Process data chunk 3"
         run: "python3 process.py --chunk 3 --threads ${pipeline.processing.threads}"
 
       - name: "Process Chunk 4"
-        description: "Process data chunk 4"
         run: "python3 process.py --chunk 4 --threads ${pipeline.processing.threads}"
 
   - name: "Merge Results"
@@ -974,108 +956,7 @@ blocks:
       python3 generate_report.py
 ```
 
-## Best Practices
 
-### 1. Organize Configuration Files
-
-Group related configurations:
-```
-storage/
-├── servers.yaml          # Server definitions
-├── credentials.yaml      # Authentication details
-├── paths.yaml           # File system paths
-└── settings.yaml        # Application settings
-```
-
-### 2. Use Descriptive Names (Recommended)
-
-While `name` is optional, providing descriptive names improves readability:
-
-❌ **Less Clear:**
-```yaml
-blocks:
-  - run: "echo 'Processing data'"
-```
-
-✅ **Better:**
-```yaml
-blocks:
-  - name: "Process Data"
-    run: "python3 process.py --input data.csv"
-```
-
-✅ **Best:**
-```yaml
-blocks:
-  - name: "Process Data"
-    description: "Process CSV data and generate reports"
-    run: "python3 process.py --input data.csv --output reports/"
-```
-
-### 3. Add Error Handling
-
-Use `&&` to chain commands and stop on errors:
-```yaml
-blocks:
-  - name: "Safe Data Processing"
-    description: "Process data with error checking"
-    run: |
-      mkdir -p ./output &&
-      python3 validate.py --input data.csv &&
-      python3 process.py --input data.csv --output ./output/
-```
-
-### 4. Create Logs Directory First
-
-```yaml
-blocks:
-  - name: "Prepare Logging"
-    description: "Create logs directory"
-    run: "mkdir -p ./logs"
-
-  - parallel:
-      # ... blocks that write to ./logs/
-```
-
-### 5. Use Comments in YAML
-
-```yaml
-blocks:
-  # Phase 1: Environment Setup
-  - name: "Update System"
-    run: "sudo apt-get update"
-
-  # Phase 2: Parallel Processing
-  - parallel:
-      - name: "Task A"
-        run: "process_a.sh"
-      - name: "Task B"
-        run: "process_b.sh"
-```
-
-### 6. Keep Commands Testable
-
-Test commands individually before adding to workflow:
-```bash
-# Test command locally first
-python3 script.py --test
-
-# Then add to workflow once verified
-```
-
-### 7. Use Relative Paths for Portability
-
-✅ **Good:**
-```yaml
-run-remotely:
-  log-into: ./logs/output.log
-```
-
-❌ **Avoid:**
-```yaml
-run-remotely:
-  log-into: /home/myuser/logs/output.log
-```
 
 ## Troubleshooting
 
@@ -1229,6 +1110,7 @@ ${filename.key1.key2.key3}
 run-remotely:
   ip: <host>
   user: <username>
+  # pass is optional [for accessing remote systems that donot require a password]
   pass: <password>
   run: <command>
   log-into: <log-file>  # Stream: tail -f <log-file>
@@ -1236,12 +1118,13 @@ run-remotely:
 
 ### Run Workflow
 ```bash
-python3 blocks_executor.py workflow.yaml
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
 
 ---
 
-**Happy Automating! 🚀**
+**Hope you spread your butterfly-wings this season ! 🦋**
+
 
 
 
