@@ -353,18 +353,19 @@ blocks:
 
 ### Persisting Paths Declaratively
 
-Instead of manually writing paths to YAML files with echo commands, use the `persist-paths` block type for cleaner, more maintainable workflows:
+Nothing stops us from creating a **paths.yaml** file within the storage/ directory and dumping in key-value pairs intp the same manually
 
 **Traditional approach (verbose):**
 ```yaml
 blocks:
   - run: |
-      mkdir -p storage
+      touch storage/paths.yaml
       echo "project-dir: $(pwd)" > storage/paths.yaml
       echo "home-dir: /home" >> storage/paths.yaml
 ```
+Instead, the **persist-paths** keyword can be used : 
 
-**Modern approach with persist-paths:**
+**Cleaner approach with persist-paths:**
 ```yaml
 blocks:
   - persist-paths:
@@ -1241,6 +1242,7 @@ python3 blocks_executor.py workflow.yaml
 ---
 
 **Happy Automating! 🚀**
+
 
 
 
