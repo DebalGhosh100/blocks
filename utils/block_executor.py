@@ -257,16 +257,166 @@ class BlockExecutor:
         return result
     
     # ========================================================================
+    # PERSIST PATHS EXECUTION
+    # ========================================================================
+    
+    def execute_persist_paths_block(self, block: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Execute a persist-paths block to save path variables to storage/paths.yaml.
+        
+        A persist-paths block contains:
+        - persist-paths: Dictionary with key-value pairs
+          - Keys: Variable names
+          - Values: Paths (can include $(command) for shell evaluation or ${var} for interpolation)
+        - name: Display name (optional)
+        - description: Description for documentation (optional)
+        
+        Example:
+        - persist-paths:
+            current-working-directory: $(pwd)
+            home: /home
+            nested: ${paths.current-working-directory}/nested
+        
+        Args:
+            block: Dictionary containing persist-paths configuration
+            
+        Returns:
+            Dictionary with execution results
+        """
+        import yaml
+        import subprocess
+        import re
+        from pathlib import Path
+        
+        paths_config = block.get('persist-paths', {})
+        name = block.get('name', 'Persist Paths')
+        description = block.get('description', '')
+        
+        # Print block header
+        print(Colors.colorize(f"\n{'='*60}", Colors.BOLD_CYAN))
+        print(Colors.colorize(f"Block: {name}", Colors.BOLD_CYAN))
+        if description:
+            print(Colors.colorize(f"Description: {description}", Colors.CYAN))
+        print(Colors.colorize(f"  Persisting {len(paths_config)} path(s) to storage/paths.yaml", Colors.MAGENTA))
+        print(Colors.colorize(f"{'='*60}", Colors.BOLD_CYAN))
+        
+        start_time = datetime.now()
+        
+        try:
+            # Determine the storage directory path
+            storage_dir = Path(self.config_loader.storage_dir)
+            paths_file = storage_dir / 'paths.yaml'
+            
+            # Load existing paths.yaml if it exists
+            if paths_file.exists():
+                with open(paths_file, 'r', encoding='utf-8') as f:
+                    existing_paths = yaml.safe_load(f) or {}
+            else:
+                existing_paths = {}
+            
+            # Process each path entry
+            processed_paths = {}
+            for key, value in paths_config.items():
+                # Convert to string
+                value_str = str(value)
+                
+                # First, interpolate config variables (${...})
+                interpolated_value = self.config_loader.interpolate(value_str)
+                
+                # Then, evaluate shell commands $(...)
+                # Find all $(command) patterns
+                shell_pattern = r'\$\(([^)]+)\)'
+                
+                def evaluate_shell_command(match):
+                    command = match.group(1)
+                    try:
+                        # Execute the shell command in the current working directory
+                        result = subprocess.run(
+                            command,
+                            shell=True,
+                            capture_output=True,
+                            text=True,
+                            cwd=self.state_manager.current_directory,
+                            env=self.state_manager.environment
+                        )
+                        if result.returncode == 0:
+                            return result.stdout.strip()
+                        else:
+                            print(Colors.colorize(f"  Warning: Command '{command}' failed: {result.stderr.strip()}", Colors.YELLOW))
+                            return match.group(0)  # Return original if failed
+                    except Exception as e:
+                        print(Colors.colorize(f"  Warning: Failed to execute '{command}': {e}", Colors.YELLOW))
+                        return match.group(0)  # Return original if failed
+                
+                final_value = re.sub(shell_pattern, evaluate_shell_command, interpolated_value)
+                processed_paths[key] = final_value
+                
+                print(Colors.colorize(f"  {key}: {final_value}", Colors.BLUE))
+            
+            # Merge with existing paths
+            existing_paths.update(processed_paths)
+            
+            # Write to paths.yaml
+            paths_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(paths_file, 'w', encoding='utf-8') as f:
+                yaml.dump(existing_paths, f, default_flow_style=False, sort_keys=False)
+            
+            end_time = datetime.now()
+            duration = (end_time - start_time).total_seconds()
+            
+            # Package results
+            result = {
+                'name': name,
+                'description': description,
+                'success': True,
+                'stdout': f"Successfully persisted {len(processed_paths)} path(s) to {paths_file}",
+                'stderr': '',
+                'duration': duration,
+                'start_time': start_time.isoformat(),
+                'end_time': end_time.isoformat()
+            }
+            
+            print(Colors.colorize(f"  Status: ✓ SUCCESS (Duration: {duration:.2f}s)", Colors.BOLD_GREEN))
+            
+            # Reload configurations to pick up the new paths.yaml
+            self.config_loader.reload_configs()
+            
+            return result
+            
+        except Exception as e:
+            end_time = datetime.now()
+            duration = (end_time - start_time).total_seconds()
+            
+            error_msg = f"Failed to persist paths: {e}"
+            print(Colors.colorize(f"  Error: {error_msg}", Colors.RED))
+            
+            result = {
+                'name': name,
+                'description': description,
+                'success': False,
+                'stdout': '',
+                'stderr': error_msg,
+                'duration': duration,
+                'start_time': start_time.isoformat(),
+                'end_time': end_time.isoformat()
+            }
+            
+            print(Colors.colorize(f"  Status: ✗ FAILED (Duration: {duration:.2f}s)", Colors.BOLD_RED))
+            
+            return result
+    
+    # ========================================================================
     # BLOCK EXECUTION
     # ========================================================================
     
     def execute_block(self, block: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Execute a single workflow block (local or remote).
+        Execute a single workflow block (local, remote, or persist-paths).
         
         A block can be either:
         - Local execution: Contains 'run' field
         - Remote execution: Contains 'run-remotely' field
+        - Persist paths: Contains 'persist-paths' field
         
         Local block contains:
         - run: The command to execute (required)
@@ -275,6 +425,11 @@ class BlockExecutor:
         
         Remote block contains:
         - run-remotely: Dictionary with connection details
+        - name: Display name (optional)
+        - description: Description for documentation (optional)
+        
+        Persist-paths block contains:
+        - persist-paths: Dictionary with key-value pairs to save to paths.yaml
         - name: Display name (optional)
         - description: Description for documentation (optional)
         
@@ -295,6 +450,10 @@ class BlockExecutor:
         # Check if this is a remote execution block
         if 'run-remotely' in block:
             return self.execute_remote_block(block)
+        
+        # Check if this is a persist-paths block
+        if 'persist-paths' in block:
+            return self.execute_persist_paths_block(block)
         
         # Extract block metadata for local execution
         command = block.get('run', '')
@@ -461,8 +620,8 @@ class BlockExecutor:
                     if not result['success']:
                         all_success = False
             
-            # Handle regular sequential block (local or remote)
-            elif 'run' in item or 'run-remotely' in item:
+            # Handle regular sequential block (local, remote, or persist-paths)
+            elif 'run' in item or 'run-remotely' in item or 'persist-paths' in item:
                 result = self.execute_block(item)
                 self.results.append(result)
                 
@@ -472,7 +631,7 @@ class BlockExecutor:
             # Handle malformed blocks
             else:
                 print(Colors.colorize(
-                    f"Warning: Unrecognized block structure (missing 'run', 'run-remotely', or 'for' field): {item}",
+                    f"Warning: Unrecognized block structure (missing 'run', 'run-remotely', 'persist-paths', or 'for' field): {item}",
                     Colors.YELLOW
                 ))
         
