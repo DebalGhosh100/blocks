@@ -139,6 +139,67 @@ class SSHLogStreamer:
         
         return command
     
+    def _read_and_stream_output(self, channel, log_file):
+        """
+        Read output from SSH channel and stream to log file in real-time.
+        
+        Handles carriage returns for progress bars and writes output incrementally.
+        
+        Args:
+            channel: Paramiko channel object
+            log_file: Path to log file for writing output
+        """
+        with open(log_file, 'ab') as f:  # Binary mode for immediate writing
+            current_line = b''
+            
+            while True:
+                # Check if channel is ready to read
+                if channel.recv_ready():
+                    # Read available data (up to 1024 bytes at a time)
+                    data = channel.recv(1024)
+                    if not data:
+                        break
+                    
+                    # Process data character by character to handle \r properly
+                    for byte in data:
+                        char = bytes([byte])
+                        
+                        if char == b'\r':
+                            # Carriage return - write current line and reset
+                            # This handles progress bars that overwrite lines
+                            if current_line:
+                                f.write(current_line + b'\n')
+                                f.flush()
+                                current_line = b''
+                        elif char == b'\n':
+                            # Newline - write current line
+                            f.write(current_line + b'\n')
+                            f.flush()
+                            current_line = b''
+                        else:
+                            # Regular character - add to current line
+                            current_line += char
+                
+                # Check if there's data on stderr (when not using pty)
+                elif channel.recv_stderr_ready():
+                    data = channel.recv_stderr(1024)
+                    if data:
+                        f.write(b'[STDERR] ' + data)
+                        f.flush()
+                
+                # Check if channel is closed
+                elif channel.exit_status_ready():
+                    # Read any remaining data
+                    while channel.recv_ready():
+                        data = channel.recv(1024)
+                        if data:
+                            f.write(data)
+                    # Write any remaining partial line
+                    if current_line:
+                        f.write(current_line + b'\n')
+                    f.flush()
+                    break
+    
     def stream_logs(self):
         """Execute command and stream output to log file in real-time"""
         if not self.client:
@@ -169,61 +230,12 @@ class SSHLogStreamer:
             # Get the channel for reading
             channel = stdout.channel
             
-            # Thread for reading output (both stdout and stderr from pty)
-            def read_output():
-                with open(self.log_file, 'ab') as f:  # Binary mode for immediate writing
-                    current_line = b''
-                    
-                    while True:
-                        # Check if channel is ready to read
-                        if channel.recv_ready():
-                            # Read available data (up to 1024 bytes at a time)
-                            data = channel.recv(1024)
-                            if not data:
-                                break
-                            
-                            # Process data character by character to handle \r properly
-                            for byte in data:
-                                char = bytes([byte])
-                                
-                                if char == b'\r':
-                                    # Carriage return - write current line and reset
-                                    # This handles progress bars that overwrite lines
-                                    if current_line:
-                                        f.write(current_line + b'\n')
-                                        f.flush()
-                                        current_line = b''
-                                elif char == b'\n':
-                                    # Newline - write current line
-                                    f.write(current_line + b'\n')
-                                    f.flush()
-                                    current_line = b''
-                                else:
-                                    # Regular character - add to current line
-                                    current_line += char
-                        
-                        # Check if there's data on stderr (when not using pty)
-                        elif channel.recv_stderr_ready():
-                            data = channel.recv_stderr(1024)
-                            if data:
-                                f.write(b'[STDERR] ' + data)
-                                f.flush()
-                        
-                        # Check if channel is closed
-                        elif channel.exit_status_ready():
-                            # Read any remaining data
-                            while channel.recv_ready():
-                                data = channel.recv(1024)
-                                if data:
-                                    f.write(data)
-                            # Write any remaining partial line
-                            if current_line:
-                                f.write(current_line + b'\n')
-                            f.flush()
-                            break
-            
-            # Start thread for streaming
-            output_thread = threading.Thread(target=read_output, daemon=True)
+            # Start thread for streaming output
+            output_thread = threading.Thread(
+                target=self._read_and_stream_output,
+                args=(channel, self.log_file),
+                daemon=True
+            )
             output_thread.start()
             
             # Wait for command to complete
