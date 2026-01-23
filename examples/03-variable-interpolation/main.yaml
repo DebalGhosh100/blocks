@@ -1,0 +1,48 @@
+blocks:
+  # Display application details from configuration
+  - run: |
+      echo "Application: ${config.app.name}"
+      echo "Version: ${config.app.version}"
+      echo "Environment: ${config.app.environment}"
+      echo "Debug Mode: ${config.app.debug}"
+
+  # Show database connection details with variable interpolation
+  - run: |
+      echo "=== Database Configuration ==="
+      echo "Host: ${config.database.host}"
+      echo "Port: ${config.database.port}"
+      echo "Database Name: ${config.database.name}"
+      echo "Username: ${config.database.credentials.username}"
+      echo "Connection String: postgresql://${config.database.credentials.username}@${config.database.host}:${config.database.port}/${config.database.name}"
+
+  # Display configured file system paths
+  - run: |
+      echo "=== File System Paths ==="
+      echo "Logs Directory: ${config.paths.logs}"
+      echo "Data Directory: ${config.paths.data}"
+      echo "Backup Directory: ${config.paths.backups}"
+      echo "Temp Directory: ${config.paths.temp}"
+
+  # Show all configured servers with host and port
+  - run: |
+      echo "=== Server Configuration ==="
+      echo "Web Server: ${config.servers.web.host}:${config.servers.web.port}"
+      echo "API Server: ${config.servers.api.host}:${config.servers.api.port}"
+      echo "Cache Server: ${config.servers.cache.host}:${config.servers.cache.port}"
+
+  # Create directories dynamically using configuration values
+  - run: |
+      mkdir -p ${config.paths.logs} ${config.paths.data} ${config.paths.backups} ${config.paths.temp}
+      echo "Created directories:"
+      ls -ld ${config.paths.logs} ${config.paths.data} ${config.paths.backups} ${config.paths.temp}
+
+  # Construct and display full API URL from configuration
+  - run: |
+      echo "Testing API endpoint..."
+      echo "Full URL: http://${config.servers.api.host}:${config.servers.api.port}${config.servers.api.endpoint}"
+      echo "API Key: ${config.servers.api.key}"
+
+  # Cleanup: Remove created test directories
+  - run: |
+      rm -rf ${config.paths.logs} ${config.paths.data} ${config.paths.backups} ${config.paths.temp}
+      echo "Cleanup complete!"

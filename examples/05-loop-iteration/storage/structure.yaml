@@ -1,0 +1,20 @@
+projects:
+  - name: "project-alpha"
+    subdirectories:
+      - name: "src"
+      - name: "tests"
+      - name: "docs"
+      - name: "build"
+  
+  - name: "project-beta"
+    subdirectories:
+      - name: "frontend"
+      - name: "backend"
+      - name: "database"
+      - name: "deployment"
+  
+  - name: "project-gamma"
+    subdirectories:
+      - name: "core"
+      - name: "plugins"
+      - name: "themes"

@@ -1,0 +1,78 @@
+"""
+Configuration Loader - Loads and manages configuration from storage directory
+"""
+
+import yaml
+import re
+from pathlib import Path
+from typing import Any
+from .colors import Colors
+
+
+class ConfigLoader:
+    """Loads and manages configuration from storage directory"""
+    
+    def __init__(self, storage_dir: str = "storage"):
+        self.storage_dir = Path(storage_dir)
+        self.config = {}
+        self._load_all_configs()
+    
+    def _load_all_configs(self):
+        """Load all YAML files from storage directory"""
+        if not self.storage_dir.exists():
+            print(Colors.colorize(f"Warning: Storage directory '{self.storage_dir}' not found", Colors.YELLOW))
+            return
+        
+        for yaml_file in self.storage_dir.glob("*.yaml"):
+            config_name = yaml_file.stem
+            with open(yaml_file, 'r', encoding='utf-8') as f:
+                self.config[config_name] = yaml.safe_load(f)
+        
+        for yml_file in self.storage_dir.glob("*.yml"):
+            config_name = yml_file.stem
+            with open(yml_file, 'r', encoding='utf-8') as f:
+                self.config[config_name] = yaml.safe_load(f)
+    
+    def reload_configs(self):
+        """Reload all YAML files from storage directory.
+        
+        This method is called after each run block execution to pick up
+        any changes made to storage YAML files during workflow execution.
+        This allows workflows to dynamically update configurations mid-execution.
+        """
+        self.config = {}  # Clear existing config
+        self._load_all_configs()  # Reload all files
+    
+    def get_value(self, path: str) -> Any:
+        """
+        Get value from config using dot notation
+        Example: machines.arlh.ip -> config['machines']['arlh']['ip']
+        """
+        parts = path.split('.')
+        value = self.config
+        
+        for part in parts:
+            if isinstance(value, dict) and part in value:
+                value = value[part]
+            else:
+                raise KeyError(f"Configuration path '{path}' not found")
+        
+        return value
+    
+    def interpolate(self, text: str) -> str:
+        """
+        Replace ${variable.path} with actual values from config
+        Example: ${machines.arlh.ip} -> 172.22.32.116
+        """
+        pattern = r'\$\{([^}]+)\}'
+        
+        def replace_var(match):
+            var_path = match.group(1)
+            try:
+                value = self.get_value(var_path)
+                return str(value)
+            except KeyError as e:
+                print(Colors.colorize(f"Warning: {e}", Colors.YELLOW))
+                return match.group(0)  # Return original if not found
+        
+        return re.sub(pattern, replace_var, text)

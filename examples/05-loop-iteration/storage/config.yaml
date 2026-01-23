@@ -1,0 +1,11 @@
+backup-folders:
+  - data
+  - logs
+  - configs
+  - archives
+
+file-types:
+  - logs
+  - data
+  - configs
+  - temp

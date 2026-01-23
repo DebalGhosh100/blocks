@@ -1,0 +1,25 @@
+servers:
+  web1:
+    ip: "10.0.1.10"
+    username: "deploy"
+    password: "deploy123"
+    description: "Primary web server"
+  
+  web2:
+    ip: "10.0.1.11"
+    username: "deploy"
+    password: "deploy123"
+    description: "Secondary web server"
+  
+  web3:
+    ip: "10.0.1.12"
+    username: "deploy"
+    password: "deploy123"
+    description: "Tertiary web server"
+
+app:
+  name: "MyWebApp"
+  version: "3.2.1"
+  environment: "production"
+  deploy_path: "/var/www/myapp"
+  health_port: 8080
