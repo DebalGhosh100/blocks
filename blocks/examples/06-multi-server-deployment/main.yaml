@@ -1,0 +1,72 @@
+blocks:
+  - # Prepare environment: Create logs directory for deployment tracking
+    run: "mkdir -p ./logs && echo 'Environment ready for deployment'"
+
+  - # Build application package locally
+    run: |
+      echo "Building application package..."
+      mkdir -p ./deploy_package
+      echo "Application Version: ${config.app.version}" > ./deploy_package/version.txt
+      echo "Build Date: $(date)" >> ./deploy_package/version.txt
+      echo "Environment: ${config.app.environment}" >> ./deploy_package/version.txt
+      echo "Package created successfully!"
+
+  - parallel:
+      - # Deploy to Web Server 1: Primary web server deployment
+        run: python3 remotely.py ${config.servers.web1.username}@${config.servers.web1.ip} ${config.servers.web1.password} "mkdir -p ${config.app.deploy_path} && echo 'Deployment started on web1' && echo 'Version: ${config.app.version}' > ${config.app.deploy_path}/deployment.log && echo 'Deployed at: \$(date)' >> ${config.app.deploy_path}/deployment.log && echo 'Deployment complete on web1'" ./logs/deploy_web1.log
+
+      - # Deploy to Web Server 2: Secondary web server deployment
+        run: python3 remotely.py ${config.servers.web2.username}@${config.servers.web2.ip} ${config.servers.web2.password} "mkdir -p ${config.app.deploy_path} && echo 'Deployment started on web2' && echo 'Version: ${config.app.version}' > ${config.app.deploy_path}/deployment.log && echo 'Deployed at: \$(date)' >> ${config.app.deploy_path}/deployment.log && echo 'Deployment complete on web2'" ./logs/deploy_web2.log
+
+      - # Deploy to Web Server 3: Tertiary web server deployment
+        run: python3 remotely.py ${config.servers.web3.username}@${config.servers.web3.ip} ${config.servers.web3.password} "mkdir -p ${config.app.deploy_path} && echo 'Deployment started on web3' && echo 'Version: ${config.app.version}' > ${config.app.deploy_path}/deployment.log && echo 'Deployed at: \$(date)' >> ${config.app.deploy_path}/deployment.log && echo 'Deployment complete on web3'" ./logs/deploy_web3.log
+
+  - # Verify deployments: Check deployment logs from all servers
+    run: |
+      echo "=========================================="
+      echo "     DEPLOYMENT VERIFICATION REPORT      "
+      echo "=========================================="
+      echo ""
+      echo "--- Web Server 1 Deployment Log ---"
+      cat ./logs/deploy_web1.log
+      echo ""
+      echo "--- Web Server 2 Deployment Log ---"
+      cat ./logs/deploy_web2.log
+      echo ""
+      echo "--- Web Server 3 Deployment Log ---"
+      cat ./logs/deploy_web3.log
+      echo ""
+      echo "=========================================="
+
+  - parallel:
+      - # Health Check - Web Server 1: Verify web server 1 is responding
+        run: python3 remotely.py ${config.servers.web1.username}@${config.servers.web1.ip} ${config.servers.web1.password} "echo 'Running health check on web1...' && ps aux | grep -i nginx || echo 'Nginx not found' && curl -f http://localhost:${config.app.health_port}/health || echo 'Health endpoint not responding'" ./logs/health_web1.log
+
+      - # Health Check - Web Server 2: Verify web server 2 is responding
+        run: python3 remotely.py ${config.servers.web2.username}@${config.servers.web2.ip} ${config.servers.web2.password} "echo 'Running health check on web2...' && ps aux | grep -i nginx || echo 'Nginx not found' && curl -f http://localhost:${config.app.health_port}/health || echo 'Health endpoint not responding'" ./logs/health_web2.log
+
+      - # Health Check - Web Server 3: Verify web server 3 is responding
+        run: python3 remotely.py ${config.servers.web3.username}@${config.servers.web3.ip} ${config.servers.web3.password} "echo 'Running health check on web3...' && ps aux | grep -i nginx || echo 'Nginx not found' && curl -f http://localhost:${config.app.health_port}/health || echo 'Health endpoint not responding'" ./logs/health_web3.log
+
+  - # Health check summary: Display health check results
+    run: |
+      echo "=========================================="
+      echo "      HEALTH CHECK SUMMARY REPORT        "
+      echo "=========================================="
+      echo ""
+      echo "--- Web Server 1 Health ---"
+      grep -i "health\|running\|complete" ./logs/health_web1.log || echo "No health data"
+      echo ""
+      echo "--- Web Server 2 Health ---"
+      grep -i "health\|running\|complete" ./logs/health_web2.log || echo "No health data"
+      echo ""
+      echo "--- Web Server 3 Health ---"
+      grep -i "health\|running\|complete" ./logs/health_web3.log || echo "No health data"
+      echo ""
+      echo "=========================================="
+      echo "Deployment and verification complete!"
+
+  - # Cleanup: Remove temporary deployment package
+    run: |
+      rm -rf ./deploy_package
+      echo "Cleanup complete!"

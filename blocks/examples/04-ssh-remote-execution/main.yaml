@@ -1,0 +1,70 @@
+blocks:
+  # Prepare logs directory for SSH execution logs
+  - run: "mkdir -p ./logs && echo 'Logs directory ready'"
+
+  # Example 1: Sequential remote execution with log file
+  # Gather system information from server 1 and save to log
+  # Stream logs in real-time with: tail -f ./logs/server1_sysinfo.log
+  - run-remotely:
+      ip: ${machines.server1.ip}
+      user: ${machines.server1.username}
+      pass: ${machines.server1.password}
+      run: "uname -a && df -h && free -h"
+      log-into: ./logs/server1_sysinfo.log
+
+  # Example 2: Sequential remote execution without log file (real-time streaming)
+  # Quick check on server 1 with output displayed in real-time
+  - run-remotely:
+      ip: ${machines.server1.ip}
+      user: ${machines.server1.username}
+      pass: ${machines.server1.password}
+      run: "echo 'System uptime:' && uptime && echo 'Current user:' && whoami"
+
+  # Example 3: Parallel remote execution on all 3 servers
+  # Note: log-into field is MANDATORY for parallel execution to prevent output mixing
+  # Stream logs in real-time with: tail -f ./logs/server*_execution.log
+  - parallel:
+      # Server 1: Update, install tools, and gather system information
+      - run-remotely:
+          ip: ${machines.server1.ip}
+          user: ${machines.server1.username}
+          pass: ${machines.server1.password}
+          run: "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h"
+          log-into: ./logs/server1_execution.log
+
+      # Server 2: Update, install tools, and gather system information
+      - run-remotely:
+          ip: ${machines.server2.ip}
+          user: ${machines.server2.username}
+          pass: ${machines.server2.password}
+          run: "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h"
+          log-into: ./logs/server2_execution.log
+
+      # Server 3: Update, install tools, and gather system information
+      - run-remotely:
+          ip: ${machines.server3.ip}
+          user: ${machines.server3.username}
+          pass: ${machines.server3.password}
+          run: "sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y neovim net-tools tree && ls -lah ~ && uname -a && df -h && free -h"
+          log-into: ./logs/server3_execution.log
+
+  # Display logs collected from all remote executions
+  - run: |
+      echo "=== Remote Command Logs ==="
+      echo ""
+      echo "--- Server 1 Execution Log ---"
+      cat ./logs/server1_execution.log
+      echo ""
+      echo "--- Server 2 Execution Log ---"
+      cat ./logs/server2_execution.log
+      echo ""
+      echo "--- Server 3 Execution Log ---"
+      cat ./logs/server3_execution.log
+
+  # Summary: Display total servers and log files created
+  - run: |
+      echo "=== Execution Summary ==="
+      echo "Total servers configured: 3"
+      echo "Total log files created: $(ls -1 ./logs/*.log | wc -l)"
+      echo "Log files:"
+      ls -lh ./logs/*.log

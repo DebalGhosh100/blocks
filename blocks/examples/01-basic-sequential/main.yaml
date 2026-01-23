@@ -1,0 +1,20 @@
+blocks:
+  # Persist useful paths for reuse in later blocks
+  - persist-paths:
+      project-dir: $(pwd)
+      home-dir: /home
+  
+  # Print system information: current date and hostname
+  - run: "echo 'Current Date:' && date && echo 'Hostname:' && hostname"
+
+  # List all files in the current directory
+  - run: "ls -la"
+
+  # Display important environment variables and persisted paths
+  - run: "echo 'User:' $USER && echo 'Home:' $HOME && echo 'Project Dir:' ${paths.project-dir}"
+
+  # Create a test file and display its contents
+  - run: "echo 'Hello from Blocks!' > test_output.txt && cat test_output.txt"
+
+  # Cleanup: remove test file
+  - run: "rm -f test_output.txt && echo 'Cleanup complete!'"

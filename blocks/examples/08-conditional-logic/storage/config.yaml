@@ -1,0 +1,13 @@
+config:
+  environment: "staging"
+  action: "restart"
+  
+  thresholds:
+    max_size: 100
+    min_size: 10
+    max_retries: 3
+  
+  features:
+    debug_mode: true
+    verbose_logging: false
+    auto_cleanup: true

@@ -1,0 +1,17 @@
+server1:
+  ip: "192.168.1.100"
+  username: "admin"
+  password: "admin123"
+  description: "Primary application server"
+
+server2:
+  ip: "192.168.1.101"
+  username: "deploy"
+  password: "deploy456"
+  description: "Secondary application server"
+
+server3:
+  ip: "192.168.1.102"
+  username: "sysadmin"
+  password: "sysadmin789"
+  description: "Tertiary application server"

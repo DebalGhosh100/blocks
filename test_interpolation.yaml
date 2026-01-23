@@ -1,0 +1,10 @@
+blocks:
+  - run: |
+      echo "Testing variable interpolation in storage YAMLs"
+      echo "Base path: ${test.base-path}"
+      echo "Python version: ${test.python-version}"
+      echo "Install command: ${test.commands.install}"
+      echo "Run command: ${test.commands.run}"
+      echo "Server1 name: ${test.servers[0].name}"
+      echo "Server1 command: ${test.servers[0].command}"
+      echo "This should show fully interpolated values, not variable references"

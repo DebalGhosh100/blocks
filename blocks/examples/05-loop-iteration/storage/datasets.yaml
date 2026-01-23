@@ -1,0 +1,9 @@
+sources:
+  - filename: "dataset1.csv"
+    url: "https://example.com/data/dataset1.csv"
+  
+  - filename: "dataset2.json"
+    url: "https://example.com/data/dataset2.json"
+  
+  - filename: "dataset3.xml"
+    url: "https://example.com/data/dataset3.xml"
