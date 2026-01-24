@@ -9,6 +9,9 @@
 
 set -e  # Exit on any error
 
+# Set up alias for evaporate
+alias evaporate='curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/evaporate/evaporate.sh | bash -s --'
+
 # Configuration
 REPO_URL="https://github.com/DebalGhosh100/blocks.git"
 TEMP_DIR=".blocks_temp"
