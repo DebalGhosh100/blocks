@@ -19,7 +19,7 @@ shift 2  # Remove first two arguments, remaining args are additional files to re
 ADDITIONAL_FILES=("$@")
 
 # Default files/folders to remove
-DEFAULT_REMOVES=("main.yaml" "storage")
+DEFAULT_REMOVES=("main.yaml" "parameters")
 
 echo "=== Cloning repository ==="
 echo "Branch: $GIT_BRANCH"
@@ -36,13 +36,13 @@ echo "=== Cleaning up temporary clone ==="
 # Remove the temporary directory and git-related files
 rm -rf temp-clone .git .gitattributes README.md
 
-echo "=== Creating storage and backing up YAML files ==="
-mkdir -p storage
-# Copy/overwrite YAML files to storage directory (force overwrite if exists)
+echo "=== Creating parameters and backing up YAML files ==="
+mkdir -p parameters
+# Copy/overwrite YAML files to parameters directory (force overwrite if exists)
 if ls *.yaml 1> /dev/null 2>&1; then
     for yaml_file in *.yaml; do
         echo "Backing up: $yaml_file"
-        cp -f "$yaml_file" storage/
+        cp -f "$yaml_file" parameters/
     done
 fi
 

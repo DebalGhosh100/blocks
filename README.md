@@ -1,9 +1,9 @@
 
 # Evaporate
 
-A shell script to clone a git repository, create a 'storage' directory, copy all yamls in the current-directory into the newly created storage directory, and run the cocoon blocks-automation script.
+A shell script to clone a git repository, create a 'parameters' directory, copy all yamls in the current-directory into the newly created parameters directory, and run the cocoon blocks-automation script.
 
-**Having created a main.yaml file and a storage directory [and other scripting aids] as instructed in [cocoon's main documentation](https://github.com/DebalGhosh100/blocks/blob/main/README.md), just push main.yaml, the scripting aids and potentially a few yamls from the storage directory which contain default values into a repo and simply chug the curl -sSL command below that takes in your repo as parameter.**
+**Having created a main.yaml file and a parameters directory [and other scripting aids] as instructed in [cocoon's main documentation](https://github.com/DebalGhosh100/blocks/blob/main/README.md), just push main.yaml, the scripting aids and potentially a few yamls from the parameters directory which contain default values into a repo and simply chug the curl -sSL command below that takes in your repo as parameter.**
 
 ## Usage
 
@@ -25,7 +25,7 @@ evaporate <git_branch> <git_repo_url> [additional_files_to_remove...]
 ```
 
 
-**All yamls in your current directory will be dumped in [and / or] overridden in the storage directory when the remote procedural-call is made using this curl.**
+**All yamls in your current directory will be dumped in [and / or] overridden in the parameters directory when the remote procedural-call is made using this curl.**
 
 
 ### Parameters
