@@ -20,7 +20,7 @@ This example demonstrates a multi-stage data processing pipeline with parallel p
 ```
 07-data-pipeline/
 ├── main.yaml           # Pipeline workflow definition
-├── storage/            # Configuration files
+├── parameters/            # Configuration files
 │   └── config.yaml     # Pipeline configuration
 ├── data/               # Created during execution
 │   ├── raw/           # Raw input data

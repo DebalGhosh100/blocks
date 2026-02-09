@@ -1,4 +1,4 @@
-# This example doesn't use variables, but storage directory is required
+# This example doesn't use variables, but parameters directory is required
 # by the framework structure
 
 placeholder:

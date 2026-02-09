@@ -18,7 +18,7 @@ This example demonstrates how to execute multiple tasks simultaneously using the
 ```
 02-parallel-execution/
 ├── main.yaml           # Workflow with parallel blocks
-├── storage/            # Configuration directory
+├── parameters/            # Configuration directory
 │   └── config.yaml     # Placeholder config
 └── README.md           # This file
 ```

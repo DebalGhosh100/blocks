@@ -1,6 +1,6 @@
 blocks:
   - run: |
-      echo "Testing variable interpolation in storage YAMLs"
+      echo "Testing variable interpolation in parameters YAMLs"
       echo "Base path: ${test.base-path}"
       echo "Python version: ${test.python-version}"
       echo "Install command: ${test.commands.install}"

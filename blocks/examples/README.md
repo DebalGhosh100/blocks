@@ -21,7 +21,7 @@ Welcome to the Blocks examples directory! This collection of examples demonstrat
 
 ### Running Examples
 
-Each example is self-contained with its own `main.yaml`, `storage/` directory, and detailed `README.md`.
+Each example is self-contained with its own `main.yaml`, `parameters/` directory, and detailed `README.md`.
 
 **To run any example:**
 ```bash
@@ -93,7 +93,7 @@ Master configuration management with variable interpolation from YAML files.
 
 **What You'll Learn:**
 - `${filename.key.path}` syntax
-- Configuration files in `storage/` directory
+- Configuration files in `parameters/` directory
 - Nested value access
 - Multi-file configuration management
 - Environment-specific configurations
@@ -130,7 +130,7 @@ Execute commands on remote servers via SSH with real-time log streaming.
 
 **Prerequisites:**
 - SSH access to a remote server
-- Server credentials configured in `storage/machines.yaml`
+- Server credentials configured in `parameters/machines.yaml`
 
 [📖 Read Full Guide](./04-ssh-remote-execution/README.md)
 
@@ -299,7 +299,7 @@ blocks:
 
 #### Variable Interpolation
 ```yaml
-# storage/config.yaml
+# parameters/config.yaml
 server:
   ip: "192.168.1.100"
   
@@ -419,13 +419,13 @@ Use examples as templates for your own workflows. Copy, modify, and extend them.
 
 ### 5. Check Variable Interpolation
 When using variables, verify:
-- YAML file exists in `storage/`
+- YAML file exists in `parameters/`
 - Variable path is correct (`${filename.key.path}`)
 - No typos in variable names
 
 ### 6. Test SSH Configurations
 For SSH examples (04, 05):
-- Update `storage/machines.yaml` with your servers
+- Update `parameters/machines.yaml` with your servers
 - Test SSH connection manually first
 - Check credentials are correct
 
@@ -448,7 +448,7 @@ For SSH examples (04, 05):
 **Problem:** Seeing `${variable.name}` in output instead of value
 
 **Solutions:**
-- Check YAML file exists in `storage/`
+- Check YAML file exists in `parameters/`
 - Verify variable path syntax
 - Ensure no spaces in variable path
 - Check for typos in variable names
@@ -482,7 +482,7 @@ Have a great example to share? We'd love to include it!
 ```
 XX-example-name/
 ├── main.yaml           # Workflow definition
-├── storage/            # Configuration files
+├── parameters/            # Configuration files
 │   └── config.yaml
 └── README.md           # Comprehensive guide
 ```
@@ -514,47 +514,47 @@ examples/
 ├── README.md (this file)
 ├── 01-basic-sequential/
 │   ├── main.yaml
-│   ├── storage/
+│   ├── parameters/
 │   │   └── config.yaml
 │   └── README.md
 ├── 02-parallel-execution/
 │   ├── main.yaml
-│   ├── storage/
+│   ├── parameters/
 │   │   └── config.yaml
 │   └── README.md
 ├── 03-variable-interpolation/
 │   ├── main.yaml
-│   ├── storage/
+│   ├── parameters/
 │   │   └── config.yaml
 │   └── README.md
 ├── 04-ssh-remote-execution/
 │   ├── main.yaml
-│   ├── storage/
+│   ├── parameters/
 │   │   └── machines.yaml
 │   └── README.md
 ├── 05-loop-iteration/
 │   ├── main.yaml
-│   ├── storage/
+│   ├── parameters/
 │   │   └── config.yaml
 │   └── README.md
 ├── 06-multi-server-deployment/
 │   ├── main.yaml
-│   ├── storage/
+│   ├── parameters/
 │   │   └── config.yaml
 │   └── README.md
 ├── 07-data-pipeline/
 │   ├── main.yaml
-│   ├── storage/
+│   ├── parameters/
 │   │   └── config.yaml
 │   └── README.md
 ├── 08-conditional-logic/
 │   ├── main.yaml
-│   ├── storage/
+│   ├── parameters/
 │   │   └── config.yaml
 │   └── README.md
 └── 09-complex-workflow/
     ├── main.yaml
-    ├── storage/
+    ├── parameters/
     │   └── config.yaml
     └── README.md
 ```

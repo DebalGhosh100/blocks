@@ -23,7 +23,7 @@ This example demonstrates how to use the **`run-remotely` YAML syntax** to execu
 ```
 04-ssh-remote-execution/
 ├── main.yaml           # Workflow with SSH remote executions
-├── storage/            # Configuration files
+├── parameters/            # Configuration files
 │   └── machines.yaml   # SSH server credentials
 ├── logs/               # Created during execution (stores SSH logs)
 └── README.md           # This file
@@ -33,7 +33,7 @@ This example demonstrates how to use the **`run-remotely` YAML syntax** to execu
 
 ### Step 1: Configure Your SSH Servers
 
-Edit `storage/machines.yaml` and replace with your actual server details:
+Edit `parameters/machines.yaml` and replace with your actual server details:
 
 ```yaml
 server1:
@@ -63,7 +63,7 @@ server3:
 # Clone this specific example and navigate to it
 git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/04-ssh-remote-execution && cd examples/04-ssh-remote-execution
 
-# Edit storage/machines.yaml with your server details
+# Edit parameters/machines.yaml with your server details
 # Then run with one-command execution
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
@@ -222,7 +222,7 @@ Creates the logs directory if it doesn't exist.
 ```
 - Uses new `run-remotely` syntax for cleaner configuration
 - Saves output to `./logs/server1_sysinfo.log`
-- Variables are interpolated from `storage/machines.yaml`
+- Variables are interpolated from `parameters/machines.yaml`
 - **Monitor live:** `tail -f ./logs/server1_sysinfo.log`
 
 ### Block 3: Sequential Remote Execution with Streaming
@@ -390,7 +390,7 @@ Simply include `sudo` in your commands and the framework handles the rest!
 
 Combine variable interpolation with SSH for powerful workflows using the `run-remotely` syntax:
 
-**storage/machines.yaml:**
+**parameters/machines.yaml:**
 ```yaml
 server1:
   ip: "10.0.1.10"

@@ -5,7 +5,7 @@
 # Usage:
 #   curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 #   curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash -s my_workflow.yaml
-#   curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash -s my_workflow.yaml my_storage
+#   curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash -s my_workflow.yaml my_parameters
 
 set -e  # Exit on any error
 
@@ -13,7 +13,7 @@ set -e  # Exit on any error
 REPO_URL="https://github.com/DebalGhosh100/blocks.git"
 TEMP_DIR=".blocks_temp"
 WORKFLOW_FILE="${1:-main.yaml}"
-STORAGE_DIR="${2:-storage}"
+PARAMETERS_DIR="${2:-parameters}"
 
 # Colors for terminal output
 CYAN='\033[1;36m'
@@ -37,8 +37,8 @@ pip3 install -q -r requirements.txt --break-system-packages
 # Step 3: Execute workflow
 echo -e "${YELLOW}[3/5] Executing workflow...${NC}"
 echo -e "Workflow file: $WORKFLOW_FILE"
-echo -e "Storage directory: $STORAGE_DIR"
-python3 blocks_executor.py "../$WORKFLOW_FILE" --storage "../$STORAGE_DIR"
+echo -e "Parameters directory: $PARAMETERS_DIR"
+python3 blocks_executor.py "../$WORKFLOW_FILE" --parameters "../$PARAMETERS_DIR"
 
 # Step 4: Return to original directory
 echo -e "${YELLOW}[4/5] Returning to project directory...${NC}"

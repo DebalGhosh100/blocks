@@ -3,8 +3,8 @@
 # This script preserves existing TEMP_DIR and WORKFLOW_FILE environment variables
 #
 # Usage:
-#   curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/subroutines/run_blocks.sh | bash -s <temp_dir> <workflow_file> [storage_dir]
-#   curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/subroutines/run_blocks.sh | bash -s .my_temp main.yaml storage
+#   curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/subro utines/run_blocks.sh | bash -s <temp_dir> <workflow_file> [parameters_dir]
+#   curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/subroutines/run_blocks.sh | bash -s .my_temp main.yaml parameters
 
 set -e  # Exit on any error
 
@@ -16,7 +16,7 @@ SAVED_WORKFLOW_FILE="${WORKFLOW_FILE}"
 REPO_URL="https://github.com/DebalGhosh100/blocks.git"
 TEMP_DIR="${1:-.blocks_temp}"
 WORKFLOW_FILE="${2:-main.yaml}"
-STORAGE_DIR="${3:-storage}"
+PARAMETERS_DIR="${3:-parameters}"
 
 # Colors for terminal output
 CYAN='\033[1;36m'
@@ -40,8 +40,8 @@ pip3 install -r requirements.txt --break-system-packages
 # Step 3: Execute workflow
 echo -e "${YELLOW}[3/5] Executing workflow...${NC}"
 echo -e "Workflow file: $WORKFLOW_FILE"
-echo -e "Storage directory: $STORAGE_DIR"
-python3 -u blocks_executor.py "../$WORKFLOW_FILE" --storage "../$STORAGE_DIR"
+echo -e "Parameters directory: $PARAMETERS_DIR"
+python3 -u blocks_executor.py "../$WORKFLOW_FILE" --parameters "../$PARAMETERS_DIR"
 
 # Step 4: Return to original directory
 echo -e "${YELLOW}[4/5] Returning to project directory...${NC}"

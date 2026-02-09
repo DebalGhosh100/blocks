@@ -1,7 +1,7 @@
 # Example 9: Loop Iteration & List Comprehension
 
 ## Overview
-This example demonstrates Cocoon's powerful **loop iteration** feature that allows you to iterate over lists defined in your storage YAML files. Think of it as "list comprehension" for workflows - write once, execute many times with different data.
+This example demonstrates Cocoon's powerful **loop iteration** feature that allows you to iterate over lists defined in your parameters YAML files. Think of it as "list comprehension" for workflows - write once, execute many times with different data.
 
 ## What This Example Demonstrates
 - ✅ **Simple loops** over string lists
@@ -20,7 +20,7 @@ This example demonstrates Cocoon's powerful **loop iteration** feature that allo
 ```
 05-loop-iteration/
 ├── main.yaml              # Workflow with loop examples
-├── storage/               # Configuration files with lists
+├── parameters/               # Configuration files with lists
 │   ├── config.yaml        # Simple string lists
 │   ├── servers.yaml       # Server configurations
 │   ├── datasets.yaml      # Data source URLs
@@ -49,7 +49,7 @@ python3 ../../blocks_executor.py main.yaml
 
 **How it works:**
 - `individual`: Name for each item in the iteration (like a loop variable)
-- `in`: Path to the list in your storage YAML
+- `in`: Path to the list in your parameters YAML
 - `run`: Command to execute for each item
 - Variables: `${folder-name}` gets replaced with each list item
 
@@ -65,7 +65,7 @@ python3 ../../blocks_executor.py main.yaml
     run: echo "Server: ${server.name} at ${server.ip}:${server.port}"
 ```
 
-**Storage (servers.yaml):**
+**Parameters (servers.yaml):**
 ```yaml
 web-servers:
   - name: "web-01"
@@ -145,7 +145,7 @@ web-servers:
       run: mkdir -p ${project.name}/${subdir.name}
 ```
 
-**Storage (structure.yaml):**
+**Parameters (structure.yaml):**
 ```yaml
 projects:
   - name: "project-alpha"
@@ -279,7 +279,7 @@ project-beta/
 
 ### Simple String Lists
 ```yaml
-# Storage: config.yaml
+# Parameters: config.yaml
 folders: ["data", "logs", "temp"]
 
 # Usage in workflow
@@ -291,7 +291,7 @@ folders: ["data", "logs", "temp"]
 
 ### Dictionary Lists
 ```yaml
-# Storage: servers.yaml
+# Parameters: servers.yaml
 servers:
   - name: "web-01"
     ip: "10.0.1.10"
@@ -309,7 +309,7 @@ servers:
 
 ### Nested Structures
 ```yaml
-# Storage: structure.yaml
+# Parameters: structure.yaml
 projects:
   - name: "alpha"
     subdirs:
@@ -374,12 +374,12 @@ projects:
 # ✅ Good
 - for:
     individual: backup-location
-    in: ${storage.backup-paths}
+    in: ${parameters.backup-paths}
 
 # ❌ Bad
 - for:
     individual: x
-    in: ${storage.backup-paths}
+    in: ${parameters.backup-paths}
 ```
 
 ### 2. Use Parallel for Independent Operations
@@ -481,12 +481,12 @@ environments:
 ### Issue: Variable not substituted
 **Problem:** `${variable}` appears in output instead of actual value
 
-**Solution:** Check the path is correct in storage YAML
+**Solution:** Check the path is correct in parameters YAML
 ```yaml
 # Workflow
 in: ${config.items}
 
-# Storage must have this structure
+# Parameters must have this structure
 # config.yaml:
 items:
   - value1
@@ -534,7 +534,7 @@ for:
 - ✅ Configuration-driven approach improves maintainability
 
 ## Next Steps
-- Try modifying the storage YAML files with your own data
+- Try modifying the parameters YAML files with your own data
 - Experiment with different loop combinations
 - Build a multi-server deployment workflow
 - Combine loops with the other examples (parallel, remote, etc.)

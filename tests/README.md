@@ -93,7 +93,7 @@ Get-ChildItem tests\*.yaml | ForEach-Object {
 ---
 
 ### test_loops.yaml
-**Purpose:** Test loop iteration over lists from storage configuration  
+**Purpose:** Test loop iteration over lists from parameters configuration  
 **What it tests:**
 - Simple for-loop over list of strings
 - Loop over list of dictionaries
@@ -109,7 +109,7 @@ python ../blocks_executor.py test_loops.yaml
 
 ## Loop Testing
 
-The `test_loops.yaml` file demonstrates the new loop iteration feature that allows you to iterate over lists defined in storage YAML files.
+The `test_loops.yaml` file demonstrates the new loop iteration feature that allows you to iterate over lists defined in parameters YAML files.
 
 ### Example Patterns
 

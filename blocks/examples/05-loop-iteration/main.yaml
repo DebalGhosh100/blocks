@@ -1,6 +1,6 @@
 blocks:
   # Example 1: Simple loop over a list of strings
-  # Creates multiple directories from a list defined in storage
+  # Creates multiple directories from a list defined in parameters
   - for:
       individual: folder-name
       in: ${config.backup-folders}

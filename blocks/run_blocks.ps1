@@ -4,11 +4,11 @@
 # Usage:
 #   iwr -useb https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.ps1 | iex
 #   Invoke-WebRequest -Uri https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.ps1 -OutFile run_blocks.ps1; .\run_blocks.ps1
-#   .\run_blocks.ps1 -WorkflowFile "my_workflow.yaml" -StorageDir "my_storage"
+#   .\run_blocks.ps1 -WorkflowFile "my_workflow.yaml" -ParametersDir "my_parameters"
 
 param(
     [string]$WorkflowFile = "main.yaml",
-    [string]$StorageDir = "storage"
+    [string]$ParametersDir = "parameters"
 )
 
 $ErrorActionPreference = "Stop"
@@ -33,8 +33,8 @@ pip install -q -r requirements.txt
 # Step 3: Execute workflow
 Write-Host "[3/5] Executing workflow..." -ForegroundColor Yellow
 Write-Host "Workflow file: $WorkflowFile" -ForegroundColor Gray
-Write-Host "Storage directory: $StorageDir" -ForegroundColor Gray
-python blocks_executor.py "..\$WorkflowFile" --storage "..\$StorageDir"
+Write-Host "Parameters directory: $ParametersDir" -ForegroundColor Gray
+python blocks_executor.py "..\$WorkflowFile" --parameters "..\$ParametersDir"
 
 # Step 4: Return to original directory
 Write-Host "[4/5] Returning to project directory..." -ForegroundColor Yellow

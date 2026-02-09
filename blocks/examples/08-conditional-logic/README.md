@@ -23,7 +23,7 @@ This example demonstrates advanced shell scripting techniques within Blocks work
 ```
 08-conditional-logic/
 ├── main.yaml           # Workflow with conditional logic
-├── storage/            # Configuration files
+├── parameters/            # Configuration files
 │   └── config.yaml     # Configuration values for conditionals
 └── README.md           # This file
 ```
@@ -430,7 +430,7 @@ done
 
 ### Test Different Scenarios
 
-Modify `storage/config.yaml` to test different paths:
+Modify `parameters/config.yaml` to test different paths:
 
 ```yaml
 config:

@@ -19,7 +19,7 @@ This example demonstrates the simplest use case of Blocks - executing commands s
 ```
 01-basic-sequential/
 ├── main.yaml           # Workflow definition
-├── storage/            # Configuration directory
+├── parameters/            # Configuration directory
 │   └── config.yaml     # Placeholder config (not used in this example)
 └── README.md           # This file
 ```
@@ -43,7 +43,7 @@ curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks
 
 ## Expected Output
 The workflow will:
-1. Persist project paths to storage/paths.yaml
+1. Persist project paths to parameters/paths.yaml
 2. Print system information (date, hostname)
 3. List files in the current directory
 4. Display environment variables and the persisted project directory path

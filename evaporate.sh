@@ -89,16 +89,16 @@ if [ ${#EXCLUDE_FILES[@]} -gt 0 ]; then
     done
 fi
 
-# Step 4: Prepare storage directory
-echo -e "${YELLOW}[4/6] Preparing storage directory...${NC}"
-# If user has config files in current directory, they override the workflow's storage files
-# Copy user's YAML files to storage directory (these will override workflow defaults)
+# Step 4: Prepare parameters directory
+echo -e "${YELLOW}[4/6] Preparing parameters directory...${NC}"
+# If user has config files in current directory, they override the workflow's parameters files
+# Copy user's YAML files to parameters directory (these will override workflow defaults)
 if ls *.yaml 1> /dev/null 2>&1; then
-    mkdir -p storage
+    mkdir -p parameters
     for yaml_file in *.yaml; do
         if [ "$yaml_file" != "main.yaml" ]; then
             echo -e "Using local configuration: ${GREEN}$yaml_file${NC}"
-            cp -f "$yaml_file" storage/
+            cp -f "$yaml_file" parameters/
         fi
     done
 fi
@@ -115,7 +115,7 @@ curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks
 # Step 6: Cleanup workflow files
 echo -e "${YELLOW}[6/6] Cleaning up workflow files...${NC}"
 rm -f main.yaml
-rm -rf storage
+rm -rf parameters
 
 echo -e "${GREEN}============================================${NC}"
 echo -e "${GREEN}Evaporate execution complete!${NC}"

@@ -5,7 +5,7 @@ This example demonstrates how to use variable interpolation to reference configu
 
 ## What This Example Demonstrates
 - ✅ Variable interpolation using `${filename.key.path}` syntax
-- ✅ Reading from configuration files in the `storage/` directory
+- ✅ Reading from configuration files in the `parameters/` directory
 - ✅ Nested configuration values (multiple levels deep)
 - ✅ Using variables in command construction
 - ✅ Centralizing configuration management
@@ -18,7 +18,7 @@ This example demonstrates how to use variable interpolation to reference configu
 ```
 03-variable-interpolation/
 ├── main.yaml           # Workflow using variables
-├── storage/            # Configuration files
+├── parameters/            # Configuration files
 │   └── config.yaml     # Application configuration with nested values
 └── README.md           # This file
 ```
@@ -50,7 +50,7 @@ The workflow will:
 6. Construct and display API endpoint URL
 7. Clean up created directories
 
-## Configuration File (`storage/config.yaml`)
+## Configuration File (`parameters/config.yaml`)
 
 ```yaml
 app:
@@ -91,7 +91,7 @@ servers:
 ${filename.key1.key2.key3}
 ```
 
-- `filename`: Name of the YAML file in `storage/` (without `.yaml` extension)
+- `filename`: Name of the YAML file in `parameters/` (without `.yaml` extension)
 - `key1.key2.key3`: Dot-separated path to the value
 
 ### Examples from This Workflow
@@ -153,9 +153,9 @@ Uses variables as command arguments - very powerful for dynamic workflows!
 
 ## Using Multiple Configuration Files
 
-You can create multiple YAML files in the `storage/` directory:
+You can create multiple YAML files in the `parameters/` directory:
 
-**storage/servers.yaml:**
+**parameters/servers.yaml:**
 ```yaml
 production:
   web: "prod-web.example.com"
@@ -166,7 +166,7 @@ staging:
   api: "staging-api.example.com"
 ```
 
-**storage/credentials.yaml:**
+**parameters/credentials.yaml:**
 ```yaml
 admin:
   username: "admin"
@@ -193,7 +193,7 @@ blocks:
 
 ### 1. Organize Configuration by Purpose
 ```
-storage/
+parameters/
 ├── app.yaml          # Application settings
 ├── servers.yaml      # Server configurations
 ├── credentials.yaml  # Authentication details
@@ -237,7 +237,7 @@ For production use, consider:
 
 ## Key Takeaways
 - Variable interpolation uses `${filename.key.path}` syntax
-- Configuration files must be in the `storage/` directory
+- Configuration files must be in the `parameters/` directory
 - Variables can be used anywhere in commands
 - Multiple variables can be used in a single command
 - Nested values are accessed with dot notation

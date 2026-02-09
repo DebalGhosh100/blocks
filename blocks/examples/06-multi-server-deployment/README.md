@@ -21,7 +21,7 @@ This example demonstrates a real-world scenario: deploying an application to mul
 ```
 06-multi-server-deployment/
 ├── main.yaml           # Multi-stage deployment workflow
-├── storage/            # Configuration files
+├── parameters/            # Configuration files
 │   └── config.yaml     # Server and application configuration
 ├── logs/               # Created during execution
 └── README.md           # This file
@@ -31,7 +31,7 @@ This example demonstrates a real-world scenario: deploying an application to mul
 
 ### Step 1: Configure Your Servers
 
-Edit `storage/config.yaml` with your actual server details:
+Edit `parameters/config.yaml` with your actual server details:
 
 ```yaml
 servers:
@@ -64,7 +64,7 @@ app:
 # Clone this specific example and navigate to it
 git clone --depth 1 --filter=blob:none --sparse https://github.com/DebalGhosh100/blocks.git && cd blocks && git sparse-checkout set examples/06-multi-server-deployment && cd examples/06-multi-server-deployment
 
-# Edit storage/config.yaml with your server details
+# Edit parameters/config.yaml with your server details
 # Then run with one-command execution
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash
 ```
@@ -330,7 +330,7 @@ logs/
 
 To deploy to additional servers, simply add them to the configuration and parallel block:
 
-**storage/config.yaml:**
+**parameters/config.yaml:**
 ```yaml
 servers:
   web1: { ip: "10.0.1.10", username: "deploy", password: "pass" }

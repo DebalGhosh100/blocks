@@ -23,7 +23,7 @@ This example demonstrates a comprehensive, production-grade CI/CD workflow that 
 ```
 09-complex-workflow/
 ├── main.yaml           # Complex multi-phase workflow
-├── storage/            # Configuration files
+├── parameters/            # Configuration files
 │   └── config.yaml     # Workflow and server configuration
 ├── build/              # Created during execution
 ├── tests/              # Created during execution
@@ -510,7 +510,7 @@ After execution, the following artifacts are created:
 
 1. **Update build steps** to match your tech stack (Java, Node.js, Go, etc.)
 2. **Customize test suites** for your testing framework
-3. **Configure actual servers** in `storage/config.yaml`
+3. **Configure actual servers** in `parameters/config.yaml`
 4. **Add real SSH deployments** using `remotely.py`
 5. **Integrate with CI/CD tools** (Jenkins, GitLab CI, GitHub Actions)
 
@@ -519,7 +519,7 @@ After execution, the following artifacts are created:
 Create multiple config files:
 
 ```
-storage/
+parameters/
 ├── production.yaml
 ├── staging.yaml
 └── development.yaml
@@ -527,8 +527,8 @@ storage/
 
 Run with different configs:
 ```bash
-python3 ../../blocks_executor.py main.yaml --storage ./storage_prod
-python3 ../../blocks_executor.py main.yaml --storage ./storage_staging
+python3 ../../blocks_executor.py main.yaml --parameters ./parameters_prod
+python3 ../../blocks_executor.py main.yaml --parameters ./parameters_staging
 ```
 
 ## Next Steps

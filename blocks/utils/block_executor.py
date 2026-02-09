@@ -262,7 +262,7 @@ class BlockExecutor:
     
     def execute_persist_paths_block(self, block: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Execute a persist-paths block to save path variables to storage/paths.yaml.
+        Execute a persist-paths block to save path variables to parameters/paths.yaml.
         
         A persist-paths block contains:
         - persist-paths: Dictionary with key-value pairs
@@ -297,15 +297,15 @@ class BlockExecutor:
         print(Colors.colorize(f"Block: {name}", Colors.BOLD_CYAN))
         if description:
             print(Colors.colorize(f"Description: {description}", Colors.CYAN))
-        print(Colors.colorize(f"  Persisting {len(paths_config)} path(s) to storage/paths.yaml", Colors.MAGENTA))
+        print(Colors.colorize(f"  Persisting {len(paths_config)} path(s) to parameters/paths.yaml", Colors.MAGENTA))
         print(Colors.colorize(f"{'='*60}", Colors.BOLD_CYAN))
         
         start_time = datetime.now()
         
         try:
-            # Determine the storage directory path
-            storage_dir = Path(self.config_loader.storage_dir)
-            paths_file = storage_dir / 'paths.yaml'
+            # Determine the parameters directory path
+            parameters_dir = Path(self.config_loader.parameters_dir)
+            paths_file = parameters_dir / 'paths.yaml'
             
             # Load existing paths.yaml if it exists
             if paths_file.exists():
@@ -491,8 +491,8 @@ class BlockExecutor:
         status = "✓ SUCCESS" if success else "✗ FAILED"
         print(Colors.colorize(f"  Status: {status} (Duration: {duration:.2f}s)", status_color))
         
-        # Reload configurations from storage directory after each block execution
-        # This allows workflows to update storage YAMLs mid-execution
+        # Reload configurations from parameters directory after each block execution
+        # This allows workflows to update parameters YAMLs mid-execution
         self.config_loader.reload_configs()
         
         return result

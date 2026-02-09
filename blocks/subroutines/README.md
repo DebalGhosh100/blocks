@@ -25,14 +25,14 @@ This is a modified version of the main `run_blocks.sh` script that allows you to
 #### Basic Syntax
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/subroutines/run_blocks.sh | bash -s <temp_dir> <workflow_file> [storage_dir]
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/subroutines/run_blocks.sh | bash -s <temp_dir> <workflow_file> [parameters_dir]
 ```
 
 #### Parameters
 
 1. **`temp_dir`** (required) - Temporary directory for cloning the framework
 2. **`workflow_file`** (required) - Path to your workflow YAML file
-3. **`storage_dir`** (optional) - Path to configuration storage directory (default: `storage`)
+3. **`parameters_dir`** (optional) - Path to configuration parameters directory (default: `parameters`)
 
 ### Examples
 
@@ -45,7 +45,7 @@ curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/subroutine
 This will:
 - Clone the framework into `.my_temp/` directory
 - Execute `main.yaml` workflow
-- Use default `storage/` directory for configs
+- Use default `parameters/` directory for configs
 - Clean up `.my_temp/` after completion
 - Restore original `TEMP_DIR` and `WORKFLOW_FILE` environment variables
 

@@ -80,7 +80,7 @@ If all three commands display version information, you're ready to use Cocoon!
 
 ### Method 1: One-Command Execution (Recommended)
 
-If you already have `main.yaml` and a `storage/` directory with configuration files in your current directory, use this one-liner to clone, install, execute, and cleanup:
+If you already have `main.yaml` and a `parameters/` directory with configuration files in your current directory, use this one-liner to clone, install, execute, and cleanup:
 
 **Linux/Mac:**
 
@@ -114,7 +114,7 @@ chmod +x run_blocks.sh
 **What this does:**
 1. Clones the repository into a temporary `.blocks_temp` directory
 2. Installs Python dependencies from `requirements.txt`
-3. Executes your `main.yaml` workflow using configurations from your `storage/` directory
+3. Executes your `main.yaml` workflow using configurations from your `parameters/` directory
 4. Cleans up by deleting all framework files after execution completes
 
 
@@ -123,10 +123,10 @@ chmod +x run_blocks.sh
 ```
 your-project/
 ├── main.yaml           # Your workflow definition
-└── storage/            # Your configuration files
+└── parameters/            # Your configuration files
     ├── machines.yaml
     ├── servers.yaml
-    └── ... (other storage files)
+    └── ... (other parameters files)
 ```
 <img width="2448" height="944" alt="image" src="https://github.com/user-attachments/assets/928f05dc-bcd0-4440-b4ce-13af42371722" />
 
@@ -135,17 +135,17 @@ your-project/
 After running the one-liner, the framework will execute your workflow and then self-destruct, leaving only your original files and any generated logs.
 ### But there's a cooler way to do it !
 
-Create a git repo, push your main.yaml and other scripting logic into the repo **and treat your current working directory as the storage directory !**
+Create a git repo, push your main.yaml and other scripting logic into the repo **and treat your current working directory as the parameters directory !**
 
 **The [evaporate](https://github.com/DebalGhosh100/blocks/tree/evaporate) script handles the rest for you.**
 
 ---
 ## Quick Start
 
-### 1. Create a storage directory for configurations
+### 1. Create a parameters directory for configurations
 
 ```bash
-mkdir storage
+mkdir parameters
 ```
 
 ### 2. Create a simple workflow file (`hello.yaml`)
@@ -255,15 +255,15 @@ blocks:
 
 ## Configuration Management
 
-### Storage Directory
+### Parameters Directory
 
-Configuration files are stored in YAML files within the `storage/` directory (or custom directory specified with `--storage` flag).
+Configuration files are stored in YAML files within the `parameters/` directory (or custom directory specified with `--parameters` flag).
 
 ### Creating Configuration Files
 
-Create YAML files in `storage/` with nested key-value pairs:
+Create YAML files in `parameters/` with nested key-value pairs:
 
-**`storage/servers.yaml`:**
+**`parameters/servers.yaml`:**
 ```yaml
 web_server:
   host: "192.168.1.100"
@@ -280,7 +280,7 @@ database:
     password: "dbpass"
 ```
 
-**`storage/settings.yaml`:**
+**`parameters/settings.yaml`:**
 ```yaml
 app:
   name: "MyApplication"
@@ -304,12 +304,12 @@ Reference configuration values using `${path.to.value}` syntax:
 ${filename.key1.key2.key3}
 ```
 
-- `filename`: YAML filename in storage directory (without `.yaml` extension)
+- `filename`: YAML filename in parameters directory (without `.yaml` extension)
 - `key1.key2.key3`: Nested path to the value
 
 ### Examples
 
-Given `storage/servers.yaml`:
+Given `parameters/servers.yaml`:
 ```yaml
 web:
   ip: "10.0.0.50"
@@ -348,15 +348,15 @@ blocks:
 
 ### Persisting Paths Declaratively
 
-Nothing stops us from creating a **paths.yaml** file within the storage/ directory and dumping in key-value pairs intp the same manually
+Nothing stops us from creating a **paths.yaml** file within the parameters/ directory and dumping in key-value pairs intp the same manually
 
 **Traditional approach (verbose):**
 ```yaml
 blocks:
   - run: |
-      touch storage/paths.yaml
-      echo "project-dir: $(pwd)" > storage/paths.yaml
-      echo "home-dir: /home" >> storage/paths.yaml
+      touch parameters/paths.yaml
+      echo "project-dir: $(pwd)" > parameters/paths.yaml
+      echo "home-dir: /home" >> parameters/paths.yaml
 ```
 Instead, the **persist-paths** keyword can be used : 
 
@@ -372,7 +372,7 @@ blocks:
 **Key Features:**
 - **Shell Command Evaluation**: Use `$(command)` to dynamically evaluate shell commands
 - **Variable Interpolation**: Use `${config.key}` to reference existing configuration values
-- **Automatic Merging**: New paths are merged with existing `storage/paths.yaml` content
+- **Automatic Merging**: New paths are merged with existing `parameters/paths.yaml` content
 - **Config Reload**: Configuration automatically reloads after persistence for use in subsequent blocks
 - **Nested References**: Reference paths defined in earlier persist-paths blocks
 
@@ -393,14 +393,14 @@ blocks:
   - run: "echo 'Log entry' > ${paths.logs-dir}/app.log"
 ```
 
-The `persist-paths` block automatically creates `storage/paths.yaml` if it doesn't exist and merges your definitions with any existing content.
+The `persist-paths` block automatically creates `parameters/paths.yaml` if it doesn't exist and merges your definitions with any existing content.
 
 
 ## Loop Comprehension
 
 ### Syntax
 
-Use the `for:` keyword to iterate over lists defined in your storage configuration files:
+Use the `for:` keyword to iterate over lists defined in your parameters configuration files:
 
 ```yaml
 blocks:
@@ -411,12 +411,12 @@ blocks:
 ```
 
 - `individual`: Variable name for each item in the loop
-- `in`: Path to a list in your storage YAML files
+- `in`: Path to a list in your parameters YAML files
 - `run`: Command to execute for each iteration (can reference `${item-name}`)
 
 ### Simple Loop Example
 
-**storage/directories.yaml:**
+**parameters/directories.yaml:**
 ```yaml
 folders:
   - logs
@@ -437,7 +437,7 @@ blocks:
 
 ### Loop with Dictionary Items
 
-**storage/machines.yaml:**
+**parameters/machines.yaml:**
 ```yaml
 servers:
   - ip: "10.0.0.1"
@@ -575,14 +575,14 @@ This one-liner downloads and executes a shell script that performs the following
 1. **Download**: Fetches the execution script from GitHub
 2. **Clone**: Downloads framework into `.blocks_temp` directory
 3. **Install**: Installs Python dependencies (paramiko, pyyaml)
-4. **Execute**: Runs your workflow using your `main.yaml` and `storage/` configs
+4. **Execute**: Runs your workflow using your `main.yaml` and `parameters/` configs
 5. **Cleanup**: Deletes all framework files, leaving only your files and generated outputs
 
 ### What Gets Preserved
 
 After execution and cleanup:
 - ✅ Your `main.yaml` file
-- ✅ Your `storage/` directory with all configurations
+- ✅ Your `parameters/` directory with all configurations
 - ✅ Generated log files (e.g., `./logs/` directory)
 - ✅ Any outputs created by your workflow
 - ❌ Framework Python files (deleted)
@@ -620,7 +620,7 @@ Before running the one-command pattern, ensure:
 2. **Git** is installed: `git --version`
 3. **pip** is available: `pip3 --version`
 4. You have a **`main.yaml`** file in your current directory
-5. You have a **`storage/`** directory with configuration files
+5. You have a **`parameters/`** directory with configuration files
 
 ### Customization
 
@@ -631,7 +631,7 @@ You can customize the script execution for different scenarios:
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash -s ../my_workflow.yaml
 ```
 
-**Use different workflow and storage directory:**
+**Use different workflow and parameters directory:**
 ```bash
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/main/run_blocks.sh | bash -s ../my_workflow.yaml ../config
 ```
@@ -674,7 +674,7 @@ run-remotely:
 
 ### SSH in Workflows
 
-**`storage/machines.yaml`:**
+**`parameters/machines.yaml`:**
 ```yaml
 server1:
   ip: "192.168.1.10"
@@ -749,7 +749,7 @@ blocks:
 
 ### Example 1: System Setup Workflow
 
-**`storage/config.yaml`:**
+**`parameters/config.yaml`:**
 ```yaml
 packages:
   essential: "git curl wget vim"
@@ -772,7 +772,7 @@ blocks:
 
 ### Example 2: Multi-Server Deployment
 
-**`storage/servers.yaml`:**
+**`parameters/servers.yaml`:**
 ```yaml
 production:
   web1:
@@ -845,7 +845,7 @@ blocks:
 
 ### Example 3: Data Processing Pipeline
 
-**`storage/pipeline.yaml`:**
+**`parameters/pipeline.yaml`:**
 ```yaml
 sources:
   api_endpoint: "https://api.example.com/data"
@@ -891,7 +891,7 @@ blocks:
 
 ### Example 4: Testing & Validation
 
-**`storage/test_config.yaml`:**
+**`parameters/test_config.yaml`:**
 ```yaml
 test_servers:
   unit_test:
@@ -965,7 +965,7 @@ blocks:
 **Problem:** Command shows `${config.value}` instead of actual value
 
 **Solution:** 
-- Check that YAML file exists in `storage/` directory
+- Check that YAML file exists in `parameters/` directory
 - Verify the path is correct: `filename.key1.key2`
 - Ensure the YAML file has valid structure (no lists)
 

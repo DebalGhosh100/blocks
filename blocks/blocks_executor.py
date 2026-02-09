@@ -22,7 +22,7 @@ def main():
         epilog="""
 Examples:
   python blocks_executor.py main.yaml
-  python blocks_executor.py workflow.yaml --storage config
+  python blocks_executor.py workflow.yaml --parameters config
         """
     )
     
@@ -31,9 +31,9 @@ Examples:
         help='Path to workflow YAML file'
     )
     parser.add_argument(
-        '--storage',
-        default='storage',
-        help='Directory containing configuration YAML files (default: storage)'
+        '--parameters',
+        default='parameters',
+        help='Directory containing configuration YAML files (default: parameters)'
     )
     
     if len(sys.argv) == 1:
@@ -63,9 +63,9 @@ Examples:
     os.environ['PATH'] = f"{framework_dir}{os.pathsep}{current_path}"
     
     # Resolve paths to absolute before changing directory
-    # Storage path should be resolved from current directory, not workflow directory
+    # Parameters path should be resolved from current directory, not workflow directory
     workflow_path_absolute = workflow_path.resolve()
-    storage_path_absolute = Path(args.storage).resolve()
+    parameters_path_absolute = Path(args.parameters).resolve()
     
     # Change to the workflow directory so all relative paths work correctly
     original_cwd = Path.cwd()
@@ -76,8 +76,8 @@ Examples:
         with open(workflow_path_absolute, 'r', encoding='utf-8') as f:
             workflow_data = yaml.safe_load(f)
         
-        # Initialize config loader with absolute storage path
-        config_loader = ConfigLoader(str(storage_path_absolute))
+        # Initialize config loader with absolute parameters path
+        config_loader = ConfigLoader(str(parameters_path_absolute))
         
         # Initialize executor
         executor = BlockExecutor(config_loader)

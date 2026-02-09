@@ -1,5 +1,5 @@
 """
-Configuration Loader - Loads and manages configuration from storage directory
+Configuration Loader - Loads and manages configuration from parameters directory
 """
 
 import yaml
@@ -10,25 +10,25 @@ from .colors import Colors
 
 
 class ConfigLoader:
-    """Loads and manages configuration from storage directory"""
+    """Loads and manages configuration from parameters directory"""
     
-    def __init__(self, storage_dir: str = "storage"):
-        self.storage_dir = Path(storage_dir)
+    def __init__(self, parameters_dir: str = "parameters"):
+        self.parameters_dir = Path(parameters_dir)
         self.config = {}
         self._load_all_configs()
     
     def _load_all_configs(self):
-        """Load all YAML files from storage directory"""
-        if not self.storage_dir.exists():
-            print(Colors.colorize(f"Warning: Storage directory '{self.storage_dir}' not found", Colors.YELLOW))
+        """Load all YAML files from parameters directory"""
+        if not self.parameters_dir.exists():
+            print(Colors.colorize(f"Warning: Parameters directory '{self.parameters_dir}' not found", Colors.YELLOW))
             return
         
-        for yaml_file in self.storage_dir.glob("*.yaml"):
+        for yaml_file in self.parameters_dir.glob("*.yaml"):
             config_name = yaml_file.stem
             with open(yaml_file, 'r', encoding='utf-8') as f:
                 self.config[config_name] = yaml.safe_load(f)
         
-        for yml_file in self.storage_dir.glob("*.yml"):
+        for yml_file in self.parameters_dir.glob("*.yml"):
             config_name = yml_file.stem
             with open(yml_file, 'r', encoding='utf-8') as f:
                 self.config[config_name] = yaml.safe_load(f)
@@ -40,10 +40,10 @@ class ConfigLoader:
         """
         Recursively interpolate all variables within loaded config dictionaries.
         
-        This allows storage YAML files to reference other values within storage files
+        This allows parameters YAML files to reference other values within parameters files
         using ${config.path.to.value} syntax. For example:
         
-        In storage/config.yaml:
+        In parameters/config.yaml:
         STAR-trigger:
           linux-python-3-10: python3 /path/to/script.py
         
@@ -140,10 +140,10 @@ class ConfigLoader:
             return obj
     
     def reload_configs(self):
-        """Reload all YAML files from storage directory.
+        """Reload all YAML files from parameters directory.
         
         This method is called after each run block execution to pick up
-        any changes made to storage YAML files during workflow execution.
+        any changes made to parameters YAML files during workflow execution.
         This allows workflows to dynamically update configurations mid-execution.
         """
         self.config = {}  # Clear existing config
