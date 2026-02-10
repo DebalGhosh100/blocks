@@ -1,5 +1,0 @@
-# Placeholder config for parallel execution example
-
-settings:
-  note: "This example demonstrates parallel execution without variable interpolation"
-  parallel_tasks: 4
