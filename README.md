@@ -11,7 +11,7 @@ Cocoon Paraphrase is a powerful tooling utility that allows you to compress enti
 ### Install via curl
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/tooling/blocks/paraphrase/paraphrase.sh -o paraphrase.sh && chmod +x paraphrase.sh
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh -o paraphrase.sh && chmod +x paraphrase.sh
 ```
 
 ### Encode a Workflow Directory
@@ -67,7 +67,7 @@ You can now:
 ### Method 1: Direct Download (Recommended)
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/tooling/blocks/paraphrase/paraphrase.sh -o paraphrase.sh
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh -o paraphrase.sh
 chmod +x paraphrase.sh
 ```
 
@@ -75,14 +75,14 @@ chmod +x paraphrase.sh
 
 ```bash
 git clone -b paraphrase https://github.com/DebalGhosh100/blocks.git
-cd blocks/tooling/blocks/paraphrase
+cd blocks
 chmod +x paraphrase.sh
 ```
 
 ### Method 3: Add to PATH
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/tooling/blocks/paraphrase/paraphrase.sh -o ~/bin/cocoon-paraphrase
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh -o ~/bin/cocoon-paraphrase
 chmod +x ~/bin/cocoon-paraphrase
 export PATH="$HOME/bin:$PATH"
 ```
@@ -588,7 +588,7 @@ curl -sSL https://url-to-paraphrase.txt | base64 -d | bash
 
 ### Install Tool
 ```bash
-curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/tooling/blocks/paraphrase/paraphrase.sh -o paraphrase.sh && chmod +x paraphrase.sh
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh -o paraphrase.sh && chmod +x paraphrase.sh
 ```
 
 ---

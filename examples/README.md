@@ -10,7 +10,7 @@ The simplest possible Cocoon workflow.
 
 **Deploy:**
 ```bash
-curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/tooling/blocks/paraphrase/examples/hello-world.txt | base64 -d | bash
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/examples/hello-world.txt | base64 -d | bash
 ```
 
 **Or manually:**
@@ -29,7 +29,7 @@ A workflow with multiple sequential steps and a parameters directory.
 
 **Deploy:**
 ```bash
-curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/tooling/blocks/paraphrase/examples/basic-sequential.txt | base64 -d | bash
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/examples/basic-sequential.txt | base64 -d | bash
 ```
 
 **Or manually:**
@@ -54,7 +54,7 @@ echo "IyEvYmluL2Jhc2gKCiMgQ29jb29uIFdvcmtmbG93IFN0cnVjdHVyZSBTZXR1cCBTY3JpcHQKIy
 
 2. **Generate paraphrase:**
    ```bash
-   curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/tooling/blocks/paraphrase/paraphrase.sh | bash -s .
+   curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh | bash -s .
    ```
 
 3. **Save the output:**
@@ -83,7 +83,7 @@ Try the hello-world example right now:
 
 ```bash
 mkdir test-paraphrase && cd test-paraphrase
-curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/tooling/blocks/paraphrase/examples/hello-world.txt | base64 -d | bash
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/examples/hello-world.txt | base64 -d | bash
 ls -la
 cat main.yaml
 ```
