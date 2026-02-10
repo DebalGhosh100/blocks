@@ -8,20 +8,35 @@ Cocoon Paraphrase is a powerful tooling utility that allows you to compress enti
 
 ## 🚀 Quick Start
 
-### Install via curl
+### One-Command Usage (Recommended)
+
+**Encode your YAML directory without downloading:**
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh -o paraphrase.sh && chmod +x paraphrase.sh
+# Encode current directory
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh | bash -s .
+
+# Encode specific directory
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh | bash -s /path/to/yamls
 ```
 
-### Encode a Workflow Directory
+### Download and Use Locally
 
 ```bash
+# Download the script
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh -o paraphrase.sh && chmod +x paraphrase.sh
+
+# Encode directory
 ./paraphrase.sh /path/to/your/yaml/directory
 ```
 
 ### Decode and Execute
 
+```bash
+echo "YOUR_BASE64_HASH" | base64 -d | bash
+```
+
+**Example:**
 ```bash
 echo "IyEvYmluL2Jhc2gKCiMgQ29jb29uIFdvcmtmbG93IFN0cnVjdHVyZSBTZXR1cCBTY3JpcHQKIyBHZW5lcmF0ZWQgZnJvbSBDb2Nvb24gUGFyYXBocmFzZQoKc2V0IC1lICAjIEV4aXQgb24gYW55IGVycm9yCgplY2hvICJDcmVhdGluZyB3b3JrZmxvdyBzdHJ1Y3R1cmUuLi4iCmVjaG8gIiIKCmNhdCA+ICJtYWluLnlhbWwiIDw8ICdFT0YnCmJsb2NrczoKICAtIHJ1bjogJ2VjaG8gIkhlbGxvLCBDb2Nvb24hIicKRU9GCgplY2hvICIiCmVjaG8gIuKck+KAiCBXb3JrZmxvdyBzdHJ1Y3R1cmUgY3JlYXRlZCBzdWNjZXNzZnVsbHkhIgplY2hvICJSdW4gJ2NvY29vbiBtYWluLnlhbWwnIHRvIGV4ZWN1dGUgeW91ciB3b3JrZmxvdy4iCg==" | base64 -d | bash
 ```
@@ -64,14 +79,22 @@ You can now:
 
 ## 💾 Installation
 
-### Method 1: Direct Download (Recommended)
+### Method 1: One-Line Usage (No Installation Required)
+
+**Run directly without downloading:**
+
+```bash
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh | bash -s /path/to/yamls
+```
+
+### Method 2: Download Script Locally
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh -o paraphrase.sh
 chmod +x paraphrase.sh
 ```
 
-### Method 2: Clone Repository
+### Method 3: Clone Repository
 
 ```bash
 git clone -b paraphrase https://github.com/DebalGhosh100/blocks.git
@@ -79,7 +102,7 @@ cd blocks
 chmod +x paraphrase.sh
 ```
 
-### Method 3: Add to PATH
+### Method 4: Add to PATH
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh -o ~/bin/cocoon-paraphrase
@@ -571,8 +594,14 @@ This tool is part of the Cocoon framework. See the main repository for license i
 
 ## 🌟 Quick Reference
 
-### Encode Workflow
+### One-Command Encode (No Download Required)
 ```bash
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh | bash -s /path/to/yamls
+```
+
+### Download and Encode Locally
+```bash
+curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh -o paraphrase.sh && chmod +x paraphrase.sh
 ./paraphrase.sh /path/to/workflow
 ```
 
@@ -581,14 +610,9 @@ This tool is part of the Cocoon framework. See the main repository for license i
 echo "BASE64_STRING" | base64 -d | bash
 ```
 
-### Curl and Execute
+### Curl Paraphrase and Execute
 ```bash
 curl -sSL https://url-to-paraphrase.txt | base64 -d | bash
-```
-
-### Install Tool
-```bash
-curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/paraphrase/paraphrase.sh -o paraphrase.sh && chmod +x paraphrase.sh
 ```
 
 ---
