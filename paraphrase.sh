@@ -78,6 +78,8 @@ echo "$YAML_FILES" | while IFS= read -r file; do
     # Add file creation with heredoc
     echo "cat > \"$clean_path\" << 'EOF'" >> "$TEMP_SCRIPT"
     cat "$file" >> "$TEMP_SCRIPT"
+    # Ensure newline before EOF marker to prevent heredoc syntax errors
+    [ -n "$(tail -c 1 "$file")" ] && echo "" >> "$TEMP_SCRIPT"
     echo "EOF" >> "$TEMP_SCRIPT"
     
     echo -e "${GREEN}  ✓${NC} Encoded: $clean_path"
