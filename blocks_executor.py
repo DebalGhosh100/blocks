@@ -63,9 +63,9 @@ Examples:
     os.environ['PATH'] = f"{framework_dir}{os.pathsep}{current_path}"
     
     # Resolve paths to absolute before changing directory
-    # Storage path should be resolved from current directory, not workflow directory
+    # Parameters path should be resolved from current directory, not workflow directory
     workflow_path_absolute = workflow_path.resolve()
-    storage_path_absolute = Path(args.storage).resolve()
+    parameters_path_absolute = Path(args.parameters).resolve()
     
     # Change to the workflow directory so all relative paths work correctly
     original_cwd = Path.cwd()
