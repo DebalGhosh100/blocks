@@ -10,14 +10,23 @@ A shell script to clone a git repository, create a 'parameters' directory, copy 
 Run directly from the your current directory using curl:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/evaporate/evaporate.sh | bash -s -- <git_branch> <git_repo_url> [additional_files_to_remove...]
+curl -sSL \
+  https://raw.githubusercontent.com/DebalGhosh100/blocks/evaporate/evaporate.sh \
+| bash -s -- \
+  <git_branch> \
+  <git_repo_url> \
+  [additional_files_to_remove...]
 ```
 ### Way too messy, barely readable. 
 # 😮‍💨 
 ### Here's a quick alias:
 
 ```bash
-alias evaporate='curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/evaporate/evaporate.sh | bash -s --'
+
+alias evaporate='curl -sSL \
+  https://raw.githubusercontent.com/DebalGhosh100/blocks/evaporate/evaporate.sh \
+  | bash -s --'
+
 ```
 The Cocoon parser can be executed directly from the your current directory:
 ```bash
@@ -44,6 +53,7 @@ curl -sSL https://raw.githubusercontent.com/<owner>/<repo>/<branch>/evaporate.sh
 chmod +x evaporate.sh
 ./evaporate.sh <git_branch> <git_repo_url> [additional_files_to_remove...]
 ```
+
 
 
 
