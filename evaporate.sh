@@ -3,10 +3,10 @@
 # Script to clone a git repository, copy files, and run blocks
 # Usage: ./setup_and_run.sh <git_branch> <git_repo_url> [additional_files_to_remove...]
 
-alias evaporate-subroutine='curl -sSL \
-  https://raw.githubusercontent.com/DebalGhosh100/blocks/evaporate/subroutine/evaporate.sh \
-  | bash -s --'
-
+evaporate-subroutine() {
+  curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/evaporate/subroutine/evaporate.sh | \
+  bash -s -- "$@"
+}
 
 set -e
 
