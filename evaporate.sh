@@ -17,9 +17,10 @@
 #     https://github.com/intel-sandbox/yocto.qa-automation.git \
 #     .git .gitattributes README.md
 
-alias evaporate-subroutine='curl -sSL \
-  https://raw.githubusercontent.com/DebalGhosh100/blocks/evaporate/subroutine/evaporate.sh \
-  | bash -s --'
+evaporate-subroutine() {
+  curl -sSL https://raw.githubusercontent.com/DebalGhosh100/blocks/evaporate/subroutine/evaporate.sh | \
+  bash -s -- "$@"
+}
 
 set -e  # Exit on any error
 
