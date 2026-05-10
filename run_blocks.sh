@@ -24,9 +24,24 @@ YELLOW='\033[1;33m'
 GREEN='\033[1;32m'
 NC='\033[0m' # No Color
 
-echo -e "${CYAN}============================================${NC}"
-echo -e "${CYAN}Cocoon - One-Command Execution${NC}"
-echo -e "${CYAN}============================================${NC}"
+echo -e "${CYAN}"
+cat <<'COCOON_BANNER'
+    ____                              
+   / ___|___   ___ ___   ___  _ __    
+  | |   / _ \ / __/ _ \ / _ \| '_ \   
+  | |__| (_) | (_| (_) | (_) | | | |  
+   \____\___/ \___\___/ \___/|_| |_|  
+                                      
+            __.-""""-.__              
+          .'  \  ||  /  '.            
+         /    \\ || //    \           
+        ;     //=||=\\     ;          a YAML and a curl
+        |    // _||_ \\    |          is all it takes
+         \   `"`====`"`   /           
+          '.            .'            
+            '-........-'              
+COCOON_BANNER
+echo -e "${NC}"
 
 # Step 1: Clone repository
 echo -e "${YELLOW}[1/5] Cloning repository...${NC}"
