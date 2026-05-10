@@ -20,6 +20,7 @@ Architecture:
 
 import os
 import subprocess
+import shutil
 import threading
 from typing import Dict, Any, List, Tuple
 from datetime import datetime
@@ -29,6 +30,37 @@ from .process_executor import ProcessExecutor
 from .state_manager import StateManager
 from .remote_executor import RemoteExecutor
 from .loop_expander import LoopExpander
+
+
+def _banner_width() -> int:
+    """Width (columns) for #/= banner rules.
+
+    Tries, in order:
+      1. shutil.get_terminal_size() (works in real TTYs)
+      2. $COLUMNS environment variable
+      3. $COCOON_BANNER_WIDTH (override for non-TTY envs like Jenkins)
+      4. fallback of 80
+
+    Result is clamped to a minimum of 40 so banners always render.
+    """
+    cols = 0
+    try:
+        cols = shutil.get_terminal_size(fallback=(0, 0)).columns
+    except Exception:
+        cols = 0
+    if not cols:
+        try:
+            cols = int(os.environ.get('COLUMNS', '') or 0)
+        except ValueError:
+            cols = 0
+    if not cols:
+        try:
+            cols = int(os.environ.get('COCOON_BANNER_WIDTH', '') or 0)
+        except ValueError:
+            cols = 0
+    if not cols:
+        cols = 80
+    return max(cols, 40)
 
 
 # ============================================================================
@@ -206,7 +238,7 @@ class BlockExecutor:
         description = block.get('description', '')
         
         # Print block header
-        print(Colors.colorize(f"\n{'='*60}", Colors.BOLD_CYAN))
+        print(Colors.colorize(f"\n{'='*_banner_width()}", Colors.BOLD_CYAN))
         print(Colors.colorize(f"Block: {name}", Colors.BOLD_CYAN))
         if description:
             print(Colors.colorize(f"Description: {description}", Colors.CYAN))
@@ -214,7 +246,7 @@ class BlockExecutor:
         print(Colors.colorize(f"  Command: {command}", Colors.BLUE))
         if log_file:
             print(Colors.colorize(f"  Log File: {log_file}", Colors.YELLOW))
-        print(Colors.colorize(f"{'='*60}", Colors.BOLD_CYAN))
+        print(Colors.colorize(f"{'='*_banner_width()}", Colors.BOLD_CYAN))
         
         # Execute remote command using RemoteExecutor
         start_time = datetime.now()
@@ -293,12 +325,12 @@ class BlockExecutor:
         description = block.get('description', '')
         
         # Print block header
-        print(Colors.colorize(f"\n{'='*60}", Colors.BOLD_CYAN))
+        print(Colors.colorize(f"\n{'='*_banner_width()}", Colors.BOLD_CYAN))
         print(Colors.colorize(f"Block: {name}", Colors.BOLD_CYAN))
         if description:
             print(Colors.colorize(f"Description: {description}", Colors.CYAN))
         print(Colors.colorize(f"  Persisting {len(paths_config)} path(s) to parameters/paths.yaml", Colors.MAGENTA))
-        print(Colors.colorize(f"{'='*60}", Colors.BOLD_CYAN))
+        print(Colors.colorize(f"{'='*_banner_width()}", Colors.BOLD_CYAN))
         
         start_time = datetime.now()
         
@@ -461,12 +493,12 @@ class BlockExecutor:
         description = block.get('description', '')
         
         # Print block header
-        print(Colors.colorize(f"\n{'='*60}", Colors.BOLD_CYAN))
+        print(Colors.colorize(f"\n{'='*_banner_width()}", Colors.BOLD_CYAN))
         if name:
             print(Colors.colorize(f"Block: {name}", Colors.BOLD_CYAN))
         if description:
             print(Colors.colorize(f"Description: {description}", Colors.CYAN))
-        print(Colors.colorize(f"{'='*60}", Colors.BOLD_CYAN))
+        print(Colors.colorize(f"{'='*_banner_width()}", Colors.BOLD_CYAN))
         
         # Execute command and measure duration
         start_time = datetime.now()
@@ -569,10 +601,10 @@ class BlockExecutor:
             return True
         
         # Print workflow header
-        print(Colors.colorize(f"\n{'#'*60}", Colors.BOLD_MAGENTA))
+        print(Colors.colorize(f"\n{'#'*_banner_width()}", Colors.BOLD_MAGENTA))
         print(Colors.colorize(f"# WORKFLOW EXECUTION STARTED", Colors.BOLD_MAGENTA))
         print(Colors.colorize(f"# Total items: {len(blocks)}", Colors.BOLD_MAGENTA))
-        print(Colors.colorize(f"{'#'*60}", Colors.BOLD_MAGENTA))
+        print(Colors.colorize(f"{'#'*_banner_width()}", Colors.BOLD_MAGENTA))
         
         all_success = True
         
@@ -636,9 +668,9 @@ class BlockExecutor:
                 ))
         
         # Print workflow footer
-        print(Colors.colorize(f"\n{'#'*60}", Colors.BOLD_MAGENTA))
+        print(Colors.colorize(f"\n{'#'*_banner_width()}", Colors.BOLD_MAGENTA))
         print(Colors.colorize(f"# WORKFLOW EXECUTION COMPLETED", Colors.BOLD_MAGENTA))
-        print(Colors.colorize(f"{'#'*60}", Colors.BOLD_MAGENTA))
+        print(Colors.colorize(f"{'#'*_banner_width()}", Colors.BOLD_MAGENTA))
         
         # Print execution summary
         self._print_summary()
@@ -659,9 +691,9 @@ class BlockExecutor:
             return
         
         # Print summary header
-        print(Colors.colorize(f"\n{'='*60}", Colors.BOLD_CYAN))
+        print(Colors.colorize(f"\n{'='*_banner_width()}", Colors.BOLD_CYAN))
         print(Colors.colorize(f"EXECUTION SUMMARY", Colors.BOLD_CYAN))
-        print(Colors.colorize(f"{'='*60}", Colors.BOLD_CYAN))
+        print(Colors.colorize(f"{'='*_banner_width()}", Colors.BOLD_CYAN))
         
         # Calculate statistics
         total = len(self.results)
