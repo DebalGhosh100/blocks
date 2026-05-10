@@ -20,7 +20,6 @@ Architecture:
 
 import os
 import subprocess
-import shutil
 import threading
 from typing import Dict, Any, List, Tuple
 from datetime import datetime
@@ -30,37 +29,7 @@ from .process_executor import ProcessExecutor
 from .state_manager import StateManager
 from .remote_executor import RemoteExecutor
 from .loop_expander import LoopExpander
-
-
-def _banner_width() -> int:
-    """Width (columns) for #/= banner rules.
-
-    Tries, in order:
-      1. shutil.get_terminal_size() (works in real TTYs)
-      2. $COLUMNS environment variable
-      3. $COCOON_BANNER_WIDTH (override for non-TTY envs like Jenkins)
-      4. fallback of 80
-
-    Result is clamped to a minimum of 40 so banners always render.
-    """
-    cols = 0
-    try:
-        cols = shutil.get_terminal_size(fallback=(0, 0)).columns
-    except Exception:
-        cols = 0
-    if not cols:
-        try:
-            cols = int(os.environ.get('COLUMNS', '') or 0)
-        except ValueError:
-            cols = 0
-    if not cols:
-        try:
-            cols = int(os.environ.get('COCOON_BANNER_WIDTH', '') or 0)
-        except ValueError:
-            cols = 0
-    if not cols:
-        cols = 80
-    return max(cols, 40)
+from .banner import banner_width as _banner_width
 
 
 # ============================================================================
