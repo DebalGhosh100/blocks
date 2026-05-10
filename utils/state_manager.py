@@ -128,6 +128,12 @@ class StateManager:
         - declare -x VAR=value
         - export VAR="value"
         
+        To prevent envp from exceeding the kernel's ARG_MAX (causing
+        execve to fail with [Errno 7] Argument list too long on subsequent
+        blocks), this method skips a denylist of known-noisy bitbake/oe
+        internals, drops single values larger than _MAX_VAR_BYTES, and
+        enforces an overall environment-size budget _MAX_ENV_BYTES.
+        
         Args:
             export_output: Output from 'export -p' command
         """
@@ -142,8 +148,113 @@ class StateManager:
                 # Extract value from whichever capture group matched
                 var_value = match.group(2) or match.group(3) or match.group(4) or ''
                 
+                # Skip denylisted bitbake/oe internals that bloat envp
+                if self._is_denylisted_env_var(var_name):
+                    continue
+                
+                # Skip values that exceed the per-variable byte cap
+                if len(var_value.encode('utf-8', errors='replace')) > self._MAX_VAR_BYTES:
+                    if var_name not in self._oversized_warned:
+                        print(Colors.colorize(
+                            f"  [state_manager] dropping oversized env var "
+                            f"{var_name} ({len(var_value)} bytes > "
+                            f"{self._MAX_VAR_BYTES})",
+                            Colors.YELLOW
+                        ))
+                        self._oversized_warned.add(var_name)
+                    # Also remove any previously-stored value so it cannot
+                    # leak into the next subprocess.
+                    self.environment.pop(var_name, None)
+                    continue
+                
                 # Update our persistent environment
                 self.update_environment_variable(var_name, var_value)
+        
+        # Enforce overall env-size budget: if we are over budget, drop the
+        # largest non-baseline keys until we are back under it.
+        self._enforce_env_size_budget()
+    
+    # ------------------------------------------------------------------
+    # Env-bloat guards (prevent execve E2BIG)
+    # ------------------------------------------------------------------
+    
+    # Per-variable cap. 32 KiB is well below MAX_ARG_STRLEN (~128 KiB).
+    _MAX_VAR_BYTES = 32 * 1024
+    # Total envp budget. Linux ARG_MAX is ~2 MiB and must also fit argv;
+    # 1 MiB leaves comfortable headroom.
+    _MAX_ENV_BYTES = 1 * 1024 * 1024
+    
+    # Bitbake / OE internals that legitimately get re-exported on every
+    # block but must NEVER be carried across cocoon blocks. Keeping them
+    # is what causes envp to grow without bound.
+    _DENYLISTED_PREFIXES = (
+        'BB_ORIGENV',
+        'BB_HASHCONFIG',
+        'BB_INVALIDCONF',
+        'BB_BASEHASH',
+        'BB_TASKHASH',
+        'BB_SETSCENE',
+        'BB_RUNTASK',
+        'BB_CURRENT',
+        'BBPATH_EXTRA',
+        'BB_RUNFMT',
+    )
+    _DENYLISTED_EXACT = {
+        '_',                       # bash internal, useless to persist
+        'OLDPWD',                  # tracked separately
+        'SHLVL',                   # bash maintains this
+        'PIPESTATUS',
+    }
+    
+    # Track which oversized vars we've already warned about (avoid log spam).
+    _oversized_warned: set = set()
+    
+    def _is_denylisted_env_var(self, name: str) -> bool:
+        if name in self._DENYLISTED_EXACT:
+            return True
+        for prefix in self._DENYLISTED_PREFIXES:
+            if name.startswith(prefix):
+                return True
+        return False
+    
+    def _enforce_env_size_budget(self):
+        """If self.environment exceeds _MAX_ENV_BYTES, drop the largest
+        keys (excluding a small baseline) until back under budget."""
+        baseline = {
+            'PATH', 'HOME', 'USER', 'LOGNAME', 'SHELL', 'TERM',
+            'LANG', 'LC_ALL', 'PWD', 'TMPDIR'
+        }
+        
+        def total_size(env):
+            # Approximate envp size: sum of "KEY=VALUE\0" lengths.
+            return sum(len(k) + len(v) + 2 for k, v in env.items())
+        
+        size = total_size(self.environment)
+        if size <= self._MAX_ENV_BYTES:
+            return
+        
+        # Sort non-baseline keys by individual size descending and drop
+        # them until we are under budget.
+        candidates = sorted(
+            (
+                (k, len(k) + len(self.environment[k]) + 2)
+                for k in self.environment
+                if k not in baseline
+            ),
+            key=lambda kv: kv[1],
+            reverse=True,
+        )
+        
+        for key, ksz in candidates:
+            if size <= self._MAX_ENV_BYTES:
+                break
+            print(Colors.colorize(
+                f"  [state_manager] env-budget exceeded, dropping "
+                f"{key} ({ksz} bytes)",
+                Colors.YELLOW
+            ))
+            self.environment.pop(key, None)
+            size -= ksz
     
     def process_state_changes(
         self,
